@@ -1,0 +1,86 @@
+\documentclass{article}
+
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{graphicx}
+\usepackage{supertabular}
+\usepackage{multirow}
+\usepackage{ifthen}
+\usepackage{enumerate}
+
+% In case you need to adjust margins:
+\topmargin=-0.5in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in
+
+% Homework Specific Information
+\newcommand{\hmwkTitle}{Project Report 2}
+\newcommand{\hmwkDueDate}{March 17th, 2014}
+\newcommand{\hmwkClass}{42-731}
+\newcommand{\hmwkSection}{A}
+\newcommand{\hmwkAuthor}{Alex Sun Yoo, Michael Nye, Ozan Iskilibli}
+\newcommand{\hmwkEmail}{ayoo@andrew.cmu.edu, mnye@andrew.cmu.edu, oiskilib@andrew.cmu.edu}
+\newcommand{\hmwkCollaborators}{}
+\newcommand{\bigspace}{\vspace{.25in}}
+
+% Tools for formatting questions
+\newcommand{\question}[1] {\vspace{.25in} \hrule\vspace{0.5em}
+\noindent{\bf #1} \vspace{0.5em}
+\hrule \vspace{.10in}}
+\renewcommand{\part}[1] {\vspace{.10in} {\bf (#1)}}
+
+% Setup the header and footer
+\pagestyle{fancyplain}
+\lhead{\fancyplain{}{\hmwkAuthor \\ \hmwkEmail}}
+\chead{\fancyplain{}{\textbf{\hmwkTitle}}}
+\rhead{\fancyplain{}{\hmwkClass\hmwkSection \\ Due:\ \hmwkDueDate} }
+\lfoot{}
+\cfoot{}
+\rfoot{Page\ \thepage\ of\ \pageref{LastPage}}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+% Format paragraphs to have spacing instead of indents
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt plus 1pt}
+
+% This is used to trace down (pin point) problems
+% in latexing a document:
+%\tracingall
+
+\renewcommand{\arraystretch}{1.5}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\thispagestyle{plain}
+\begin{center}
+{\Large \hmwkClass\ \hmwkTitle} \\
+\hmwkAuthor \\
+\hmwkEmail \\
+\ifthenelse{\equal{\hmwkCollaborators}{}}{}{Collaborators: \hmwkCollaborators\\}
+\ifthenelse{\equal{\hmwkSection}{}}{}{Section \hmwkSection\\}
+Due: \hmwkDueDate\\
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\question{Part 1: Particle Feature Detection}
+
+
+
+
+\pagebreak
+\question{Part 2: Sub-pixel Resolution Particle Detection}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

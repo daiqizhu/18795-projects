@@ -8,7 +8,7 @@
 %
 
 % Define constants
-maskSize = 3;
+maskSize = 5;
 plotting = true;
 
 % Load our image files
@@ -48,13 +48,29 @@ for ii = 1:numel(images)
     images(ii).minima = minima; %#ok
 end
 
-% Display an arbitrary example
+% Display extrema of an arbitrary example
 if plotting
     image = images(ceil(numel(images)/2));
     
-    figure, hold on;
-    imshow(image.data);
+    figure;
+    imshow(image.data); hold on;
     scatter(images.minima(:,2), images.minima(:,1), 'g.');
     scatter(images.maxima(:,2), images.maxima(:,1), 'rx');
-    legend('Minima', 'Maxima'); title('Raw extrema in image');
+    legend('Minima', 'Maxima');
+    title(sprintf('Raw extrema in image with %dx%d mask',maskSize,maskSize));
 end
+
+
+
+%% B.2.3 Establishing the local association of maxima and minima
+
+% For each image, calculate delaunay triangulation
+for ii = 1:numel(images)
+    % Not sure if we do delaunay triangulation with combined minima+maxima?
+    delaunay_tri = delaunay([images(ii).minima(:,2) ; images(ii).maxima(:,2)],...
+        [images(ii).minima(:,1) ; images(ii).maxima(:,1)]);
+    images(ii).delaunay = delaunay_tri;
+end
+
+%% Part B.2.4 Statistical selection of local maxima
+

@@ -1,5 +1,7 @@
 function [noiseMean, noiseStd] = calibrateBackground(img)
 %
+% Used for Part B.2.1 - Calibration of dark noise
+%
 % calibrateBackground: finds the mean and standard deviation of background
 %                      noise in an image. Asks the user to manually box a
 %                      region of background.

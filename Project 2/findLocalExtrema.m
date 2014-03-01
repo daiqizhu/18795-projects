@@ -1,5 +1,7 @@
 function [maxima, minima] = findLocalExtrema(img, maskSize, sigma)
 %
+% Used for Part B.2.2 Detection of local maxima and minima
+%
 % findLocalExtrema: finds all the maxima and minima in a given image
 %
 % Inputs:  img      - an image matrix
