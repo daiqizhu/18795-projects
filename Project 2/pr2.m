@@ -1,15 +1,19 @@
 %
-% 18-795 Project 2, Part 1
+% 18-795 Project 2
 % Alex Sun Yoo (ayoo), Michael Nye (mnye), Ozan Iskilibli (oiskilib)
 % Spring, 2014
 %
-% This file should run the demo for Part 1 by calling functions to perform
-% each action and displaying results between steps
+% This file should run the demo for project 2 by calling functions to 
+% perform each action and displaying results between steps
 %
 
 % Define constants
-maskSize = 5;
+maskSize = 3;
 plotting = true;
+
+% Rayleigh limit
+rayleighM = 0.61 * 527e-9 / 1.4; % .61*lambda/NA, in m
+rayleigh  = rayleighM / 65e-9; % convert to pixels
 
 % Load our image files
 disp 'Loading image files...'
@@ -37,9 +41,8 @@ img = images(ceil(numel(images)/2)).data;
 %% B.2.2 Detection of local maxima and local minima
 disp 'Detecting minima and maxima...'
 
-% First compute the sigma based on the numerical aperature
-sigmaM = 0.61 * 527e-9 / 1.4; % .61*lambda/NA, in m
-sigma  = sigmaM / 65e-9; % convert to pixels by dividing by pixel size
+% First compute the sigma based on the rayleigh limit
+sigma = rayleigh/3;
 
 % For each image, find the extrema and store it
 for ii = 1:numel(images)
@@ -61,16 +64,37 @@ if plotting
 end
 
 
-
 %% B.2.3 Establishing the local association of maxima and minima
+disp 'Association maxima and minima...'
 
 % For each image, calculate delaunay triangulation
 for ii = 1:numel(images)
-    % Not sure if we do delaunay triangulation with combined minima+maxima?
+    % Create triangles from the minima
     delaunay_tri = delaunay([images(ii).minima(:,2) ; images(ii).maxima(:,2)],...
         [images(ii).minima(:,1) ; images(ii).maxima(:,1)]);
-    images(ii).delaunay = delaunay_tri;
+    images(ii).delaunay = delaunay_tri; %#ok
 end
 
-%% Part B.2.4 Statistical selection of local maxima
 
+%% Part B.2.4 Statistical selection of local maxima
+% TODO
+
+
+%% Part B.3.1 Generating Synthetic Images
+disp 'Generating synthetic image...'
+
+% Use first image
+% TODO: make sure this uses the maxima found in part B.2.4, NOT in B.2.2
+sigma = rayleigh*2/3;
+syntheticImage = generateSyntheticImage(images(1), sigma, ...
+    noiseMean, noiseStd);
+
+figure;
+subplot(2,1,1), imagesc(syntheticImage), title('Synthetic image');
+colormap gray, axis image;
+subplot(2,1,2), imagesc(images(1).data), title('Actual image');
+colormap gray, axis image;
+
+
+%% Part B.3.2 Sub pixel resolution detection using oversampling
+% TODO
