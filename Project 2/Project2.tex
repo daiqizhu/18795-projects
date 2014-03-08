@@ -23,7 +23,7 @@
 \newcommand{\hmwkClass}{42-731}
 \newcommand{\hmwkSection}{A}
 \newcommand{\hmwkAuthor}{Alex Sun Yoo, Michael Nye, Ozan Iskilibli}
-\newcommand{\hmwkEmail}{ayoo@andrew.cmu.edu, mnye@andrew.cmu.edu, oiskilib@andrew.cmu.edu}
+\newcommand{\hmwkEmail}{ayoo, mnye, oiskilib}
 \newcommand{\hmwkCollaborators}{}
 \newcommand{\bigspace}{\vspace{.25in}}
 
@@ -71,11 +71,48 @@ Due: \hmwkDueDate\\
 
 \question{Part 1: Particle Feature Detection}
 
+\textbf{B.2.1}
+
+\textbf{B.2.2}
+
+Using a 5x5 mask detects noticeably fewer local extrema than using a 3x3 mask, as shown in Figures ~\ref{fig:extrema_3}
+and ~\ref{fig:extrema_5}. This is because with a larger mask, the tested point is compared with a larger area of neighboring
+points, reducings its chances of being classified as a local extrema.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{extrema_mask_3.png}
+\caption{Local Extrema (3x3 mask)}
+\label{fig:extrema_3}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{extrema_mask_5.png}
+\caption{Local Extrema (5x5 mask)}
+\label{fig:extrema_5}
+\end{figure}
+
+
+
+\textbf{B.2.3}
+
+
+\textbf{B.2.4}
+
 
 
 
 \pagebreak
 \question{Part 2: Sub-pixel Resolution Particle Detection}
+
+
+
+\textbf{B.3.1}
+
+
+\textbf{B.3.2}
+
 
 
 

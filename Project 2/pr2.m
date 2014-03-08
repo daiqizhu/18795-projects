@@ -97,4 +97,24 @@ colormap gray, axis image;
 
 
 %% Part B.3.2 Sub pixel resolution detection using oversampling
-% TODO
+% TODO - Create Gaussian Kernel and do the detection
+%
+% Gaussian Kernel stuff is on Lectures 11 and 12 (same content)
+
+% Scale to oversample by.
+oversample_pixel = 13e-9;
+oversample_scale = 65e-9 / oversample_pixel;
+
+% Sub-pixel particle detection using Gaussian Kernel Fitting Algorithm
+% on each image in the sequence
+for ii = 1:numel(images)
+    
+    % Oversample current image via interpolation
+    interpolated_image = interpolateImage(image.data,oversample_scale);
+    
+    % Create the 2D Gaussian kernel
+    
+    
+    
+    
+end
