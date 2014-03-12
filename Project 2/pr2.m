@@ -65,15 +65,31 @@ end
 
 
 %% B.2.3 Establishing the local association of maxima and minima
-disp 'Association maxima and minima...'
+disp 'Associating maximas to minimas using Delaunay Triangulation...'
 
 % For each image, calculate delaunay triangulation
 for ii = 1:numel(images)
-    % Create triangles from the minima
-    delaunay_tri = delaunay([images(ii).minima(:,2) ; images(ii).maxima(:,2)],...
-        [images(ii).minima(:,1) ; images(ii).maxima(:,1)]);
-    images(ii).delaunay = delaunay_tri; %#ok
+    [images(ii).associated visual] = assocLocalExt(images(ii));
 end
+
+if plotting
+    imageIndex = ceil(numel(images)/2);
+    image = images(imageIndex);
+    tmp = size(image.associated.triAddr,2);
+    tmpLocalMax = [];
+    for ii = 1:tmp;
+        tmpLocalMax = [tmpLocalMax; images.associated.LocalMaxAddr{ii}];
+    end
+   
+    figure;
+    imshow(image.data); hold on;
+    triplot(visual, 'b');
+    scatter(tmpLocalMax(:,2), tmpLocalMax(:,1), 'rx');
+    legend('Delaunay Triangles', 'Associated local maxima');
+    title('Delaunay Triangulation');
+    
+end
+clear visual imageIndex image tmp tmpLocalmax;
 
 
 %% Part B.2.4 Statistical selection of local maxima
@@ -110,7 +126,7 @@ oversample_scale = 65e-9 / oversample_pixel;
 for ii = 1:numel(images)
     
     % Oversample current image via interpolation
-    interpolated_image = interpolateImage(image.data,oversample_scale);
+    interpolated_image = interpolateImage(images(ii).data,oversample_scale);
     
     % Create the 2D Gaussian kernel
     
