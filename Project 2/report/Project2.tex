@@ -9,6 +9,7 @@
 \usepackage{ifthen}
 \usepackage{enumerate}
 \usepackage[hidelinks]{hyperref}
+\usepackage{soul}
 
 % In case you need to adjust margins:
 \topmargin=-0.5in
@@ -22,7 +23,6 @@
 \newcommand{\hmwkTitle}{Project Report 2}
 \newcommand{\hmwkDueDate}{March 17th, 2014}
 \newcommand{\hmwkClass}{42-731}
-\newcommand{\hmwkSection}{A}
 \newcommand{\hmwkAuthor}{Alex Sun Yoo, Michael Nye, Ozan Iskilibli}
 \newcommand{\hmwkEmail}{ayoo, mnye, oiskilib}
 \newcommand{\hmwkCollaborators}{}
@@ -38,7 +38,7 @@
 \pagestyle{fancyplain}
 \lhead{\fancyplain{}{\hmwkAuthor \\ \hmwkEmail}}
 \chead{\fancyplain{}{\textbf{\hmwkTitle}}}
-\rhead{\fancyplain{}{\hmwkClass\hmwkSection \\ Due:\ \hmwkDueDate} }
+\rhead{\fancyplain{}{\hmwkClass\hmwkSection \\ Due:\ \hmwkDueDate}}
 \lfoot{}
 \cfoot{}
 \rfoot{Page\ \thepage\ of\ \pageref{LastPage}}
@@ -74,11 +74,21 @@ Due: \hmwkDueDate\\
 
 \textbf{B.2.1}
 
+When running the script, a rectangle is manually selected by the user. It is
+assumed to contain only background, and simple statistics are calculated.
+
 \textbf{B.2.2}
 
-Using a 5x5 mask detects noticeably fewer local extrema than using a 3x3 mask, as shown in Figures ~\ref{fig:extrema_3}
-and ~\ref{fig:extrema_5}. This is because with a larger mask, the tested point is compared with a larger area of neighboring
-points, reducings its chances of being classified as a local extrema.
+Using a 5x5 mask detects noticeably fewer local extrema than using a 3x3 mask,
+as shown in Figures ~\ref{fig:extrema_3} and ~\ref{fig:extrema_5}. This is
+because with a larger mask, the tested point is compared with a larger area of
+neighboring points, reducing its chances of being classified as a local
+extrema.
+
+The minima that are detected in one and not the other appear mostly in the
+background region of the image, and not in the strip of particles we are
+actually attempting to locate. This suggests the larger mask is better at
+rejecting false positives.
 
 \begin{figure}[h]
 \centering
@@ -98,14 +108,14 @@ points, reducings its chances of being classified as a local extrema.
 
 \textbf{B.2.3}
 
-Detected local maximas and minimas in part B.2.2 is further processed by Delaunay Triangulation\footnote{Wikipedia -- Delaunay triangulation \url{http://en.wikipedia.org/wiki/Delaunay_triangulation}}\footnote{Mathworks -- Delaunay triangulation \url{http://www.mathworks.com/help/matlab/ref/delaunay.html}} as the next step. Delaunay Triangulation is method, that creates sets of triangles from given data points, whose circumcircles do not contain any vertices of neighboring triangles. In addition, this method targets to maximize the smallest angle in each created triangle. If the local minimas are triangulated, then the local maximas could be assigned to each triangle evidently. eliminating some of the local maximas further. That is to say, if a Delaunay Triangle of local minimas contain more than 1 local maxima, only the local maxima that has the highest intensity is accepted and rest is assumed artifacts.
+Detected local maxima and minima in part B.2.2 is further processed by Delaunay Triangulation\cite{delaunaywiki}\cite{delaunaymathworks} as the next step. Delaunay Triangulation is method, that creates sets of triangles from given data points, whose circumcircles do not contain any vertices of neighboring triangles. In addition, this method targets to maximize the smallest angle in each created triangle. If the local minima are triangulated, then the local maxima could be assigned to each triangle evidently, eliminating some of the local maxima further. That is to say, if a Delaunay Triangle of local minima contain more than 1 local maxima, only the local maxima that has the highest intensity is accepted and rest is assumed artifacts.
 
-When iimplementing this part, the \emph{DelaunayTri} class is used, as it was a built-in function in MATLAB. After that, the maximas that fall into each triangle are found. For this purpose, the matrix of local maximas and each minima triangle are swept with \emph{inpolygon}, which was also already available in MATLAB. This function returns the maximas that are inside or on top of the triangle vertices. Finally, among the found local maximas, the one with the highest intensity is stored as the \emph{associated local maxima} for each triangle. The triangles and their associated local maxima are shown in figure \ref{fig:assocLocal}.
+When implementing this part, the \emph{DelaunayTri} class is used, as it was a built-in function in MATLAB. After that, the maxima that fall into each triangle are found. For this purpose, the matrix of local maxima and each minima triangle are swept with \emph{inpolygon}, also already available in MATLAB. This function returns the maxima that are inside or on top of the triangle vertices. Finally, among the found local maxima, the one with the highest intensity is stored as the \emph{associated local maxima} for each triangle. The triangles and their associated local maxima are shown in Figure \ref{fig:assocLocal}.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=16cm]{figures/assocLocalExtrema.png}
-\caption{Associated local minimas and maximas, where the minimas are located at Delaunay Triangle corners and maximas are tagged with red crosses.}
+\caption{Associated local minima and maxima, where the minima are located at Delaunay Triangle corners and maxima are tagged with red crosses.}
 \label{fig:assocLocal}
 \end{figure}
 
@@ -119,14 +129,50 @@ When iimplementing this part, the \emph{DelaunayTri} class is used, as it was a 
 \pagebreak
 \question{Part 2: Sub-pixel Resolution Particle Detection}
 
-
-
 \textbf{B.3.1}
+
+Synthetic image generation is largely similar to the process used by Cheezum et al.\cite{cheezum}. First, a list of maxima are used to generate single pixel impulses. The intensity of these impulses is set to the intensity of the original image at the locations of the maxima. The image is then filtered using a Gaussian kernel to simulate the main lobe of our point spread function, and Gaussian white noise is added on top of the image.
+
+The levels of our white noise was chosen based on the computed background statistics from part B.2.1. The results of this process can be seen in Figure \ref{fig:syntheticImage}; it closely resembles the actual image it was generated from.
+
+\begin{figure}[h]
+\centering
+% TODO: replace this with a sample synthetic image
+%\includegraphics[width=16cm]{figures/assocLocalExtrema.png}
+\caption{A sample synthetic image, and the original image it was generated from}
+\label{fig:syntheticImage}
+\end{figure}
 
 
 \textbf{B.3.2}
 
 
+
+\pagebreak
+\begin{thebibliography}{9}
+\fontsize{10pt}{12pt}\selectfont
+\raggedright
+
+    \bibitem{ponti}
+        A. Ponti, P. Vallotton, W. C. Salmon, C. M. Waterman-Storer, and G.
+        Danuser, \ul{Computational analysis of F-actin turnover in cortical
+        actin meshworks using fluorescent speckle microscopy}, {\em Biophysical
+        Journal}, 84:3336-3352, 2003.
+
+    \bibitem{cheezum}
+        M. K. Cheezum, W. F. Walker, and W. H. Guilford, 
+        \ul{Quantitative comparison of algorithms for tracking single 
+        fluororescent particles}, {\em Biophysical Journal}, 81:2378- 2388, 2001.
+
+    \bibitem{delaunaywiki}
+        Wikipedia -- Delaunay triangulation
+        \url{http://en.wikipedia.org/wiki/Delaunay_triangulation}
+    
+    \bibitem{delaunaymathworks}
+        Mathworks -- Delaunay triangulation
+        \url{http://www.mathworks.com/help/matlab/ref/delaunay.html}
+
+\end{thebibliography}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
