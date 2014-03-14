@@ -17,13 +17,13 @@ rayleigh  = rayleighM / 65e-9; % convert to pixels
 
 % Load our image files
 disp 'Loading image files...'
-imageFiles = dir('images/*.tif');
+imageFiles = dir('../images/*.tif');
 images = [];
 
 % For testing purposes, only load first image
 for ii = 1:1 %numel(imageFiles)
     image.name = imageFiles(ii).name;
-    img = im2double(imread(['images/' image.name]));
+    img = im2double(imread(['../images/' image.name]));
     image.data = img / max(max(img));
     images = [images; image]; %#ok
 end
