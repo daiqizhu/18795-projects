@@ -8,6 +8,7 @@
 \usepackage{multirow}
 \usepackage{ifthen}
 \usepackage{enumerate}
+\usepackage[hidelinks]{hyperref}
 
 % In case you need to adjust margins:
 \topmargin=-0.5in
@@ -81,14 +82,14 @@ points, reducings its chances of being classified as a local extrema.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=12cm]{extrema_mask_3.png}
+\includegraphics[width=16cm]{figures/extrema_mask_3.png}
 \caption{Local Extrema (3x3 mask)}
 \label{fig:extrema_3}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=12cm]{extrema_mask_5.png}
+\includegraphics[width=16cm]{figures/extrema_mask_5.png}
 \caption{Local Extrema (5x5 mask)}
 \label{fig:extrema_5}
 \end{figure}
@@ -96,6 +97,18 @@ points, reducings its chances of being classified as a local extrema.
 
 
 \textbf{B.2.3}
+
+Detected local maximas and minimas in part B.2.2 is further processed by Delaunay Triangulation\footnote{Wikipedia -- Delaunay triangulation \url{http://en.wikipedia.org/wiki/Delaunay_triangulation}}\footnote{Mathworks -- Delaunay triangulation \url{http://www.mathworks.com/help/matlab/ref/delaunay.html}} as the next step. Delaunay Triangulation is method, that creates sets of triangles from given data points, whose circumcircles do not contain any vertices of neighboring triangles. In addition, this method targets to maximize the smallest angle in each created triangle. If the local minimas are triangulated, then the local maximas could be assigned to each triangle evidently. eliminating some of the local maximas further. That is to say, if a Delaunay Triangle of local minimas contain more than 1 local maxima, only the local maxima that has the highest intensity is accepted and rest is assumed artifacts.
+
+When iimplementing this part, the \emph{DelaunayTri} class is used, as it was a built-in function in MATLAB. After that, the maximas that fall into each triangle are found. For this purpose, the matrix of local maximas and each minima triangle are swept with \emph{inpolygon}, which was also already available in MATLAB. This function returns the maximas that are inside or on top of the triangle vertices. Finally, among the found local maximas, the one with the highest intensity is stored as the \emph{associated local maxima} for each triangle. The triangles and their associated local maxima are shown in figure \ref{fig:assocLocal}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=16cm]{figures/assocLocalExtrema.png}
+\caption{Associated local minimas and maximas, where the minimas are located at Delaunay Triangle corners and maximas are tagged with red crosses.}
+\label{fig:assocLocal}
+\end{figure}
+
 
 
 \textbf{B.2.4}
