@@ -34,7 +34,7 @@ disp 'Calibrating noise...'
 
 % Manually crop a portion of background noise and determine its statistics.
 % Choose an arbitrary image for this
-img = images(ceil(numel(images)/2)).data;
+img = images(1).data;
 [noiseMean, noiseStd] = calibrateBackground(img);
 
 
@@ -53,7 +53,7 @@ end
 
 % Display extrema of an arbitrary example
 if plotting
-    image = images(ceil(numel(images)/2));
+    image = images(1);
     
     figure;
     imshow(image.data); hold on;
@@ -69,7 +69,7 @@ disp 'Associating maximas to minimas using Delaunay Triangulation...'
 
 % For each image, calculate delaunay triangulation
 for ii = 1:numel(images)
-    [images(ii).associated visual] = assocLocalExt(images(ii));
+    [images(ii).associated visual] = assocLocalExt(images(ii)); %#ok
 end
 
 if plotting
@@ -78,7 +78,7 @@ if plotting
     tmp = size(image.associated.triAddr,2);
     tmpLocalMax = [];
     for ii = 1:tmp;
-        tmpLocalMax = [tmpLocalMax; images.associated.LocalMaxAddr{ii}];
+        tmpLocalMax = [tmpLocalMax; images.associated.LocalMaxAddr{ii}]; %#ok
     end
    
     figure;
@@ -134,3 +134,37 @@ for ii = 1:numel(images)
     
     
 end
+
+
+%% Part B.3.3 Benchmarking subpixel resolution particle detection
+disp 'Benchmarking subpixel performance using synthetic image...'
+
+% First perform subpixel detection on the synthetic image
+% TODO: plug in code
+syntheticMaxima = [];
+
+% For each maxima, find its nearest maxima and compute the error distance
+% TODO: modify this to search for the maxima found in B.2.4
+errors = [];
+image = images(1);
+for ii = 1:size(syntheticMaxima,1)
+    maximum = syntheticMaxima(ii,:);
+    
+    lowestDistance = Inf;
+    for jj = 1:size(image.maxima,1)
+        
+        distance = norm(image.maxima(jj,:) - maximum);
+        if distance < lowestDistance
+            lowestDistance = distance;
+        end
+    end
+    
+    errors = [errors lowestDistance]; %#ok append
+end
+
+% Compute the statistics and display
+errorMean = mean(errors);
+errorStd = std(errors);
+
+disp(['    Subpixel detection had an average error of: ' num2str(errorMean)]);
+disp(['    and a standard deviation of: ' num2str(errorStd)]);
