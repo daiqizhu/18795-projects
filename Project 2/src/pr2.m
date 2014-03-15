@@ -138,8 +138,8 @@ clear Quantile image tmpPath tmpData;
 %% Part B.3.1 Generating Synthetic Images
 disp 'Generating synthetic image...'
 
-% Use first image
-sigma = rayleigh*2/3;
+% Use first image - divide by two for radius
+sigma = rayleigh/2;
 syntheticImage = generateSyntheticImage(images(1), sigma, ...
     noiseMean, noiseStd);
 
@@ -166,7 +166,7 @@ end
 
 % Show the particles on the image
 if plotting
-    figure; subplot(2,1,1); hold on;
+    figure; hold on;
     imshow(images(ii).data);
     scatter(images(1).subpixelMaxima(:,2),...
         images(1).subpixelMaxima(:,1), 'rx');
@@ -189,21 +189,23 @@ image = images(1);
 for ii = 1:size(syntheticMaxima,1)
     maximum = syntheticMaxima(ii,:);
     
+    lowestError = [Inf Inf];
     lowestDistance = Inf;
     for jj = 1:size(image.maxima,1)
-        
-        distance = norm(image.maxima(jj,:) - maximum);
+        error = maximum - image.maxima(jj,:);
+        distance = norm(error);
         if distance < lowestDistance
+            lowestError = error;
             lowestDistance = distance;
         end
     end
     
-    errors = [errors lowestDistance]; %#ok append
+    errors = [errors; lowestError]; %#ok append
 end
 
 % Show the particles on the image
 if plotting
-    subplot(2,1,2); hold on;
+    figure; hold on;
     imshow(syntheticImage);
     scatter(syntheticMaxima(:,2), syntheticMaxima(:,1), 'rx');
     title('Subpixel Detection using Gaussian Fit, synthetic data')
@@ -214,7 +216,9 @@ end
 errorMean = mean(errors);
 errorStd = std(errors);
 
-disp(['    Subpixel detection had an average error of: ' num2str(errorMean)]);
-disp(['    and a standard deviation of: ' num2str(errorStd)]);
+disp(['    Subpixel detection had an average (y,x) error of:  ' ...
+    num2str(errorMean)]);
+disp(['    and a (y,x) standard deviation of:                 ' ...
+    num2str(errorStd)]);
 
 %clear synthetic errors image maximum lowestDistance distance;

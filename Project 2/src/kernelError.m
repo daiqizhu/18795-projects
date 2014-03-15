@@ -17,10 +17,10 @@ x_min = x; x_max = x+size(kernel,2)-1;
 y_min = y; y_max = y+size(kernel,1)-1;
 
 % Determine bounds of the image to extract the subimage for fitting
-x_min = x_min - floor(size(kernel,2)/2);
-x_max = x_max - floor(size(kernel,2)/2);
-y_min = y_min - floor(size(kernel,1)/2);
-y_max = y_max - floor(size(kernel,1)/2);
+x_min = x_min - ceil(size(kernel,2)/2);
+x_max = x_max - ceil(size(kernel,2)/2);
+y_min = y_min - ceil(size(kernel,1)/2);
+y_max = y_max - ceil(size(kernel,1)/2);
 
 % kernel_fit will be shaped appropriately to deal with edge cases
 % otherwise it is just the same as kernel

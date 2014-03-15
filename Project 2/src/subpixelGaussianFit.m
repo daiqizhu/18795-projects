@@ -32,8 +32,8 @@ for m = 1:max_num
     % Iterate through each pixel in a box around current_maxima
     for i = -oversample:oversample
         for j = -oversample:oversample
-            center_point = round([(current_maxima(1)-.5)*oversample + i, ...
-                (current_maxima(2)-.5)*oversample + j]);
+            center_point = round([(current_maxima(1)-1)*oversample+1 + i, ...
+                (current_maxima(2)-1)*oversample+1 + j]);
             center_value = interpolated_image(center_point(1), ...
                 center_point(2));
             

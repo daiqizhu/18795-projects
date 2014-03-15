@@ -24,7 +24,9 @@ for ii = 1:size(image.maxima,1)
 end
 
 % Convolve with a point spread gaussian function
-kernel = fspecial('gaussian', round([6*sigma+1 6*sigma+1]), sigma);
+r = ceil(6*sigma);
+r = r + (mod(r,2) == 0)*1; % round to odd
+kernel = fspecial('gaussian', [r r], sigma);
 kernel = kernel/max(max(kernel));
 output = filter2(kernel, output);
 
