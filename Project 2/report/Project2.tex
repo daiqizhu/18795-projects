@@ -121,7 +121,46 @@ When implementing this part, the \emph{DelaunayTri} class is used, as it was a b
 
 
 \textbf{B.2.4}
+ 
+The associated maxima found by Delaunay Triangulation method previously are further investigated in this part, in order to quantify a level of confidence for the detected particles. The question allowed to remove the speckle intensity variation term ($\sigma^2(I_L)$) in equation (4) of reference \cite{ponti}, as well as assuming that the local minima intensities' mean and variance match the cropped region's intensity mean and variance in Part B.2.1. Thanks to these simplifications, the task here reduces to comparison of background to the detected speckle in terms of intensity, with a chosen level of confidence. If this task is expressed in mathematical form, following \cite{ponti}:
 
+\begin{align}
+I_{maxima} - \mu_{BG} &= Q\cdot \sigma_{\Delta I}\\
+\intertext{where $I_{maxima}$ is the intensity of the local maxima, $\mu_{BG}$ is the mean intensity of the background, $Q$ is the selection quantile for the \emph{t-test}, and the $\sigma_{\Delta I}$ is defined as}
+\sigma^2_{\Delta I} &= \sigma^2(I_L) + \frac{1}{3}\sigma^2(I_{BG}) \nonumber \\
+\intertext{For $\sigma^2(I_L)=0$ is given, this simplifies to}
+\sigma^2_{\Delta I} &= \frac{1}{3}\sigma^2(I_{BG})
+\end{align}
+
+The only variable that is not defined by the image is the selection quantile, Q. It is, however, recommended to be chosen as a value, such that it matches the speckles that could be seen by bare eyes, when the images are shown in MATLAB. For this reason, the Q is chosen as 10. The resulting speckle detection is shown in figure \ref{fig:statMax}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=16cm]{figures/statMax.png}
+\caption{The statistically chosen maxima, tagged over the image with red crosses}
+\label{fig:statMax}
+\end{figure}
+ 
+\textbf{Appendix A: Reproducing The Results}
+ 
+The results could be reproduced as in the class presentation and this report, by setting 2 parameters in the main project m-file, ``pr2.m'', the following way.
+\begin{enumerate}
+\item For processing single image, set
+\begin{verbatim}
+Nimages = 1;
+\end{verbatim}
+If the figures are desired to be popping out in MATLAB, set boolean variable `plotting' from `false' to
+\begin{verbatim}
+plotting = true;
+\end{verbatim}
+\item For batch processing the image set, recommended setting is
+\begin{verbatim}
+Nimages = numel(images);
+plotting = false;
+\end{verbatim}
+The MATLAB environment files in `.mat' format are stored in the `mat\_files' directory in the project root.
+\end{enumerate}
+ 
 
 
 

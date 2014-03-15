@@ -1,7 +1,7 @@
 function [statisticalMaxima] = statMaxima(img, Q, noiseMean, noiseStd)
 
 %
-% Used for Part B.2.3 Association of local extremum points
+% Used for Part B.2.4 Statistical selection of local maxima
 %
 % statMaxima: Finds all local maximas that pass t-test
 %
