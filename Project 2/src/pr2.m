@@ -15,8 +15,6 @@ clc
 % Define constants
 maskSize = 3;
 plotting = true;
-%Nimages = numel(images);
-Nimages = 1;
 
 % Rayleigh limit
 rayleighM = 0.61 * 527e-9 / 1.4; % .61*lambda/NA, in m
@@ -26,6 +24,9 @@ rayleigh  = rayleighM / 65e-9; % convert to pixels
 disp 'Loading image files...'
 imageFiles = dir('../images/*.tif');
 images = [];
+
+%Nimages = numel(imageFiles);
+Nimages = 1;
 
 for ii = 1:Nimages
     image.name = imageFiles(ii).name;

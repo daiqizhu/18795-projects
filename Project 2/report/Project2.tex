@@ -87,19 +87,22 @@ extrema.
 The minima that are detected in one and not the other appear mostly in the
 background region of the image, and not in the strip of particles we are
 actually attempting to locate. This suggests the larger mask is better at
-rejecting false positives.
+rejecting false positives. However, the 5x5 mask seemed to reject some
+real particles as well. Our final results were generated using a 3x3 mask.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=16cm]{figures/extrema_mask_3.png}
-\caption{Local Extrema (3x3 mask)}
+\includegraphics[width=16cm]{figures/extrema_3_full.png}
+\includegraphics[width=16cm]{figures/extrema_3_zoom.png}
+\caption{Local Extrema (3x3 mask), full and zoomed}
 \label{fig:extrema_3}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=16cm]{figures/extrema_mask_5.png}
-\caption{Local Extrema (5x5 mask)}
+\includegraphics[width=16cm]{figures/extrema_5_full.png}
+\includegraphics[width=16cm]{figures/extrema_5_zoom.png}
+\caption{Local Extrema (5x5 mask), full and zoomed}
 \label{fig:extrema_5}
 \end{figure}
 
@@ -113,8 +116,9 @@ When implementing this part, the \emph{DelaunayTri} class is used, as it was a b
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=16cm]{figures/assocLocalExtrema.png}
-\caption{Associated local minima and maxima, where the minima are located at Delaunay Triangle corners and maxima are tagged with red crosses.}
+\includegraphics[width=16cm]{figures/delaunay_full.png}
+\includegraphics[width=16cm]{figures/delaunay_zoom.png}
+\caption{Associated local minima and maxima, where the minima are located at Delaunay Triangle corners and maxima are tagged with red crosses, full and zoomed}
 \label{fig:assocLocal}
 \end{figure}
 
@@ -136,8 +140,10 @@ The only variable that is not defined by the image is the selection quantile, Q.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=16cm]{figures/statMax.png}
-\caption{The statistically chosen maxima, tagged over the image with red crosses}
+\includegraphics[width=16cm]{figures/statistics_maxima_full.png}
+\includegraphics[width=16cm]{figures/statistics_maxima_zoom.png}
+\caption{The statistically chosen maxima, tagged over the image with red crosses,
+    full and zoomed}
 \label{fig:statMax}
 \end{figure}
  
@@ -175,14 +181,45 @@ The levels of our white noise was chosen based on the computed background statis
 
 \begin{figure}[h]
 \centering
-% TODO: replace this with a sample synthetic image
-%\includegraphics[width=16cm]{figures/assocLocalExtrema.png}
+\includegraphics[width=16cm]{figures/synthetic_image.png}
 \caption{A sample synthetic image, and the original image it was generated from}
 \label{fig:syntheticImage}
 \end{figure}
 
 
 \textbf{B.3.2}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=16cm]{figures/subpixel_real_full.png}
+\includegraphics[width=16cm]{figures/subpixel_real_zoom.png}
+\caption{The detected particle locations using subpixel Gaussian fitting, full and zoomed}
+\label{fig:subpixelReal}
+\end{figure}
+
+
+\textbf{B.3.3}
+
+To test the performance of our subpixel Gaussian fitting algorithm, we used to to identify the locations of our particles in the synthetic image. Since we know exactly where these particles were located, we compared the results returned by the Gaussian fitting with the known center coordinates. The error between the two x and y coordinates was calculated, and found to have the following statistics:
+
+\begin{center}
+\begin{tabular}{r | c | c}
+               & y-coordinate & x-coordinate \\ \hline
+    mean error & -0.042 px      & 0 px       \\
+    error std  & 0.202 px       & 0.206 px
+\end{tabular}
+\end{center}
+
+Our fitting was found to be largely unbiased, and accurate to within a fifth of a pixel. It correctly reported the location of 44 out of our 48 particles. Note that our synthetic image was low noise; its background noise followed the same statistics as the (relatively clean) source image it was generated from. This suggests the performance of our fitting is strong under high quality imaging.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=16cm]{figures/subpixel_synthetic_full.png}
+\includegraphics[width=16cm]{figures/subpixel_synthetic_zoom.png}
+\caption{The detected particle locations using subpixel Gaussian fitting on a
+    synthetic image, full and zoomed}
+\label{fig:subpixelSynthetic}
+\end{figure}
 
 
 
