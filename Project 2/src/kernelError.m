@@ -51,7 +51,11 @@ end
     
 % Calculate the error between the subimage and the kernel_fit
 subimage = image(y_min:y_max, x_min:x_max);
-error = sum(sum(abs(subimage - kernel_fit)));
+error = sum(sum((subimage - kernel_fit).^2));
+
+% Normalize by the  energy
+error = error / sum(sum(subimage.^2));
+error = error / sum(sum(kernel_fit.^2));
 
 end
 

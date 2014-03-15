@@ -166,11 +166,11 @@ end
 
 % Show the particles on the image
 if plotting
-    figure; hold on;
+    figure; subplot(2,1,1); hold on;
     imshow(images(ii).data);
-    scatter(round(images(1).subpixelMaxima(:,2)),...
-        round(images(1).subpixelMaxima(:,1)), 'rx');
-    title('Subpixel Detection using Gaussian Fit')
+    scatter(images(1).subpixelMaxima(:,2),...
+        images(1).subpixelMaxima(:,1), 'rx');
+    title('Subpixel Detection using Gaussian Fit, actual data')
     legend('Sub-pixel Detected Particles');   
 end
 
@@ -201,6 +201,15 @@ for ii = 1:size(syntheticMaxima,1)
     errors = [errors lowestDistance]; %#ok append
 end
 
+% Show the particles on the image
+if plotting
+    subplot(2,1,2); hold on;
+    imshow(syntheticImage);
+    scatter(syntheticMaxima(:,2), syntheticMaxima(:,1), 'rx');
+    title('Subpixel Detection using Gaussian Fit, synthetic data')
+    legend('Sub-pixel Detected Particles');   
+end
+
 % Compute the statistics and display
 errorMean = mean(errors);
 errorStd = std(errors);
@@ -208,4 +217,4 @@ errorStd = std(errors);
 disp(['    Subpixel detection had an average error of: ' num2str(errorMean)]);
 disp(['    and a standard deviation of: ' num2str(errorStd)]);
 
-clear synthetic errors image maximum lowestDistance distance;
+%clear synthetic errors image maximum lowestDistance distance;

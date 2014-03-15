@@ -27,29 +27,31 @@ subpixel_particles = zeros(max_num,2);
 % Iterate through each maximum from Section B.2.2
 for m = 1:max_num
     current_maxima = image.maxima(m,:);
-    current_errors = zeros(11*11,1);
+    current_errors = zeros(2*oversample+1,2*oversample+1);
 
-    % Iterate through each pixel in a 5x5 box around current_maxima
+    % Iterate through each pixel in a box around current_maxima
     for i = -oversample:oversample
         for j = -oversample:oversample
-            current_errors((i+oversample)*r + j + oversample + 1) =...
-                kernelError(interpolated_image,...
-                (current_maxima(1,2) - 1) * oversample + 1 + i,...
-                (current_maxima(1,1) - 1) * oversample + 1 + j,...
-                gauss_kernel);
+            center_point = round([(current_maxima(1)-.5)*oversample + i, ...
+                (current_maxima(2)-.5)*oversample + j]);
+            center_value = interpolated_image(center_point(1), ...
+                center_point(2));
+            
+            current_errors(i+oversample+1, j+oversample+1) = ...
+                kernelError(interpolated_image, ...
+                center_point(2), center_point(1), ...
+                center_value*gauss_kernel);
         end
     end
 
     % Find the subpixel with the minimum error, with respect to
-    % the position of the current maxima
-    [~,index] = min(current_errors);
-    subpixel = [floor((index-1)/r)-oversample, mod(index-1,r)-oversample];
+    % the position of the current maxima. Take the first one in case of
+    % multiples
+    [row,col] = find(current_errors == min(min(current_errors)));
+    subpixel = [row(1), col(1)] - oversample - 1;
 
-    % Scale the subpixel back
-    subpixel_particles(m,:) = (subpixel)./oversample;
-
-    % Location of the subpixel
-    subpixel_particles(m,:) = subpixel_particles(m,:) + current_maxima;
+    % Scale the subpixel back and place
+    subpixel_particles(m,:) = current_maxima + (subpixel)./oversample;
 end
     
 end
