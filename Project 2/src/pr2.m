@@ -7,13 +7,16 @@
 % perform each action and displaying results between steps
 %
 
-close all
+% Clean up
 clear all
+close all
 clc
 
 % Define constants
 maskSize = 3;
 plotting = true;
+%Nimages = numel(images);
+Nimages = 1;
 
 % Rayleigh limit
 rayleighM = 0.61 * 527e-9 / 1.4; % .61*lambda/NA, in m
@@ -24,8 +27,7 @@ disp 'Loading image files...'
 imageFiles = dir('../images/*.tif');
 images = [];
 
-% For testing purposes, only load first image
-for ii = 1:1 %numel(imageFiles)
+for ii = 1:Nimages
     image.name = imageFiles(ii).name;
     img = im2double(imread(['../images/' image.name]));
     image.data = img / max(max(img));
@@ -49,7 +51,7 @@ disp 'Detecting minima and maxima...'
 sigma = rayleigh/3;
 
 % For each image, find the extrema and store it
-for ii = 1:numel(images)
+for ii = 1:Nimages
     [maxima, minima] = findLocalExtrema(images(ii).data, maskSize, sigma);
     images(ii).maxima = maxima; %#ok
     images(ii).minima = minima; %#ok
@@ -72,7 +74,7 @@ end
 disp 'Associating maximas to minimas using Delaunay Triangulation...'
 
 % For each image, calculate delaunay triangulation
-for ii = 1:numel(images)
+for ii = 1:Nimages
     [images(ii).associated visual] = assocLocalExt(images(ii)); %#ok
 end
 
@@ -91,29 +93,64 @@ if plotting
     scatter(tmpLocalMax(:,2), tmpLocalMax(:,1), 'rx');
     legend('Delaunay Triangles', 'Associated local maxima');
     title('Delaunay Triangulation');
-    
 end
 clear visual imageIndex image tmp tmpLocalmax;
 
 
 %% Part B.2.4 Statistical selection of local maxima
-% TODO
+disp 'Statistically detecting maximas...'
+
+Quantile = 10;
+for ii = 1:Nimages
+    [images(ii).statMaxima] = statMaxima(images(ii), Quantile, noiseMean, noiseStd);
+end
+
+% Display extrema of an arbitrary example
+if plotting
+    image = images(ceil(numel(images)/2));
+    figure;
+    imshow(image.data); hold on;
+    scatter(images.statMaxima(:,2), images.statMaxima(:,1), 'rx');
+    legend('Statistically selected maxima');
+    title(['Statistically selected maximas for Q=' num2str(Quantile) ', \sigma_\Delta_I=' num2str(sigma/sqrt(3))]);
+end
+
+
+% Storing the processed image
+% Create our image to store
+tmpPath = ['../mat_files/' images(1).name(1:end-3) 'mat'];
+tmpData = images(1);
+
+% Create a clean directory for output
+if exist('../mat_files','dir')
+    rmdir('../mat_files', 's');
+end
+mkdir('../mat_files');
+
+% Store
+for ii = 1:Nimages
+    tmpPath = ['../mat_files/' images(ii).name(1:end-3) 'mat'];
+    tmpData = images(ii);
+    save(tmpPath, 'tmpData' );
+end
+clear tmpPath tmpData;
 
 
 %% Part B.3.1 Generating Synthetic Images
 disp 'Generating synthetic image...'
 
 % Use first image
-% TODO: make sure this uses the maxima found in part B.2.4, NOT in B.2.2
 sigma = rayleigh*2/3;
 syntheticImage = generateSyntheticImage(images(1), sigma, ...
     noiseMean, noiseStd);
 
-figure;
-subplot(2,1,1), imagesc(syntheticImage), title('Synthetic image');
-colormap gray, axis image;
-subplot(2,1,2), imagesc(images(1).data), title('Actual image');
-colormap gray, axis image;
+if plotting
+    figure;
+    subplot(2,1,1), imagesc(syntheticImage), title('Synthetic image');
+    colormap gray, axis image;
+    subplot(2,1,2), imagesc(images(1).data), title('Actual image');
+    colormap gray, axis image;
+end
 
 
 %% Part B.3.2 Sub pixel resolution detection using oversampling
