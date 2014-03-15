@@ -33,6 +33,7 @@ for ii = 1:Nimages
     image.data = img / max(max(img));
     images = [images; image]; %#ok
 end
+clear img;
 
 
 %% B.2.1 Calibration of dark noise
@@ -40,8 +41,7 @@ disp 'Calibrating noise...'
 
 % Manually crop a portion of background noise and determine its statistics.
 % Choose an arbitrary image for this
-img = images(1).data;
-[noiseMean, noiseStd] = calibrateBackground(img);
+[noiseMean, noiseStd] = calibrateBackground(images(1).data);
 
 
 %% B.2.2 Detection of local maxima and local minima
@@ -52,9 +52,8 @@ sigma = rayleigh/3;
 
 % For each image, find the extrema and store it
 for ii = 1:Nimages
-    [maxima, minima] = findLocalExtrema(images(ii).data, maskSize, sigma);
-    images(ii).maxima = maxima; %#ok
-    images(ii).minima = minima; %#ok
+    [images(ii).allMaxima, images(ii).allMinima] = ...
+        findLocalExtrema(images(ii).data, maskSize, sigma); %#ok
 end
 
 % Display extrema of an arbitrary example
@@ -63,11 +62,13 @@ if plotting
     
     figure;
     imshow(image.data); hold on;
-    scatter(images.minima(:,2), images.minima(:,1), 'g.');
-    scatter(images.maxima(:,2), images.maxima(:,1), 'rx');
+    scatter(images.allMinima(:,2), images.allMinima(:,1), 'g.');
+    scatter(images.allMaxima(:,2), images.allMaxima(:,1), 'rx');
     legend('Minima', 'Maxima');
     title(sprintf('Raw extrema in image with %dx%d mask',maskSize,maskSize));
 end
+
+clear image;
 
 
 %% B.2.3 Establishing the local association of maxima and minima
@@ -89,11 +90,12 @@ if plotting
    
     figure;
     imshow(image.data); hold on;
-    triplot(visual, 'b');
-    scatter(tmpLocalMax(:,2), tmpLocalMax(:,1), 'rx');
-    legend('Delaunay Triangles', 'Associated local maxima');
+    h1 = triplot(visual, 'b');
+    h2 = scatter(tmpLocalMax(:,2), tmpLocalMax(:,1), 'rx');
+    legend([h1(1) h2], {'Delaunay triangles', 'Maxima'});
     title('Delaunay Triangulation');
 end
+
 clear visual imageIndex image tmp tmpLocalmax;
 
 
@@ -102,25 +104,22 @@ disp 'Statistically detecting maximas...'
 
 Quantile = 10;
 for ii = 1:Nimages
-    [images(ii).statMaxima] = statMaxima(images(ii), Quantile, noiseMean, noiseStd);
+    [images(ii).maxima] = ...
+        statMaxima(images(ii), Quantile, noiseMean, noiseStd);%#ok
 end
 
 % Display extrema of an arbitrary example
 if plotting
-    image = images(ceil(numel(images)/2));
+    image = images(1);
     figure;
     imshow(image.data); hold on;
-    scatter(images.statMaxima(:,2), images.statMaxima(:,1), 'rx');
+    scatter(images(1).maxima(:,2), images(1).maxima(:,1), 'rx');
     legend('Statistically selected maxima');
-    title(['Statistically selected maximas for Q=' num2str(Quantile) ', \sigma_\Delta_I=' num2str(sigma/sqrt(3))]);
+    title(['Statistically selected maximas for Q=' num2str(Quantile) ...
+        ', \sigma_\Delta_I=' num2str(sigma/sqrt(3))]);
 end
 
-
 % Storing the processed image
-% Create our image to store
-tmpPath = ['../mat_files/' images(1).name(1:end-3) 'mat'];
-tmpData = images(1);
-
 % Create a clean directory for output
 if exist('../mat_files','dir')
     rmdir('../mat_files', 's');
@@ -130,10 +129,10 @@ mkdir('../mat_files');
 % Store
 for ii = 1:Nimages
     tmpPath = ['../mat_files/' images(ii).name(1:end-3) 'mat'];
-    tmpData = images(ii);
+    tmpData = images(ii); %#ok stored below
     save(tmpPath, 'tmpData' );
 end
-clear tmpPath tmpData;
+clear Quantile image tmpPath tmpData;
 
 
 %% Part B.3.1 Generating Synthetic Images
@@ -152,72 +151,27 @@ if plotting
     colormap gray, axis image;
 end
 
+clear sigma;
+
 
 %% Part B.3.2 Sub pixel resolution detection using oversampling
 
 disp 'Detecting sub-pixel particles using Gaussian fitting...'
 
-% Gaussian Kernel stuff is on Lectures 11 and 12 (same content)
-
-% Scale to oversample by.
-oversample_pixel = 13e-9;
-oversample_scale = 65e-9 / oversample_pixel;
-
-% Sigma for the gaussian kernel (airy disc)
-sigma = 0.61 * 527e-9 / (1.4 * 3); % .61*lambda/(NA*3)
-
 % Sub-pixel particle detection using Gaussian Kernel Fitting Algorithm
 % on each image in the sequence
 for ii = 1:Nimages
-    
-    % Oversample current image via interpolation
-    interpolated_image = interpolateImage(images(ii).data,oversample_scale);
-    
-    % Create the 2D Gaussian kernel
-    gauss_kernel = fspecial('gaussian', 11, 0.5);
-    
-    % Set up some variables for error calculation
-    max_num = size(images(ii).maxima,1);
-    subpixel_particles = zeros(max_num,2);
-    
-    % Iterate through each maximum from Section B.2.2
-    for m = 1:max_num
-        current_maxima = images(ii).maxima(m,:);
-        current_errors = zeros(11*11,1);
-        
-        % Iterate through each pixel in a 5x5 box around current_maxima
-        for i = -5:5
-            for j = -5:5
-                current_errors((i+5)*11 + j + 6) =...
-                    kernelError(interpolated_image,...
-                    (current_maxima(1,2) - 1) * 5 + 1 + i,...
-                    (current_maxima(1,1) - 1) * 5 + 1 + j,...
-                    gauss_kernel);
-            end
-        end
-        
-        % Find the subpixel with the minimum error, with respect to
-        % the position of the current maxima
-        [e,index] = min(current_errors);
-        subpixel = [floor((index-1)/11)-5, mod(index-1,11)-5];
-        
-        % Scale the subpixel back
-        subpixel_particles(m,:) = (subpixel)./5;
-        
-        % Location of the subpixel
-        subpixel_particles(m,:) = subpixel_particles(m,:) + current_maxima;
-        
-    end
-    
-    % Show the particles on the image
-    figure
+    images(ii).subpixelMaxima = subpixelGaussianFit(images(ii),rayleigh,5); %#ok
+end
+
+% Show the particles on the image
+if plotting
+    figure; hold on;
     imshow(images(ii).data);
-    hold on;
-    scatter(round(subpixel_particles(:,2)),...
-        round(subpixel_particles(:,1)), 'rx');
+    scatter(round(images(1).subpixelMaxima(:,2)),...
+        round(images(1).subpixelMaxima(:,1)), 'rx');
     title('Subpixel Detection using Gaussian Fit')
-    legend('Sub-pixel Detected Particles');
-    
+    legend('Sub-pixel Detected Particles');   
 end
 
 
@@ -225,11 +179,11 @@ end
 disp 'Benchmarking subpixel performance using synthetic image...'
 
 % First perform subpixel detection on the synthetic image
-% TODO: plug in code
-syntheticMaxima = [];
+synthetic.data = syntheticImage;
+synthetic.maxima = images(1).maxima;
+syntheticMaxima = subpixelGaussianFit(synthetic,rayleigh,5);
 
 % For each maxima, find its nearest maxima and compute the error distance
-% TODO: modify this to search for the maxima found in B.2.4
 errors = [];
 image = images(1);
 for ii = 1:size(syntheticMaxima,1)
@@ -253,3 +207,5 @@ errorStd = std(errors);
 
 disp(['    Subpixel detection had an average error of: ' num2str(errorMean)]);
 disp(['    and a standard deviation of: ' num2str(errorStd)]);
+
+clear synthetic errors image maximum lowestDistance distance;

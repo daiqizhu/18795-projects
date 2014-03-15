@@ -18,8 +18,8 @@ function output = generateSyntheticImage(image, sigma, noiseMean, noiseStd)
 % First create our images and place our points using the original intensity
 output = zeros(size(image.data,1), size(image.data,2));
 
-for ii = 1:size(image.statMaxima,1)
-    maximum = image.statMaxima(ii,:);
+for ii = 1:size(image.maxima,1)
+    maximum = image.maxima(ii,:);
     output(maximum(1), maximum(2)) = image.data(maximum(1),maximum(2));
 end
 

@@ -25,49 +25,49 @@ function [associated visual] = assocLocalExt(img)
 %                       triangles on the image
 %
 
-%% Triangulate all local minimas
-visual = DelaunayTri(img.minima(:,2),img.minima(:,1));
+% Triangulate all local minimas
+visual = DelaunayTri(img.allMinima(:,2),img.allMinima(:,1));
 tri = visual.Triangulation;
 
-%% Sweep all triangles to match a local maxima to a background
-
+% Sweep all triangles to match a local maxima to a background
 % Initialization for searching throughout all triangles
-tmpMax = 0; tmpIndex = 0;
 for i = 1:size(tri,1)
-    
     % Convert triangle corners' vector indices into minima matrix's indices
-    tmp = img.minima(tri(i,:),:);
+    tmp = img.allMinima(tri(i,:),:);
     Xtri = tmp(:,2);
     Ytri = tmp(:,1);
     % Find all maximas that fall into current triangle
-    [IN ON] = inpolygon(img.maxima(:,2),img.maxima(:,1),Xtri, Ytri);
+    [IN ON] = inpolygon(img.allMaxima(:,2),img.allMaxima(:,1),Xtri, Ytri);
+    
     % Get the row numbers of maximas that fell into current triangle
     indices = find(IN+ON);
 
     % If there is any maxima existent in current triangle
     if isempty(indices) == 0
         % Save their values and indices
-        tmpMax = img.data(img.maxima(indices(1),1), ...
-                                                img.maxima(indices(1),2));
+        tmpMax = img.data(img.allMaxima(indices(1),1), ...
+            img.allMaxima(indices(1),2));
         tmpIndex = indices(1);
+        
         % If there are more than 1, store index and value of the maximum
         for j = 2:length(indices)
             if tmpMax < img.data(indices(j))
                 tmpIndex = indices(j);
-                tmpMax = img.data(img.maxima(indices(j),1), ...
-                                                img.maxima(indices(j),2));
+                tmpMax = img.data(img.allMaxima(indices(j),1), ...
+                    img.allMaxima(indices(j),2));
             end
         end
     else
-    % Otherwise, just associate an empty cell for the maxima index
+        % Otherwise, just associate an empty cell for the maxima index
         tmpIndex = [];
     end
     
-    %% The output data structure is defined here
+    % The output data structure is defined here
     associated.triAddr{i} = [Xtri Ytri];
-    associated.LocalMaxAddr{i} = [img.maxima(tmpIndex, 1) img.maxima(tmpIndex, 2)];
-    associated.BGmu{i} = mean(img.minima(tri(i,:),:));
-    associated.BGstd{i} = std(img.minima(tri(i,:),:));
+    associated.LocalMaxAddr{i} = [img.allMaxima(tmpIndex, 1) ...
+        img.allMaxima(tmpIndex, 2)];
+    associated.BGmu{i} = mean(img.allMinima(tri(i,:),:));
+    associated.BGstd{i} = std(img.allMinima(tri(i,:),:));
 end
 
 
