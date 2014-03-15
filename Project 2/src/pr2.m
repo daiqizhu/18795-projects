@@ -157,8 +157,6 @@ end
 
 disp 'Detecting sub-pixel particles using Gaussian fitting...'
 
-% TODO - Create Gaussian Kernel and do the detection
-%
 % Gaussian Kernel stuff is on Lectures 11 and 12 (same content)
 
 % Scale to oversample by.
@@ -170,8 +168,7 @@ sigma = 0.61 * 527e-9 / (1.4 * 3); % .61*lambda/(NA*3)
 
 % Sub-pixel particle detection using Gaussian Kernel Fitting Algorithm
 % on each image in the sequence
-% for ii = 1:numel(images)
-for ii = 1:1 % Process only the first image  
+for ii = 1:Nimages
     
     % Oversample current image via interpolation
     interpolated_image = interpolateImage(images(ii).data,oversample_scale);
