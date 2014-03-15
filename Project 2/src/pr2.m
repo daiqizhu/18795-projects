@@ -165,6 +165,9 @@ disp 'Detecting sub-pixel particles using Gaussian fitting...'
 oversample_pixel = 13e-9;
 oversample_scale = 65e-9 / oversample_pixel;
 
+% Sigma for the gaussian kernel (airy disc)
+sigma = 0.61 * 527e-9 / (1.4 * 3); % .61*lambda/(NA*3)
+
 % Sub-pixel particle detection using Gaussian Kernel Fitting Algorithm
 % on each image in the sequence
 % for ii = 1:numel(images)
@@ -173,8 +176,8 @@ for ii = 1:1 % Process only the first image
     % Oversample current image via interpolation
     interpolated_image = interpolateImage(images(ii).data,oversample_scale);
     
-    % Create the 2D Gaussian kernel - TODO
-    gauss_kernel = zeros(11,11);
+    % Create the 2D Gaussian kernel
+    gauss_kernel = fspecial('gaussian', 11, 0.5);
     
     % Set up some variables for error calculation
     max_num = size(images(ii).maxima,1);
@@ -188,22 +191,35 @@ for ii = 1:1 % Process only the first image
         % Iterate through each pixel in a 5x5 box around current_maxima
         for i = -5:5
             for j = -5:5
-                current_errors(m) = kernelError(interpolated_image,...
+                current_errors((i+5)*11 + j + 6) =...
+                    kernelError(interpolated_image,...
                     (current_maxima(1,2) - 1) * 5 + 1 + i,...
                     (current_maxima(1,1) - 1) * 5 + 1 + j,...
                     gauss_kernel);
             end
         end
         
-        % Find the subpixel with the minimum error
+        % Find the subpixel with the minimum error, with respect to
+        % the position of the current maxima
         [e,index] = min(current_errors);
         subpixel = [floor((index-1)/11)-5, mod(index-1,11)-5];
         
         % Scale the subpixel back
-        subpixel_particles(m,:) = (subpixel - 1)./5 + 1;
+        subpixel_particles(m,:) = (subpixel)./5;
+        
+        % Location of the subpixel
+        subpixel_particles(m,:) = subpixel_particles(m,:) + current_maxima;
         
     end
     
+    % Show the particles on the image
+    figure
+    imshow(images(ii).data);
+    hold on;
+    scatter(round(subpixel_particles(:,2)),...
+        round(subpixel_particles(:,1)), 'rx');
+    title('Subpixel Detection using Gaussian Fit')
+    legend('Sub-pixel Detected Particles');
     
 end
 
