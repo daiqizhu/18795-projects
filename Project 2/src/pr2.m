@@ -7,6 +7,10 @@
 % perform each action and displaying results between steps
 %
 
+close all
+clear all
+clc
+
 % Define constants
 maskSize = 3;
 plotting = true;
@@ -113,6 +117,9 @@ colormap gray, axis image;
 
 
 %% Part B.3.2 Sub pixel resolution detection using oversampling
+
+disp 'Detecting sub-pixel particles using Gaussian fitting...'
+
 % TODO - Create Gaussian Kernel and do the detection
 %
 % Gaussian Kernel stuff is on Lectures 11 and 12 (same content)
@@ -123,14 +130,42 @@ oversample_scale = 65e-9 / oversample_pixel;
 
 % Sub-pixel particle detection using Gaussian Kernel Fitting Algorithm
 % on each image in the sequence
-for ii = 1:numel(images)
+% for ii = 1:numel(images)
+for ii = 1:1 % Process only the first image  
     
     % Oversample current image via interpolation
     interpolated_image = interpolateImage(images(ii).data,oversample_scale);
     
-    % Create the 2D Gaussian kernel
+    % Create the 2D Gaussian kernel - TODO
+    gauss_kernel = zeros(11,11);
     
+    % Set up some variables for error calculation
+    max_num = size(images(ii).maxima,1);
+    subpixel_particles = zeros(max_num,2);
     
+    % Iterate through each maximum from Section B.2.2
+    for m = 1:max_num
+        current_maxima = images(ii).maxima(m,:);
+        current_errors = zeros(11*11,1);
+        
+        % Iterate through each pixel in a 5x5 box around current_maxima
+        for i = -5:5
+            for j = -5:5
+                current_errors(m) = kernelError(interpolated_image,...
+                    (current_maxima(1,2) - 1) * 5 + 1 + i,...
+                    (current_maxima(1,1) - 1) * 5 + 1 + j,...
+                    gauss_kernel);
+            end
+        end
+        
+        % Find the subpixel with the minimum error
+        [e,index] = min(current_errors);
+        subpixel = [floor((index-1)/11)-5, mod(index-1,11)-5];
+        
+        % Scale the subpixel back
+        subpixel_particles(m,:) = (subpixel - 1)./5 + 1;
+        
+    end
     
     
 end
