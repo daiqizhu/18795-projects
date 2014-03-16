@@ -75,10 +75,11 @@ Due: \hmwkDueDate\\
 \subsection*{B.2.1}
 
 When running the script, a rectangle is manually selected by the user. It is assumed to contain only background, and simple statistics are calculated.
+The standard deviation and mean of the background region is calculated and was used for calibration.
 
 \subsection*{B.2.2}
 
-The find all extrema, we first filter the image using a Gaussian low pass filter, set to have a sigma of $\frac{1}{3}$ the Rayleigh limit. We then mark extrema as extrema only if they are the largest/smallest pixel inside their mask region.
+To find all local extrema, the image was filtered with a Gaussian low pass filter, set to have a $\sigma$ of $\frac{1}{3}$ the Rayleigh limit. We then mark extrema as extrema only if they are the largest/smallest pixel inside their mask region.
 
 Using a 5x5 mask detects noticeably fewer local extrema than using a 3x3 mask, as shown in Figures ~\ref{fig:extrema_3} and ~\ref{fig:extrema_5}. This is because with a larger mask, the tested point is compared with a larger area of neighboring points, reducing its chances of being classified as a local extrema.
 
@@ -104,9 +105,9 @@ The minima that are detected in one and not the other appear mostly in the backg
 
 \subsection*{B.2.3}
 
-Detected local maxima and minima in part B.2.2 is further processed by Delaunay Triangulation\cite{delaunaywiki}\cite{delaunaymathworks} as the next step. Delaunay Triangulation creates sets of triangles from given data points, whose circumcircles do not contain any vertices of neighboring triangles. In addition, this method targets to maximize the smallest angle in each created triangle. If the local minima are triangulated, then the local maxima could be assigned to each triangle evidently, eliminating some of the local maxima further. That is to say, if a Delaunay Triangle of local minima contain more than 1 local maxima, only the local maxima that has the highest intensity is accepted and rest is assumed artifacts. The method also assigns three distinct minima to each maxima, based on what triangle the maxima is contained by. These minima are used to compute how prominent the maxima are.
+Detected local maxima and minima in part B.2.2 are further processed by Delaunay Triangulation\cite{delaunaywiki}\cite{delaunaymathworks} as the next step. Delaunay Triangulation creates sets of triangles from given data points, whose circumcircles do not contain any vertices of neighboring triangles. In addition, this method aims to maximize the smallest angle in each created triangle. If the local minima are triangulated, then the local maxima could be assigned to each triangle, eliminating some potentially unnecessary local maxima. If a Delaunay Triangle of local minima contain more than 1 local maxima, only the local maxima that has the highest intensity is accepted and the rest are assumed to be artifacts. The method also assigns three distinct minima to each maxima, based on what triangle the maxima is contained by. These minima are used to compute how prominent the maxima are.
 
-When implementing this part, the \emph{DelaunayTri} class is used, as it was a built-in function in MATLAB. After that, the maxima that fall into each triangle are found. For this purpose, the matrix of local maxima and each minima triangle are swept with \emph{inpolygon}, also already available in MATLAB. This function returns the maxima that are inside or on top of the triangle vertices. Finally, among the found local maxima, the one with the highest intensity is stored as the \emph{associated local maxima} for each triangle. The triangles and their associated local maxima are shown in Figure \ref{fig:assocLocal}.
+For this implementation, the MATLAB built-in function \texttt{DelaunayTri} was used. After that, the maxima that fall into each triangle are found. For this purpose, the matrix of local maxima and each minima triangle are swept with another built-in function, \texttt{inpolygon}. This function returns the maxima that are inside or on top of the triangle vertices. Finally, among the found local maxima, the one with the highest intensity is stored as the \emph{associated local maxima} for each triangle. The triangles and their associated local maxima are shown in Figure \ref{fig:assocLocal}.
 
 \begin{figure}[H]
 \centering
@@ -120,7 +121,7 @@ When implementing this part, the \emph{DelaunayTri} class is used, as it was a b
 
 \subsection*{B.2.4}
  
-The associated maxima found by Delaunay Triangulation method previously are further investigated in this part, in order to quantify a level of confidence for the detected particles. The section* allowed to remove the speckle intensity variation term ($\sigma^2(I_L)$) in equation (4) of reference \cite{ponti}, as well as assuming that the local minima intensities' mean and variance match the cropped region's intensity mean and variance in Part B.2.1. Thanks to these simplifications, the task here reduces to comparison of background to the detected speckle in terms of intensity, with a chosen level of confidence. If this task is expressed in mathematical form, following \cite{ponti}:
+The associated maxima found by Delaunay Triangulation are further investigated in this part, in order to quantify a level of confidence for the detected particles. The section* allowed to remove the speckle intensity variation term ($\sigma^2(I_L)$) in equation (4) of reference \cite{ponti}, as well as assuming that the local minima intensities' mean and variance match the cropped region's intensity mean and variance in Part B.2.1. Thanks to these simplifications, the task here is reduced to a comparison of the background to the detected speckle in terms of intensity, with a chosen level of confidence. If this task is expressed in mathematical form, following \cite{ponti}:
 
 \begin{align}
 I_{maxima} - \mu_{BG} &= Q\cdot \sigma_{\Delta I}\\
@@ -162,7 +163,7 @@ The levels of our white noise was chosen based on the computed background statis
 
 \subsection*{B.3.2}
 
-To perform subpixel detection, the test image is first upsampled by a factor of 5. After this, a Gaussian kernel is created with the side of the Rayleigh limit. Then, starting at each pixel-resolution maxima found in Part 1, we search an area of one pixel in each direction. The Gaussian kernel is scaled by the center point at each location, and the error between the image and the kernel is calculated. The location with the lowest error is chosen as the true particle location. See Figure \ref{fig:subpixelReal} for sample subpixel detection results, and the next section for a statistical analysis of our accuracy.
+To perform subpixel particle detection, the test image is first upsampled by a factor of 5 using interpolation. The MATLAB built-in command \texttt{interp2} was used for linear interpolation. After this, a Gaussian kernel is created with the side of the Rayleigh limit. Then, starting at each pixel-resolution maxima found in Part 1, pixels within 5 pixels of the maxima was tested. The Gaussian kernel is scaled by the center point at each location, and the error between the image and the kernel is calculated by subtracting the two, taking the absolute value, then summing up all of the values in the resulting matrix. The subpixel with the lowest error is chosen as the true particle location for each maxima. Figure \ref{fig:subpixelReal} has an example of sample subpixel detection results.
 
 \begin{figure}[H]
 \centering
@@ -175,7 +176,7 @@ To perform subpixel detection, the test image is first upsampled by a factor of 
 
 \subsection*{B.3.3}
 
-To test the performance of our subpixel Gaussian fitting algorithm, we identify the locations of our particles in the synthetic image. Since we know exactly where these particles were located, we compared the results returned by the Gaussian fitting with the known center coordinates. The error between the detected and actual x- and y- coordinates was calculated, and found to have the following statistics:
+To test the performance of the subpixel Gaussian fitting algorithm, we identify the locations of our particles in the synthetic image. Since we know exactly where these particles were located, we compared the results returned by the Gaussian fitting with the known center coordinates. The error between the detected and actual x- and y- coordinates was calculated, and found to have the following statistics:
 
 \begin{center}
 \begin{tabular}{r | c | c}
@@ -185,7 +186,7 @@ To test the performance of our subpixel Gaussian fitting algorithm, we identify 
 \end{tabular}
 \end{center}
 
-Our fitting was found to be largely unbiased, and accurate to within a fifth of a pixel. It correctly reported the location of 44 out of our 48 particles. Note that our synthetic image was low noise; its background noise followed the same statistics as the (relatively clean) source image it was generated from. This suggests the performance of our fitting is strong under high quality imaging.
+The fitting was found to be largely unbiased, and accurate to within a fifth of a pixel. It correctly reported the location of 44 out of our 48 particles. Note that the test synthetic image had low noise; its background noise followed the same statistics as the (relatively clean) source image it was generated from. This suggests the performance of the sub-pixel fitting is strong under high quality imaging.
 
 \begin{figure}[H]
 \centering
