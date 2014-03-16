@@ -12,6 +12,12 @@ clear all
 close all
 clc
 
+% Create a clean directory for output
+if exist('../mat_files','dir')
+    rmdir('../mat_files', 's');
+end
+mkdir('../mat_files');
+
 % Define constants
 maskSize = 3;
 plotting = true;
@@ -25,7 +31,7 @@ disp 'Loading image files...'
 imageFiles = dir('../images/*.tif');
 images = [];
 
-%Nimages = numel(imageFiles);
+Nimages = numel(imageFiles);
 Nimages = 1;
 
 for ii = 1:Nimages
@@ -69,7 +75,7 @@ if plotting
     title(sprintf('Raw extrema in image with %dx%d mask',maskSize,maskSize));
 end
 
-clear image;
+clear image sigma;
 
 
 %% B.2.3 Establishing the local association of maxima and minima
@@ -117,23 +123,19 @@ if plotting
     scatter(images(1).maxima(:,2), images(1).maxima(:,1), 'rx');
     legend('Statistically selected maxima');
     title(['Statistically selected maximas for Q=' num2str(Quantile) ...
-        ', \sigma_\Delta_I=' num2str(sigma/sqrt(3))]);
+        ', \sigma_\Delta_I=' num2str(noiseStd/sqrt(3))]);
 end
 
 % Storing the processed image
-% Create a clean directory for output
-if exist('../mat_files','dir')
-    rmdir('../mat_files', 's');
-end
-mkdir('../mat_files');
 
 % Store
 for ii = 1:Nimages
-    tmpPath = ['../mat_files/' images(ii).name(1:end-3) 'mat'];
-    tmpData = images(ii); %#ok stored below
-    save(tmpPath, 'tmpData' );
+    path = ['../mat_files/' images(ii).name(1:end-4) '_statistical_maxima.mat'];
+    imageIndex = ii;
+    maxima = images(ii).maxima; %#ok stored below
+    save(path, 'imageIndex', 'maxima');
 end
-clear Quantile image tmpPath tmpData;
+clear Quantile image path maxima;
 
 
 %% Part B.3.1 Generating Synthetic Images
@@ -174,6 +176,15 @@ if plotting
     title('Subpixel Detection using Gaussian Fit, actual data')
     legend('Sub-pixel Detected Particles');   
 end
+
+% Store
+for ii = 1:Nimages
+    path = ['../mat_files/' images(ii).name(1:end-4) '_subpixel_maxima.mat'];
+    imageIndex = ii;
+    maxima = images(ii).subpixelMaxima; %#ok stored below
+    save(path, 'imageIndex', 'maxima');
+end
+clear maxima;
 
 
 %% Part B.3.3 Benchmarking subpixel resolution particle detection
