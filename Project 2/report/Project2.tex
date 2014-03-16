@@ -2,6 +2,7 @@
 
 \usepackage{amsmath,amsfonts,amsthm,amssymb}
 \usepackage{fancyhdr}
+\usepackage{float}
 \usepackage{lastpage}
 \usepackage{graphicx}
 \usepackage{supertabular}
@@ -69,28 +70,21 @@ Due: \hmwkDueDate\\
 \end{center}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\question{Part 1: Particle Feature Detection}
+\section*{Part 1: Particle Feature Detection}
 
-\textbf{B.2.1}
+\subsection*{B.2.1}
 
-When running the script, a rectangle is manually selected by the user. It is
-assumed to contain only background, and simple statistics are calculated.
+When running the script, a rectangle is manually selected by the user. It is assumed to contain only background, and simple statistics are calculated.
 
-\textbf{B.2.2}
+\subsection*{B.2.2}
 
-Using a 5x5 mask detects noticeably fewer local extrema than using a 3x3 mask,
-as shown in Figures ~\ref{fig:extrema_3} and ~\ref{fig:extrema_5}. This is
-because with a larger mask, the tested point is compared with a larger area of
-neighboring points, reducing its chances of being classified as a local
-extrema.
+The find all extrema, we first filter the image using a Gaussian low pass filter, set to have a sigma of $\frac{1}{3}$ the Rayleigh limit. We then mark extrema as extrema only if they are the largest/smallest pixel inside their mask region.
 
-The minima that are detected in one and not the other appear mostly in the
-background region of the image, and not in the strip of particles we are
-actually attempting to locate. This suggests the larger mask is better at
-rejecting false positives. However, the 5x5 mask seemed to reject some
-real particles as well. Our final results were generated using a 3x3 mask.
+Using a 5x5 mask detects noticeably fewer local extrema than using a 3x3 mask, as shown in Figures ~\ref{fig:extrema_3} and ~\ref{fig:extrema_5}. This is because with a larger mask, the tested point is compared with a larger area of neighboring points, reducing its chances of being classified as a local extrema.
 
-\begin{figure}[h]
+The minima that are detected in one and not the other appear mostly in the background region of the image, and not in the strip of particles we are actually attempting to locate. This suggests the larger mask is better at rejecting false positives. However, the 5x5 mask seemed to reject some real particles as well. Our final results were generated using a 3x3 mask.
+
+\begin{figure}[H]
 \centering
 \includegraphics[width=16cm]{figures/extrema_3_full.png}
 \includegraphics[width=16cm]{figures/extrema_3_zoom.png}
@@ -98,7 +92,7 @@ real particles as well. Our final results were generated using a 3x3 mask.
 \label{fig:extrema_3}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=16cm]{figures/extrema_5_full.png}
 \includegraphics[width=16cm]{figures/extrema_5_zoom.png}
@@ -108,13 +102,13 @@ real particles as well. Our final results were generated using a 3x3 mask.
 
 
 
-\textbf{B.2.3}
+\subsection*{B.2.3}
 
-Detected local maxima and minima in part B.2.2 is further processed by Delaunay Triangulation\cite{delaunaywiki}\cite{delaunaymathworks} as the next step. Delaunay Triangulation is method, that creates sets of triangles from given data points, whose circumcircles do not contain any vertices of neighboring triangles. In addition, this method targets to maximize the smallest angle in each created triangle. If the local minima are triangulated, then the local maxima could be assigned to each triangle evidently, eliminating some of the local maxima further. That is to say, if a Delaunay Triangle of local minima contain more than 1 local maxima, only the local maxima that has the highest intensity is accepted and rest is assumed artifacts.
+Detected local maxima and minima in part B.2.2 is further processed by Delaunay Triangulation\cite{delaunaywiki}\cite{delaunaymathworks} as the next step. Delaunay Triangulation creates sets of triangles from given data points, whose circumcircles do not contain any vertices of neighboring triangles. In addition, this method targets to maximize the smallest angle in each created triangle. If the local minima are triangulated, then the local maxima could be assigned to each triangle evidently, eliminating some of the local maxima further. That is to say, if a Delaunay Triangle of local minima contain more than 1 local maxima, only the local maxima that has the highest intensity is accepted and rest is assumed artifacts. The method also assigns three distinct minima to each maxima, based on what triangle the maxima is contained by. These minima are used to compute how prominent the maxima are.
 
 When implementing this part, the \emph{DelaunayTri} class is used, as it was a built-in function in MATLAB. After that, the maxima that fall into each triangle are found. For this purpose, the matrix of local maxima and each minima triangle are swept with \emph{inpolygon}, also already available in MATLAB. This function returns the maxima that are inside or on top of the triangle vertices. Finally, among the found local maxima, the one with the highest intensity is stored as the \emph{associated local maxima} for each triangle. The triangles and their associated local maxima are shown in Figure \ref{fig:assocLocal}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=16cm]{figures/delaunay_full.png}
 \includegraphics[width=16cm]{figures/delaunay_zoom.png}
@@ -124,9 +118,9 @@ When implementing this part, the \emph{DelaunayTri} class is used, as it was a b
 
 
 
-\textbf{B.2.4}
+\subsection*{B.2.4}
  
-The associated maxima found by Delaunay Triangulation method previously are further investigated in this part, in order to quantify a level of confidence for the detected particles. The question allowed to remove the speckle intensity variation term ($\sigma^2(I_L)$) in equation (4) of reference \cite{ponti}, as well as assuming that the local minima intensities' mean and variance match the cropped region's intensity mean and variance in Part B.2.1. Thanks to these simplifications, the task here reduces to comparison of background to the detected speckle in terms of intensity, with a chosen level of confidence. If this task is expressed in mathematical form, following \cite{ponti}:
+The associated maxima found by Delaunay Triangulation method previously are further investigated in this part, in order to quantify a level of confidence for the detected particles. The section* allowed to remove the speckle intensity variation term ($\sigma^2(I_L)$) in equation (4) of reference \cite{ponti}, as well as assuming that the local minima intensities' mean and variance match the cropped region's intensity mean and variance in Part B.2.1. Thanks to these simplifications, the task here reduces to comparison of background to the detected speckle in terms of intensity, with a chosen level of confidence. If this task is expressed in mathematical form, following \cite{ponti}:
 
 \begin{align}
 I_{maxima} - \mu_{BG} &= Q\cdot \sigma_{\Delta I}\\
@@ -138,7 +132,7 @@ I_{maxima} - \mu_{BG} &= Q\cdot \sigma_{\Delta I}\\
 
 The only variable that is not defined by the image is the selection quantile, Q. It is, however, recommended to be chosen as a value, such that it matches the speckles that could be seen by bare eyes, when the images are shown in MATLAB. For this reason, the Q is chosen as 10. The resulting speckle detection is shown in figure \ref{fig:statMax}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=16cm]{figures/statistics_maxima_full.png}
 \includegraphics[width=16cm]{figures/statistics_maxima_zoom.png}
@@ -147,7 +141,65 @@ The only variable that is not defined by the image is the selection quantile, Q.
 \label{fig:statMax}
 \end{figure}
  
-\textbf{Appendix A: Reproducing The Results}
+
+
+\pagebreak
+\section*{Part 2: Sub-pixel Resolution Particle Detection}
+
+\subsection*{B.3.1}
+
+Synthetic image generation is largely similar to the process used by Cheezum et al.\cite{cheezum}. First, a list of maxima are used to generate single pixel impulses. The intensity of these impulses is set to the intensity of the original image at the locations of the maxima. The image is then filtered using a Gaussian kernel to simulate the main lobe of our point spread function, and Gaussian white noise is added on top of the image.
+
+The levels of our white noise was chosen based on the computed background statistics from part B.2.1. The results of this process can be seen in Figure \ref{fig:syntheticImage}; it closely resembles the actual image it was generated from.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=16cm]{figures/synthetic_image.png}
+\caption{A sample synthetic image, and the original image it was generated from}
+\label{fig:syntheticImage}
+\end{figure}
+
+
+\subsection*{B.3.2}
+
+To perform subpixel detection, the test image is first upsampled by a factor of 5. After this, a Gaussian kernel is created with the side of the Rayleigh limit. Then, starting at each pixel-resolution maxima found in Part 1, we search an area of one pixel in each direction. The Gaussian kernel is scaled by the center point at each location, and the error between the image and the kernel is calculated. The location with the lowest error is chosen as the true particle location. See Figure \ref{fig:subpixelReal} for sample subpixel detection results, and the next section for a statistical analysis of our accuracy.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=16cm]{figures/subpixel_real_full.png}
+\includegraphics[width=16cm]{figures/subpixel_real_zoom.png}
+\caption{The detected particle locations using subpixel Gaussian fitting, full and zoomed}
+\label{fig:subpixelReal}
+\end{figure}
+
+
+\subsection*{B.3.3}
+
+To test the performance of our subpixel Gaussian fitting algorithm, we identify the locations of our particles in the synthetic image. Since we know exactly where these particles were located, we compared the results returned by the Gaussian fitting with the known center coordinates. The error between the detected and actual x- and y- coordinates was calculated, and found to have the following statistics:
+
+\begin{center}
+\begin{tabular}{r | c | c}
+               & y-coordinate & x-coordinate \\ \hline
+    Mean Error & -0.042 px      & 0 px       \\
+    Error STD  & 0.202 px       & 0.206 px
+\end{tabular}
+\end{center}
+
+Our fitting was found to be largely unbiased, and accurate to within a fifth of a pixel. It correctly reported the location of 44 out of our 48 particles. Note that our synthetic image was low noise; its background noise followed the same statistics as the (relatively clean) source image it was generated from. This suggests the performance of our fitting is strong under high quality imaging.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=16cm]{figures/subpixel_synthetic_full.png}
+\includegraphics[width=16cm]{figures/subpixel_synthetic_zoom.png}
+\caption{The detected particle locations using subpixel Gaussian fitting on a
+    synthetic image, full and zoomed}
+\label{fig:subpixelSynthetic}
+\end{figure}
+
+
+
+\pagebreak
+\section*{Appendix A: Reproducing The Results}
  
 The results could be reproduced as in the class presentation and this report, by setting 2 parameters in the main project m-file, ``pr2.m'', the following way.
 \begin{enumerate}
@@ -167,60 +219,6 @@ plotting = false;
 The MATLAB environment files in `.mat' format are stored in the `mat\_files' directory in the project root.
 \end{enumerate}
  
-
-
-
-\pagebreak
-\question{Part 2: Sub-pixel Resolution Particle Detection}
-
-\textbf{B.3.1}
-
-Synthetic image generation is largely similar to the process used by Cheezum et al.\cite{cheezum}. First, a list of maxima are used to generate single pixel impulses. The intensity of these impulses is set to the intensity of the original image at the locations of the maxima. The image is then filtered using a Gaussian kernel to simulate the main lobe of our point spread function, and Gaussian white noise is added on top of the image.
-
-The levels of our white noise was chosen based on the computed background statistics from part B.2.1. The results of this process can be seen in Figure \ref{fig:syntheticImage}; it closely resembles the actual image it was generated from.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=16cm]{figures/synthetic_image.png}
-\caption{A sample synthetic image, and the original image it was generated from}
-\label{fig:syntheticImage}
-\end{figure}
-
-
-\textbf{B.3.2}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=16cm]{figures/subpixel_real_full.png}
-\includegraphics[width=16cm]{figures/subpixel_real_zoom.png}
-\caption{The detected particle locations using subpixel Gaussian fitting, full and zoomed}
-\label{fig:subpixelReal}
-\end{figure}
-
-
-\textbf{B.3.3}
-
-To test the performance of our subpixel Gaussian fitting algorithm, we used to to identify the locations of our particles in the synthetic image. Since we know exactly where these particles were located, we compared the results returned by the Gaussian fitting with the known center coordinates. The error between the two x and y coordinates was calculated, and found to have the following statistics:
-
-\begin{center}
-\begin{tabular}{r | c | c}
-               & y-coordinate & x-coordinate \\ \hline
-    mean error & -0.042 px      & 0 px       \\
-    error std  & 0.202 px       & 0.206 px
-\end{tabular}
-\end{center}
-
-Our fitting was found to be largely unbiased, and accurate to within a fifth of a pixel. It correctly reported the location of 44 out of our 48 particles. Note that our synthetic image was low noise; its background noise followed the same statistics as the (relatively clean) source image it was generated from. This suggests the performance of our fitting is strong under high quality imaging.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=16cm]{figures/subpixel_synthetic_full.png}
-\includegraphics[width=16cm]{figures/subpixel_synthetic_zoom.png}
-\caption{The detected particle locations using subpixel Gaussian fitting on a
-    synthetic image, full and zoomed}
-\label{fig:subpixelSynthetic}
-\end{figure}
-
 
 
 \pagebreak
