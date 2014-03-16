@@ -31,7 +31,6 @@ if x_min < 1
     colsToRemove = 1 - x_min;
     kernel_fit = kernel_fit(:,colsToRemove+1:size(kernel,2));
     x_min = 1;
-    size(kernel_fit)
 end
 if x_max > size(image,2)
     colsToRemove = x_max - size(image,2);
