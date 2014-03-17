@@ -121,7 +121,7 @@ For this implementation, the MATLAB built-in function \texttt{DelaunayTri} was u
 
 \subsection*{B.2.4}
  
-The associated maxima found by Delaunay Triangulation are further investigated in this part, in order to quantify a level of confidence for the detected particles. The section* allowed to remove the speckle intensity variation term ($\sigma^2(I_L)$) in equation (4) of reference \cite{ponti}, as well as assuming that the local minima intensities' mean and variance match the cropped region's intensity mean and variance in Part B.2.1. Thanks to these simplifications, the task here is reduced to a comparison of the background to the detected speckle in terms of intensity, with a chosen level of confidence. If this task is expressed in mathematical form, following \cite{ponti}:
+The associated maxima found by Delaunay Triangulation are further investigated in this part, in order to quantify a level of confidence for the detected particles. The question allowed to remove the speckle intensity variation term ($\sigma^2(I_L)$) in equation (4) of reference \cite{ponti}, as well as assuming that the local minima intensities' mean and variance match the cropped region's intensity mean and variance in Part B.2.1. Thanks to these simplifications, the task here is reduced to a comparison of the background to the detected speckle in terms of intensity, with a chosen level of confidence. If this task is expressed in mathematical form, following \cite{ponti}:
 
 \begin{align}
 I_{maxima} - \mu_{BG} &= Q\cdot \sigma_{\Delta I}\\
