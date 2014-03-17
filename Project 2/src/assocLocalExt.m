@@ -66,8 +66,11 @@ for i = 1:size(tri,1)
     associated.triAddr{i} = [Xtri Ytri];
     associated.LocalMaxAddr{i} = [img.allMaxima(tmpIndex, 1) ...
         img.allMaxima(tmpIndex, 2)];
-    associated.BGmu{i} = mean(img.allMinima(tri(i,:),:));
-    associated.BGstd{i} = std(img.allMinima(tri(i,:),:));
+    
+    minimaCoords = img.allMinima(tri(i,:),:);
+    minima = diag(img.data(minimaCoords(:,1), minimaCoords(:,2)));
+    associated.BGmu{i} = mean(minima);
+    associated.BGstd{i} = std(minima);
 end
 
 

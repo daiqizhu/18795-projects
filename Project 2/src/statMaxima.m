@@ -26,7 +26,7 @@ for i = 1:Ntriangles
         % If maxima is trustworthy
         if img.data(img.associated.LocalMaxAddr{i}(1), ...
             img.associated.LocalMaxAddr{i}(2)) ...
-                >= (Q*1/sqrt(3)*noiseStd + noiseMean)
+                >= Q*1/sqrt(3)*noiseStd + img.associated.BGmu{i}
             % Store it gladly
             statisticalMaxima = [statisticalMaxima; 
                 img.associated.LocalMaxAddr{i}]; %#ok append
