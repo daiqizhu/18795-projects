@@ -1,5 +1,5 @@
 %
-% 18-795 Project 2
+% 18-795 Project 3
 % Alex Sun Yoo (ayoo), Michael Nye (mnye), Ozan Iskilibli (oiskilib)
 % Spring, 2014
 %
@@ -12,16 +12,23 @@ clear all
 close all
 clc
 
+% Create a clean directory for output
+if exist('../mat_files','dir')
+    rmdir('../mat_files', 's');
+end
+mkdir('../mat_files');
 
+
+%% B.1 Read Image Data
 % Load our image files
 disp 'Loading image files...'
 imageFiles = dir('../images/*.tif');
 images = [];
 
-Nimages = numel(imageFiles);
-Nimages = 1;
+NimagesB = numel(imageFiles);
+NimagesB = 1;
 
-for ii = 1:Nimages
+for ii = 1:NimagesB
     image.name = imageFiles(ii).name;
     img = im2double(imread(['../images/' image.name]));
     image.data = img / max(max(img));
@@ -30,5 +37,22 @@ end
 clear img;
 
 
-% Compute image gradients
-[images(1).dx images(1).dy] = funcDeriv(images(1).data);
+%% B.2 Characterizing fluorescence image background noise
+
+
+%% B.3 Characterizing illumination uniformity
+
+
+%% B.4 Microscope pixel calibration
+
+
+%% B.5 Implementation of a directional anisotropic filter
+
+
+%% C.0 Read Image Data
+
+
+%% C.1 Implementation of the Steger?s algorithm
+
+
+%% C.2 Implementation of the pixel linking operation
