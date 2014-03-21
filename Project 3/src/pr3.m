@@ -20,24 +20,50 @@ mkdir('../mat_files');
 
 
 %% B.1 Read Image Data
-% Load our image files
-disp 'Loading image files...'
-imageFiles = dir('../images/*.tif');
+disp 'PART 1', disp 'Loading image files...'
+
+drosophilaDir = '../microscope_char/DrosophilaVesicleTransport/';
+drosophilaFiles = dir([drosophilaDir '*.tif']);
+drosophilaImages = [];
+
+N = numel(drosophilaFiles); % N = 1; %#ok only first
+for ii = 1:N
+    image.name = drosophilaFiles(ii).name;
+    image.data = im2double(imread([drosophilaDir image.name]));
+    drosophilaImages = [drosophilaImages; image]; %#ok append
+end
+clear drosophilaDir drosophilaFiles N image;
+
+
+calibrationDir = '../microscope_char/';
+calibrationFiles = dir([calibrationDir '*.tif']);
+calibrationImages = [];
+
+N = numel(calibrationFiles); % N = 1; %#ok only first
+for ii = 1:N
+    image.name = calibrationFiles(ii).name;
+    image.data = im2double(imread([calibrationDir image.name]));
+    calibrationImages = [calibrationImages; image]; %#ok append
+end
+clear calibrationDir calibrationFiles N image;
+
+
+imagesDir = '../images/';
+imagesFiles = dir([imagesDir '*.tiff']);
 images = [];
 
-NimagesB = numel(imageFiles);
-NimagesB = 1;
-
-for ii = 1:NimagesB
-    image.name = imageFiles(ii).name;
-    img = im2double(imread(['../images/' image.name]));
-    image.data = img / max(max(img));
-    images = [images; image]; %#ok
+N = numel(imagesFiles); % N = 1; %#ok only first
+for ii = 1:N
+    image.name = imagesFiles(ii).name;
+    image.data = im2double(imread([imagesDir image.name]));
+    images = [images; image]; %#ok append
 end
-clear img;
+clear imagesDir imagesFiles N image;
 
 
 %% B.2 Characterizing fluorescence image background noise
+disp 'Characterizing image background noise...'
+
 
 
 %% B.3 Characterizing illumination uniformity
@@ -50,6 +76,19 @@ clear img;
 
 
 %% C.0 Read Image Data
+disp ' ', disp 'PART 2', disp 'Loading image files...'
+
+curveDir = '../curve_detection_images/';
+curveFiles = dir([curveDir '*.tif']);
+curveImages = [];
+
+N = numel(curveFiles); %N = 1; %#ok only first
+for ii = 1:N
+    image.name = curveFiles(ii).name;
+    image.data = im2double(imread([curveDir image.name]));
+    curveImages = [curveImages; image]; %#ok append
+end
+clear curveDir curveFiles N image;
 
 
 %% C.1 Implementation of the Steger?s algorithm
