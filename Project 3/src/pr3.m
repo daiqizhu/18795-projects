@@ -18,6 +18,9 @@ if exist('../mat_files','dir')
 end
 mkdir('../mat_files');
 
+% Define parameters
+plotting = true;
+
 
 %% B.1 Read Image Data
 disp 'PART 1', disp 'Loading image files...'
@@ -63,7 +66,47 @@ clear imagesDir imagesFiles N image;
 
 %% B.2 Characterizing fluorescence image background noise
 disp 'Characterizing image background noise...'
+% First define a crop region
+% Hardcoded set to the entire bottom field of the image below the particles
+region = [1 80 695 56];
 
+% Then loop, cropping and computing distributions
+for ii=1:numel(drosophilaImages)
+    [drosophilaImages(ii).cropped, drosophilaImages(ii).nmean, ...
+        drosophilaImages(ii).nvar] = ...
+        computeNoiseDistribution(drosophilaImages(ii), region); %#ok
+end
+
+% Display results
+if plotting
+    % First display sample histogram
+    noise = drosophilaImages(1).cropped(:);
+    bins = 30;
+    
+    figure(); hold on;
+    hist(noise, bins);
+    
+    % Overlay a normal distribution
+    xs = linspace(min(noise), max(noise), 512);
+    dist = normpdf(xs, drosophilaImages(1).nmean, ...
+        sqrt(drosophilaImages(1).nvar));
+    plot(xs, dist * max(hist(noise,bins)) / max(dist), 'r', 'LineWidth', 2);
+    
+    title('Distribution of noise in image background');
+    legend('Actual', 'Ideal Gaussian');
+    
+    % Then display the mean and variance over time
+    figure();
+    ax = plotyy(1:numel(drosophilaImages), [drosophilaImages.nmean], ...
+        1:numel(drosophilaImages), [drosophilaImages.nvar]);
+    set(get(ax(1),'Ylabel'),'String','Noise mean');
+    set(get(ax(2),'Ylabel'),'String','Noise variance');
+    legend('Noise mean', 'Noise variance');
+    title('Noise mean and variance over time');
+end
+
+
+clear region noise bins xs dist ax;
 
 
 %% B.3 Characterizing illumination uniformity
