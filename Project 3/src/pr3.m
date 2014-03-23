@@ -13,13 +13,14 @@ close all
 clc
 
 % Create a clean directory for output
-if exist('../mat_files','dir')
-    rmdir('../mat_files', 's');
+if exist('../outputs','dir')
+    rmdir('../outputs', 's');
 end
-mkdir('../mat_files');
+mkdir('../outputs');
 
 % Define parameters
 plotting = true;
+
 
 
 %% B.1 Read Image Data
@@ -51,17 +52,20 @@ end
 clear calibrationDir calibrationFiles N image;
 
 
+% Hard code these two images
 imagesDir = '../images/';
-imagesFiles = dir([imagesDir '*.tiff']);
-images = [];
+images(1).name = [imagesDir 'image01.tiff'];
+images(1).data = im2double(imread(images(1).name));
 
-N = numel(imagesFiles); % N = 1; %#ok only first
-for ii = 1:N
-    image.name = imagesFiles(ii).name;
-    image.data = im2double(imread([imagesDir image.name]));
-    images = [images; image]; %#ok append
-end
-clear imagesDir imagesFiles N image;
+images(2).name = [imagesDir 'image02.tiff'];
+images(3).name = [imagesDir 'image02.tiff'];
+
+imginfo = imfinfo(images(2).name);
+images(2).data = im2double(imread(images(2).name, 1, 'Info', imginfo));
+images(3).data = im2double(imread(images(2).name, 2, 'Info', imginfo));
+
+clear imagesDir imagesFiles N imginfo;
+
 
 
 %% B.2 Characterizing fluorescence image background noise
@@ -73,40 +77,49 @@ region = [1 80 695 56];
 % Then loop, cropping and computing distributions
 for ii=1:numel(drosophilaImages)
     [drosophilaImages(ii).cropped, drosophilaImages(ii).nmean, ...
-        drosophilaImages(ii).nvar] = ...
+        drosophilaImages(ii).nstd] = ...
         computeNoiseDistribution(drosophilaImages(ii), region); %#ok
 end
+
+
+% Save the images
+for ii=1:numel(drosophilaImages)
+    image = drosophilaImages(ii);
+    path = ['../outputs/' image.name(1:end-4) '_noise.tif'];
+    imwrite(image.cropped, path, 'tif', 'Compression', 'none');
+end
+
 
 % Display results
 if plotting
     % First display sample histogram
-    noise = drosophilaImages(1).cropped(:);
-    bins = 30;
-    
-    figure(); hold on;
-    hist(noise, bins);
-    
-    % Overlay a normal distribution
-    xs = linspace(min(noise), max(noise), 512);
-    dist = normpdf(xs, drosophilaImages(1).nmean, ...
-        sqrt(drosophilaImages(1).nvar));
-    plot(xs, dist * max(hist(noise,bins)) / max(dist), 'r', 'LineWidth', 2);
-    
-    title('Distribution of noise in image background');
-    legend('Actual', 'Ideal Gaussian');
+    displayNoiseHistogram(drosophilaImages(1), 30);
     
     % Then display the mean and variance over time
-    figure();
-    ax = plotyy(1:numel(drosophilaImages), [drosophilaImages.nmean], ...
-        1:numel(drosophilaImages), [drosophilaImages.nvar]);
-    set(get(ax(1),'Ylabel'),'String','Noise mean');
-    set(get(ax(2),'Ylabel'),'String','Noise variance');
-    legend('Noise mean', 'Noise variance');
-    title('Noise mean and variance over time');
+    displayNoiseStatistics(drosophilaImages);
 end
 
 
-clear region noise bins xs dist ax;
+% Perform analysis on images from pr1
+region = [1 200 300 160];
+[images(1).cropped, images(1).nmean, images(1).nstd] = ...
+    computeNoiseDistribution(images(1), region);
+
+region = [1 1 740 400];
+[images(2).cropped, images(2).nmean, images(2).nstd] = ...
+    computeNoiseDistribution(images(2), region);
+[images(3).cropped, images(3).nmean, images(3).nstd] = ...
+    computeNoiseDistribution(images(3), region);
+
+if plotting
+    displayNoiseHistogram(images(1), 4);
+    displayNoiseHistogram(images(2), 4);
+    displayNoiseHistogram(images(2), 4);
+end
+
+
+clear region image;
+
 
 
 %% B.3 Characterizing illumination uniformity
