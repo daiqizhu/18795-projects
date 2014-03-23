@@ -24,6 +24,7 @@ summed = zeros(size(images(1).cropped,1), size(images(1).cropped,2));
 for ii=1:numel(images)
     summed = summed + images(ii).cropped;
 end
+summed = summed/numel(images);
 
 figure();
 subplot(2,1,1), plot(1:size(summed,2), mean(summed));

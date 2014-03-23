@@ -72,14 +72,22 @@ Due: \hmwkDueDate\\
 
 \section*{Part 1: Microscope Characterization}
 
-
-
 \subsection*{B.1 Image Data}
 
+All of our image data is read into a vector of structs, with consistent field naming. This allows us to write generic functions that can operate on any set of images we pass to it, and gives us a grouping with which to store all results bundled together.
 
 
 \subsection*{B.2 Characterizing fluorescence image background noise}
 
+To compute noise statistics, we first crop out a region of the image containing noise. To do so, a region in each image that contained no features was manually found, and then that region was stored into our script for repeatability. Each image is then cropped using this region, and the mean and variance is calculated over the cropped region.
+
+To determine the distribution of the data, the noise samples were plotted in a histogram and inspected visually. Upon observation, it was found that the data appears to perfectly follow a Gaussian distribution.
+
+To analyze the image sequence over time, we then generated plots showing the mean and variance of the noise over time for the image sequence. We found that the mean noise intensity drops over the sequence of images, as does the variance.
+
+To analyze the spatial dependency of the noise, we plotted the mean of noise over columns in one plot, and rows in another. We found that the intensity was highest for our noise field in the top left, and lowest in the bottom right. The noise displays a rough linear decay across the image.
+
+% TODO: FIGURES
 
 
 \subsection*{B.3 Characterizing illumination uniformity}
