@@ -52,7 +52,7 @@ end
 clear calibrationDir calibrationFiles N image;
 
 
-% Hard code these two images
+% Hard code these two images (from Project 1)
 imagesDir = '../images/';
 images(1).name = [imagesDir 'image01.tiff'];
 images(1).data = im2double(imread(images(1).name));
@@ -70,6 +70,7 @@ clear imagesDir imagesFiles N imginfo;
 
 %% B.2 Characterizing fluorescence image background noise
 disp 'Characterizing image background noise...'
+
 % First define a crop region
 % Hardcoded set to the entire bottom field of the image below the particles
 region = [1 80 695 56];
@@ -114,7 +115,7 @@ region = [1 1 740 400];
 if plotting
     displayNoiseHistogram(images(1), 4);
     displayNoiseHistogram(images(2), 4);
-    displayNoiseHistogram(images(2), 4);
+    displayNoiseHistogram(images(3), 4);
 end
 
 

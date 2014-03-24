@@ -9,6 +9,7 @@
 \usepackage{multirow}
 \usepackage{ifthen}
 \usepackage{enumerate}
+\usepackage{subcaption}
 \usepackage[hidelinks]{hyperref}
 \usepackage{soul}
 
@@ -81,13 +82,36 @@ All of our image data is read into a vector of structs, with consistent field na
 
 To compute noise statistics, we first crop out a region of the image containing noise. To do so, a region in each image that contained no features was manually found, and then that region was stored into our script for repeatability. Each image is then cropped using this region, and the mean and variance is calculated over the cropped region.
 
-To determine the distribution of the data, the noise samples were plotted in a histogram and inspected visually. Upon observation, it was found that the data appears to perfectly follow a Gaussian distribution.
+To determine the distribution of the data, the noise samples were plotted in a histogram and inspected visually. Upon observation, it was found that the data appears to perfectly follow a Gaussian distribution, shown in Figure \ref{fig:noise_dist_background}.
 
-To analyze the image sequence over time, we then generated plots showing the mean and variance of the noise over time for the image sequence. We found that the mean noise intensity drops over the sequence of images, as does the variance.
+To analyze the image sequence over time, we then generated plots showing the mean and variance of the noise over time for the image sequence. We found that both the mean and variance of the noise intensity decreased over time, shown in Figure \ref{fig:noise_mean_var_time}.
 
-To analyze the spatial dependency of the noise, we plotted the mean of noise over columns in one plot, and rows in another. We found that the intensity was highest for our noise field in the top left, and lowest in the bottom right. The noise displays a rough linear decay across the image.
+To analyze the spatial dependency of the noise, we plotted the mean of noise over columns in one plot, and rows in another (Figure \ref{fig:noise_intensity_space}. We found that the intensity was highest for our noise field in the top left, and lowest in the bottom right. The noise displays a rough linear decay across the image in both the $x$ and $y$ directions.
 
 % TODO: FIGURES
+
+\begin{figure}[b]
+\begin{minipage}[b]{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{figures/noise_distribution_background.png}
+\caption{Noise distribution in background}
+\label{fig:noise_dist_background}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{figures/noise_mean_variance_over_time.png}
+\caption{Noise Mean \& Variance over time}
+\label{fig:noise_mean_var_time}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.45\linewidth]{figures/noise_intensity_over_space.png}
+\caption{Average Noise Intensity over Space}
+\label{fig:noise_intensity_space}
+\end{figure}
 
 
 \subsection*{B.3 Characterizing illumination uniformity}
