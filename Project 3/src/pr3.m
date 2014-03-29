@@ -20,6 +20,7 @@ mkdir('../outputs');
 
 % Define parameters
 plotting = true;
+normalityTest = false; % this is slow, so disable it for now
 
 
 
@@ -64,7 +65,7 @@ imginfo = imfinfo(images(2).name);
 images(2).data = im2double(imread(images(2).name, 1, 'Info', imginfo));
 images(3).data = im2double(imread(images(2).name, 2, 'Info', imginfo));
 
-clear imagesDir imagesFiles N imginfo;
+clear ii imagesDir imagesFiles imginfo N;
 
 
 
@@ -80,6 +81,10 @@ for ii=1:numel(drosophilaImages)
     [drosophilaImages(ii).cropped, drosophilaImages(ii).nmean, ...
         drosophilaImages(ii).nstd] = ...
         computeNoiseDistribution(drosophilaImages(ii), region); %#ok
+    
+    if normalityTest
+        drosophilaImages(ii).normal = normalityTest(drosophilaImages(ii));
+    end
 end
 
 
@@ -119,7 +124,7 @@ if plotting
 end
 
 
-clear region image;
+clear ii image path region;
 
 
 
