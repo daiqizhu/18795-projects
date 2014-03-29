@@ -78,6 +78,7 @@ region = [1 80 695 56];
 
 % Then loop, cropping and computing distributions
 for ii=1:numel(drosophilaImages)
+    fprintf('    Computing for image %d\n', ii);
     [drosophilaImages(ii).cropped, drosophilaImages(ii).nmean, ...
         drosophilaImages(ii).nstd] = ...
         computeNoiseDistribution(drosophilaImages(ii), region); %#ok
@@ -150,10 +151,35 @@ for ii = 1:N
     image.data = im2double(imread([curveDir image.name]));
     curveImages = [curveImages; image]; %#ok append
 end
-clear curveDir curveFiles N image;
+clear curveDir curveFiles ii image N;
 
 
-%% C.1 Implementation of the Steger?s algorithm
+%% C.1 Implementation of the Steger's algorithm
+disp 'Performing Steger line detection...'
+% First set sigma based on the maximum line size, visually estimated to be
+% 10 pixels across
+sigma = 10/sqrt(3);
 
+for ii=1:numel(curveImages)
+    fprintf('    Computing for image %d\n', ii);
+    
+    % Compute the pixels on the line
+    curveImages(ii).lineCoords = ...
+        stegerLineDetection(curveImages(ii), sigma); %#ok
+    
+    %% Display the results
+    if plotting
+        figure();
+        imagesc(curveImages(ii).data), colormap gray, axis image;
+        
+        xs = curveImages(ii).lineCoords(:,1);
+        ys = curveImages(ii).lineCoords(:,2);
+        hold on, scatter(xs, ys, 'r.');
+        
+        title(['Lines for image ' num2str(ii)]);
+    end
+end
+
+clear sigma xs ys;
 
 %% C.2 Implementation of the pixel linking operation
