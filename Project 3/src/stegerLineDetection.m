@@ -6,7 +6,7 @@ function coords = stegerLineDetection(image, sigma)
 % image
 %
 % Inputs:  image - an image structure
-%          sigma - the sigma used to gaussian blur the image
+%          sigma - the sigma used for the gaussian kernel to blur the image
 %
 % Outputs: coords - a matrix containing coordinates to points that are on a
 %                   line. The first column is xs, the second is ys
@@ -20,6 +20,7 @@ img = filter2(kernel, image.data);
 dx = padarray(diff(img,1,2), [0 1], 'post');
 dy = padarray(diff(img,1,1), [1 0], 'post');
 
+% Any reason you don't use 'post' for dxdx and dydy?
 dxdx = padarray(diff(img, 2, 2), [0 1]);
 dydy = padarray(diff(img, 2, 1), [1 0]);
 dxdy = padarray(diff(diff(img, 1, 2), 1, 1), [1 1], 'post');
@@ -29,6 +30,7 @@ dydx = padarray(diff(diff(img, 1, 1), 1, 2), [1 1], 'post');
 coords = [];
 for y=1:size(img,1)
     for x=1:size(img,2)
+        
         % 0. Pack the hessian matrix and gradient
         hessian = [dxdx(y,x) dxdy(y,x); dydx(y,x), dydy(y,x)];
         grad = [dx(y,x); dy(y,x)];

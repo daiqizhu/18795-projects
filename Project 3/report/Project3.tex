@@ -131,6 +131,54 @@ To analyze the spatial dependency of the noise, we plotted the mean of noise ove
 
 \subsection*{C.1 Implementation of the Steger's algorithm}
 
+We implemented Steger's algorithm to detect and identify pixels for being on lines and curves of a given image. Our implementation of Steger's algorithm first blurred a given image with a Gaussian kernel with the standard deviation of $\sigma = \frac{n}{\sqrt{3}}$, where $n$ is the estimated maximum line size in pixels (we used $n = 10$ pixels). The matlab command \texttt{fspecial} was used 
+to create the kernel, followed by \texttt{filter2} for the actual filtering of the image.
+
+Next, both the first and second order derivatives were calculated across the entire image in each dimension by taking the differences between the pixels, using the \texttt{diff} command. The resulting matrices were padded appropriately to match with the iteration through every pixel that will happen for the computational section.
+
+Our algorithm then interated through every pixel in the original image. For each pixel, it created the hessian matrix and gradient using the appropriate values from the differences matrices calculated already. From the hessian matrix, the eigenvector with the corresponding eigenvalue of greatest magnitude was taken as the direction.
+
+\begin{equation}
+\text{direction vector} = [n_x, n_y]
+\label{eq:direction}
+\end{equation}
+
+The first and second order directional derivatives were then calculated using equations \ref{eq:1_directional_derivative} and \ref{eq:2_directional_derivative}. The location of the local intensity maximum was calculated via equation \ref{eq:local_intensity_max}, then tested if its absolute value was less than $\frac{1}{2}$; if it was, then the pixel was marked as a center line point.
+
+\begin{equation}
+r' = [n_x,n_y][f_x,f_y]^T
+\label{eq:1_directional_derivative}
+\end{equation}
+\begin{equation}
+r'' = [n_x,n_y]H[n_x,n_y]^T
+\label{eq:2_directional_derivative}
+\end{equation}
+\begin{equation}
+x^* = -\frac{r'}{r''}
+\label{eq:local_intensity_max}
+\end{equation}
+
+\begin{figure}[h]
+\begin{minipage}[b]{0.3\linewidth}
+\centering
+\includegraphics[width=\textwidth]{figures/line_detection_1.png}
+\caption{Line Detect (Image 1)}
+\label{fig:line_detect_1}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.3\linewidth}
+\centering
+\includegraphics[width=\textwidth]{figures/line_detection_2.png}
+\caption{Line Detect (Image 2)}
+\label{fig:line_detect_2}
+\end{minipage}
+\begin{minipage}[b]{0.3\linewidth}
+\centering
+\includegraphics[width=\textwidth]{figures/line_detection_3.png}
+\caption{Line Detect (Image 3)}
+\label{fig:line_detect_3}
+\end{minipage}
+\end{figure}
 
 
 \subsection*{C.2 Implementation of the pixel inking operation}

@@ -129,7 +129,7 @@ clear ii image path region;
 
 
 
-%% B.3 Characterizing illumination uniformity
+%% B.3 Characterizing   illumination uniformity
 
 
 %% B.4 Microscope pixel calibration
@@ -156,8 +156,9 @@ clear curveDir curveFiles ii image N;
 
 %% C.1 Implementation of the Steger's algorithm
 disp 'Performing Steger line detection...'
+
 % First set sigma based on the maximum line size, visually estimated to be
-% 10 pixels across
+% 10 pixels across. This is used for the Gaussian kernel.
 sigma = 10/sqrt(3);
 
 for ii=1:numel(curveImages)
