@@ -84,7 +84,7 @@ for ii=1:numel(drosophilaImages)
         computeNoiseDistribution(drosophilaImages(ii), region); %#ok
     
     if normalityTest
-        drosophilaImages(ii).normal = normalityTest(drosophilaImages(ii));
+        drosophilaImages(ii).normal = funcNormalityTest(drosophilaImages(ii));
     end
 end
 
