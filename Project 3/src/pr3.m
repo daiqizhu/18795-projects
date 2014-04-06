@@ -129,7 +129,20 @@ clear ii image path region;
 
 
 
-%% B.3 Characterizing   illumination uniformity
+%% B.3 Characterizing illumination uniformity
+
+disp 'Calculating Illlumination Uniformity...'
+
+% This code tests the computeUniformIllumination function on one image
+
+% Get the noise sample to use for image 1
+noise_sample = images(1).cropped;
+noise_min = min(min(noise_sample));
+noise_max = max(max(noise_sample));
+
+% Calculate the uniformity of illumination
+image_unif_illum = computeUniformIllumination(images(1).data,...
+    noise_min, noise_max)
 
 
 %% B.4 Microscope pixel calibration
