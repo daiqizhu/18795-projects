@@ -19,7 +19,7 @@ end
 mkdir('../outputs');
 
 % Define parameters
-plotting = true;
+plotting = false;
 normalityTest = false; % this is slow, so disable it for now
 
 
@@ -147,6 +147,12 @@ image_unif_illum = computeUniformIllumination(images(1).data,...
 
 %% B.4 Microscope pixel calibration
 
+% Manual/ interactive approach to calibrate pixel size.
+
+
+for ii=1:1%numel(calibrationImages)
+    funcCalibrateManually;
+end
 
 %% B.5 Implementation of a directional anisotropic filter
 
