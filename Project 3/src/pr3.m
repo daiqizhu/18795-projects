@@ -52,110 +52,128 @@ for ii = 1:N
 end
 clear calibrationDir calibrationFiles N image;
 
-
-% Hard code these two images (from Project 1)
-imagesDir = '../images/';
-images(1).name = [imagesDir 'image01.tiff'];
-images(1).data = im2double(imread(images(1).name));
-
-images(2).name = [imagesDir 'image02.tiff'];
-images(3).name = [imagesDir 'image02.tiff'];
-
-imginfo = imfinfo(images(2).name);
-images(2).data = im2double(imread(images(2).name, 1, 'Info', imginfo));
-images(3).data = im2double(imread(images(2).name, 2, 'Info', imginfo));
-
-clear ii imagesDir imagesFiles imginfo N;
-
-
-
-%% B.2 Characterizing fluorescence image background noise
-disp 'Characterizing image background noise...'
-
-% First define a crop region
-% Hardcoded set to the entire bottom field of the image below the particles
-region = [1 80 695 56];
-
-% Then loop, cropping and computing distributions
-for ii=1:numel(drosophilaImages)
-    fprintf('    Computing for image %d\n', ii);
-    [drosophilaImages(ii).cropped, drosophilaImages(ii).nmean, ...
-        drosophilaImages(ii).nstd] = ...
-        computeNoiseDistribution(drosophilaImages(ii), region); %#ok
-    
-    if normalityTest
-        drosophilaImages(ii).normal = funcNormalityTest(drosophilaImages(ii));
-    end
-end
-
-
-% Save the images
-for ii=1:numel(drosophilaImages)
-    image = drosophilaImages(ii);
-    path = ['../outputs/' image.name(1:end-4) '_noise.tif'];
-    imwrite(image.cropped, path, 'tif', 'Compression', 'none');
-end
-
-
-% Display results
-if plotting
-    % First display sample histogram
-    displayNoiseHistogram(drosophilaImages(1), 30);
-    
-    % Then display the mean and variance over time
-    displayNoiseStatistics(drosophilaImages);
-end
-
-
-% Perform analysis on images from pr1
-region = [1 200 300 160];
-[images(1).cropped, images(1).nmean, images(1).nstd] = ...
-    computeNoiseDistribution(images(1), region);
-
-region = [1 1 740 400];
-[images(2).cropped, images(2).nmean, images(2).nstd] = ...
-    computeNoiseDistribution(images(2), region);
-[images(3).cropped, images(3).nmean, images(3).nstd] = ...
-    computeNoiseDistribution(images(3), region);
-
-if plotting
-    displayNoiseHistogram(images(1), 4);
-    displayNoiseHistogram(images(2), 4);
-    displayNoiseHistogram(images(3), 4);
-end
-
-
-clear ii image path region;
-
-
-
-%% B.3 Characterizing illumination uniformity
-
-disp 'Calculating Illlumination Uniformity...'
-
-% This code tests the computeUniformIllumination function on one image
-
-% Get the noise sample to use for image 1
-noise_sample = images(1).cropped;
-noise_min = min(min(noise_sample));
-noise_max = max(max(noise_sample));
-
-% Calculate the uniformity of illumination
-image_unif_illum = computeUniformIllumination(images(1).data,...
-    noise_min, noise_max)
+% 
+% % Hard code these two images (from Project 1)
+% imagesDir = '../images/';
+% images(1).name = [imagesDir 'image01.tiff'];
+% images(1).data = im2double(imread(images(1).name));
+% 
+% images(2).name = [imagesDir 'image02.tiff'];
+% images(3).name = [imagesDir 'image02.tiff'];
+% 
+% imginfo = imfinfo(images(2).name);
+% images(2).data = im2double(imread(images(2).name, 1, 'Info', imginfo));
+% images(3).data = im2double(imread(images(2).name, 2, 'Info', imginfo));
+% 
+% clear ii imagesDir imagesFiles imginfo N;
+% 
+% 
+% 
+% %% B.2 Characterizing fluorescence image background noise
+% disp 'Characterizing image background noise...'
+% 
+% % First define a crop region
+% % Hardcoded set to the entire bottom field of the image below the particles
+% region = [1 80 695 56];
+% 
+% % Then loop, cropping and computing distributions
+% for ii=1:numel(drosophilaImages)
+%     fprintf('    Computing for image %d\n', ii);
+%     [drosophilaImages(ii).cropped, drosophilaImages(ii).nmean, ...
+%         drosophilaImages(ii).nstd] = ...
+%         computeNoiseDistribution(drosophilaImages(ii), region); %#ok
+%     
+%     if normalityTest
+%         drosophilaImages(ii).normal = funcNormalityTest(drosophilaImages(ii));
+%     end
+% end
+% 
+% 
+% % Save the images
+% for ii=1:numel(drosophilaImages)
+%     image = drosophilaImages(ii);
+%     path = ['../outputs/' image.name(1:end-4) '_noise.tif'];
+%     imwrite(image.cropped, path, 'tif', 'Compression', 'none');
+% end
+% 
+% 
+% % Display results
+% if plotting
+%     % First display sample histogram
+%     displayNoiseHistogram(drosophilaImages(1), 30);
+%     
+%     % Then display the mean and variance over time
+%     displayNoiseStatistics(drosophilaImages);
+% end
+% 
+% 
+% % Perform analysis on images from pr1
+% region = [1 200 300 160];
+% [images(1).cropped, images(1).nmean, images(1).nstd] = ...
+%     computeNoiseDistribution(images(1), region);
+% 
+% region = [1 1 740 400];
+% [images(2).cropped, images(2).nmean, images(2).nstd] = ...
+%     computeNoiseDistribution(images(2), region);
+% [images(3).cropped, images(3).nmean, images(3).nstd] = ...
+%     computeNoiseDistribution(images(3), region);
+% 
+% if plotting
+%     displayNoiseHistogram(images(1), 4);
+%     displayNoiseHistogram(images(2), 4);
+%     displayNoiseHistogram(images(3), 4);
+% end
+% 
+% 
+% clear ii image path region;
+% 
+% 
+% 
+% %% B.3 Characterizing illumination uniformity
+% 
+% disp 'Calculating Illlumination Uniformity...'
+% 
+% % This code tests the computeUniformIllumination function on one image
+% 
+% % Get the noise sample to use for image 1
+% noise_sample = images(1).cropped;
+% noise_min = min(min(noise_sample));
+% noise_max = max(max(noise_sample));
+% 
+% % Calculate the uniformity of illumination
+% image_unif_illum = computeUniformIllumination(images(1).data,...
+%     noise_min, noise_max)
 
 
 %% B.4 Microscope pixel calibration
 
 % Manual/ interactive approach to calibrate pixel size.
 
+% Prepared inputs, in case plotting is off.
+distance = [8 80 40 10 1]*10e-6;
+region = [ 32.0000e+000   366.0000e+000     1.2530e+003   282.0000e+000;
+          134.0000e+000   363.0000e+000     1.2340e+003    92.0000e+000;
+           26.0000e+000   375.0000e+000     1.2460e+003   177.0000e+000;
+          244.0000e+000   237.0000e+000   933.0000e+000   339.0000e+000;
+            1.0000e+000     1.0000e+000     1.0000e+000     1.0000e+000 ];
+% Sweep figures and store pixel sizes as well as cropped rectangles        
+for ii=1:numel(calibrationImages)
+    [calibrationImages(ii).pixSize, calibrationImages(ii).rect] = ...
+        funcCalibrateManually(calibrationImages(ii), plotting, ...
+        region(ii, :), distance(ii));
+end
+clear region distance;
 
-for ii=1:1%numel(calibrationImages)
-    funcCalibrateManually;
+% Automated approach to calibrate pixel size.
+bar2bar = 10e-6;
+for ii=1:numel(calibrationImages)
+    [calibrationImages(ii).pixSize, calibrationImages(ii).rect] = ...
+        funcCalibrateAuto(calibrationImages(ii), plotting, ...
+        region(ii, :), distance(ii));
 end
 
-%% B.5 Implementation of a directional anisotropic filter
 
+%% B.5 Implementation of a directional anisotropic filter
 
 %% C.0 Read Image Data
 disp ' ', disp 'PART 2', disp 'Loading image files...'

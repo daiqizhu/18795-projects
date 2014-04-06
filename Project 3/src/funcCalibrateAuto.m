@@ -1,4 +1,4 @@
-function  [pixSize, rectangle] = funcCalibrateManually(image, plotting, region, distance)
+function  [pixSize, rectangle] = funcCalibrateAuto(image, plotting, region, distance)
 %
 % funcCalPixSize: Calibrates pixel size manually
 %
