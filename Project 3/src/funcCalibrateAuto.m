@@ -1,6 +1,6 @@
 function  [pixSize] = funcCalibrateAuto(image, plotting)
 %
-% funcCalPixSize: Calibrates pixel size manually
+% funcCalPixSize: Finds pixel size automatically
 %
 % Inputs:  image     - an image struct
 %          plotting  - plotting enable flag
