@@ -116,6 +116,15 @@ To analyze the spatial dependency of the noise, we plotted the mean of noise ove
 
 \subsection*{B.3 Characterizing illumination uniformity}
 
+The method we used to characterize uniformity of illumination was essentially to compare the extrema of
+the image with how a close-to-ideal uniform image should be. The image is first filtered with a large low-pass Gaussian kernel
+to smooth out the image; this helps eliminate many extreme outliers that would strongly affect the results.\\
+
+The global maximum and minimum are then taken from the filtered image and then the difference is found.
+This difference is compared with the difference of the maximum and minimum of some background noisy image;
+this is because a background image is an image with close-to-ideal uniformity of illumination, so it is
+appropriate to compare the two differences.
+
 
 
 \subsection*{B.4 Microscope pixel calibration}
