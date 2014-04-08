@@ -8,9 +8,9 @@
 %
 
 % Clean up
-clear all
-close all
-clc
+clear all;
+close all;
+clc;
 
 % Create a clean directory for output
 if exist('../outputs','dir')
@@ -142,7 +142,7 @@ noise_max = max(max(noise_sample));
 
 % Calculate the uniformity of illumination
 image_unif_illum = computeUniformIllumination(images(1).data,...
-    noise_min, noise_max)
+    noise_min, noise_max) %#ok print out
 
 
 % B.4 Microscope pixel calibration
@@ -156,19 +156,21 @@ region = [ 32.0000e+000   366.0000e+000     1.2530e+003   282.0000e+000;
            26.0000e+000   375.0000e+000     1.2460e+003   177.0000e+000;
           244.0000e+000   237.0000e+000   933.0000e+000   339.0000e+000;
             1.0000e+000     1.0000e+000     1.0000e+000     1.0000e+000 ];
+        
 % Sweep figures and store pixel sizes as well as cropped rectangles        
 for ii=1:numel(calibrationImages)
     [calibrationImages(ii).pixSize, calibrationImages(ii).rect] = ...
         funcCalibrateManually(calibrationImages(ii), plotting, ...
         region(ii, :), distance(ii));
 end
-clear region distance;
 
 % Automated approach to calibrate pixel size.
 for ii=1:numel(calibrationImages)
      [calibrationImages(ii).autoPixSize] = ...
          funcCalibrateAuto(calibrationImages(ii), plotting);
 end
+
+clear ii distance noise_sample noise_min noise_max region;
 
 
 %% B.5 Implementation of a directional anisotropic filter
@@ -207,7 +209,7 @@ for ii=1:numel(curveImages)
         curveImages(ii).deriv2] = ...
         stegerLineDetection(curveImages(ii), sigma); %#ok
     
-    %% Display the results
+    % Display the results
     if plotting
         figure();
         imagesc(curveImages(ii).data), colormap gray, axis image;
@@ -220,6 +222,7 @@ for ii=1:numel(curveImages)
     end
 end
 
-clear sigma xs ys;
+clear ii sigma xs ys;
+
 
 %% C.2 Implementation of the pixel linking operation

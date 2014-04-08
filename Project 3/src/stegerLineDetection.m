@@ -16,15 +16,13 @@ function [coords, eigVec, deriv2] = stegerLineDetection(image, sigma)
 kernel = fspecial('gaussian', round([6*sigma+1 6*sigma+1]), sigma);
 img = filter2(kernel, image.data);
 
-% Compute the partial derivatives
+% Compute the partial derivatives, and pad them back to the original size
 dx = padarray(diff(img,1,2), [0 1], 'post');
 dy = padarray(diff(img,1,1), [1 0], 'post');
-
-% Any reason you don't use 'post' for dxdx and dydy?
-dxdx = padarray(diff(img, 2, 2), [0 1]);
-dydy = padarray(diff(img, 2, 1), [1 0]);
-dxdy = padarray(diff(diff(img, 1, 2), 1, 1), [1 1], 'post');
-dydx = padarray(diff(diff(img, 1, 1), 1, 2), [1 1], 'post');
+dxdx = padarray(diff(img, 2, 2), [0 1], 'both');
+dydy = padarray(diff(img, 2, 1), [1 0], 'both');
+dxdy = padarray(diff(diff(img, 1, 1), 1, 2), [1 1], 'post');
+dydx = padarray(diff(diff(img, 1, 2), 1, 1), [1 1], 'post');
 
 % Perform computation on each pixel
 coords = [];
@@ -38,7 +36,7 @@ for y=1:size(img,1)
         grad = [dx(y,x); dy(y,x)];
         
         % 1. Pick the direction from the hessian's eigenvector
-        [V,lambda] = eigs(hessian, 1);
+        [V,~] = eigs(hessian, 1);
         dir = V.'; % convert to row
         
         % 2. Compute first/second directional derivative
@@ -51,8 +49,8 @@ for y=1:size(img,1)
         % 4. Classify the point based on xstar
         if abs(xstar) < 1/2
             coords = [coords; x y]; %#ok append
-            eigVec = [eigVec; dir];
-            deriv2 = [deriv2; r2];
+            eigVec = [eigVec; dir]; %#ok append
+            deriv2 = [deriv2; r2];  %#ok append
         end
     end
 end
