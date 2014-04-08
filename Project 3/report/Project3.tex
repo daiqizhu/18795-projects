@@ -82,11 +82,13 @@ All of our image data is read into a vector of structs, with consistent field na
 
 To compute noise statistics, we first crop out a region of the image containing noise. To do so, a region in each image that contained no features was manually found, and then that region was stored into our script for repeatability. Each image is then cropped using this region, and the mean and variance is calculated over the cropped region.
 
-To determine the distribution of the data, the noise samples were plotted in a histogram and inspected visually. Upon observation, it was found that the data appears to perfectly follow a Gaussian distribution, shown in Figure \ref{fig:noise_dist_background}.
+To determine the distribution of the data, the noise samples were plotted in a histogram and inspected visually. Upon observation, it was found that the data appears to follow a Gaussian distribution, shown in Figure \ref{fig:noise_dist_background}.
+
+Once we had a belief that our noise was normally distributed, we used the Kolmogorov-Smirnov test (implemented in MATLAB as \verb|kstest|) to verify this. This test works by comparing the analytic cumulative distribution function of a distribution to the actually observed CDF for the data. The difference in the distribution gives a confidence interval on how likely the data is to come from a given distribution, and this test confirms with with 95\% confidence that at least 140 of our 150 cropped noise images are drawn from a normal distribution.
 
 To analyze the image sequence over time, we then generated plots showing the mean and variance of the noise over time for the image sequence. We found that both the mean and variance of the noise intensity decreased over time, shown in Figure \ref{fig:noise_mean_var_time}.
 
-To analyze the spatial dependency of the noise, we plotted the mean of noise over columns in one plot, and rows in another (Figure \ref{fig:noise_intensity_space}. We found that the intensity was highest for our noise field in the top left, and lowest in the bottom right. The noise displays a rough linear decay across the image in both the $x$ and $y$ directions.
+To analyze the spatial dependency of the noise, we plotted the mean of noise over columns in one plot, and rows in another (Figure \ref{fig:noise_intensity_space}). We found that the intensity was highest for our noise field in the top left, and lowest in the bottom right. The noise displays a rough linear decay across the image in both the $x$ and $y$ directions.
 
 % TODO: FIGURES
 
@@ -116,23 +118,34 @@ To analyze the spatial dependency of the noise, we plotted the mean of noise ove
 
 \subsection*{B.3 Characterizing illumination uniformity}
 
-The method we used to characterize uniformity of illumination was essentially to compare the extrema of
-the image with how a close-to-ideal uniform image should be. The image is first filtered with a large low-pass Gaussian kernel
-to smooth out the image; this helps eliminate many extreme outliers that would strongly affect the results.\\
+The method we used to characterize uniformity of illumination was essentially to compare the extrema of the image with how a close-to-ideal uniform image should be. The image is first filtered with a large low-pass Gaussian kernel to smooth out the image; this helps eliminate many extreme outliers that would strongly affect the results.
 
-The global maximum and minimum are then taken from the filtered image and then the difference is found.
-This difference is compared with the difference of the maximum and minimum of some background noisy image;
-this is because a background image is an image with close-to-ideal uniformity of illumination, so it is
-appropriate to compare the two differences.
+The global maximum and minimum are then taken from the filtered image and then the difference is found.  This difference is compared with the difference of the maximum and minimum of some background noisy image; this is because a background image is an image with close-to-ideal uniformity of illumination, so it is appropriate to compare the two differences.
 
 
 
 \subsection*{B.4 Microscope pixel calibration}
  
+Two different methods were implemented to calibrate pixel sizes in our images.
+
+The first method is manual. The user is presented with an image, and asked to crop out a section of it along the provided calibration bars. They are then asked to report how many bars wide the section they cropped is. The crop width is then matched with the bar spacing to report the size of each pixel in microns.
+
+The second method is automated. First, the Hough Transform of the image is taken, in the vertical direction, and edges of this transpose are found. Once these edges are found, we match the first bar to its neighbor. The distance between these neighbors is taken, and statistical outliers are removed between elements of each bar. Finally, the distance between these bars is used in tandem with the bar spacing to report the size of each pixel in microns.
 
 
 \subsection*{B.5 Implementation of a directional anisotropic filter}
 
+In order to detect lines in a certain direction, it can be useful to blur an image more strongly in directions parallel to the line than perpendicular. This can preserve detail in the salient directions while helping to disguise noise off axis. In order to do this, we have implemented a Gaussian anisotropic filter as described by Geusebroek et.\ al.\cite{geusebroek}.
+
+Generating and filtering with 2D anisotropic kernels is simply in theory. However, it is often advantageous to separate a 2D kernel into a composition of two 1D kernels, for decreased computational complexity. This method does just that, by decomposing an anisotropic Gaussian kernel into a 1D kernel along the x-axis with STD $\sigma_x$, and another 1D kernel along the major axis of the Gaussian with STD $\sigma_\varphi$. Parameters for these kernels are derived as:
+
+\[ a_{11} = \sigma_u^2 \cos^2 \theta + \sigma_v^2 \sin^2 \theta \]
+\[ a_{12} = (\sigma_u^2 + \sigma_v^2)\cos\theta \sin\theta \]
+\[ a_{22} = \sigma_v^2 \cos^2 \theta + \sigma_u^2 \sin^2 \theta \]
+\[ \sigma_x = \sqrt{a_{11} - a_{12}^2/a_{22}} \]
+\[ \sigma_\varphi = \sqrt{a_{22}} \]
+
+Our kernels are then be convolved with individual rows for the x-axis filter, and then for interpolated lines at arbitrary pixels along the major axis.
 
 
 \pagebreak
@@ -140,12 +153,11 @@ appropriate to compare the two differences.
 
 \subsection*{C.1 Implementation of the Steger's algorithm}
 
-We implemented Steger's algorithm to detect and identify pixels for being on lines and curves of a given image. Our implementation of Steger's algorithm first blurred a given image with a Gaussian kernel with the standard deviation of $\sigma = \frac{n}{\sqrt{3}}$, where $n$ is the estimated maximum line size in pixels (we used $n = 10$ pixels). The matlab command \texttt{fspecial} was used 
-to create the kernel, followed by \texttt{filter2} for the actual filtering of the image.
+We implemented Steger's algorithm to detect and identify pixels for being on lines and curves of a given image. Our implementation of Steger's algorithm first blurred a given image with a Gaussian kernel with the standard deviation of $\sigma = \frac{n}{\sqrt{3}}$, where $n$ is the estimated maximum line size in pixels. We used $n = 10$ pixels, found by visual estimation on the source images. The MATLAB command \texttt{fspecial} was used to create the kernel, followed by \texttt{filter2} for the actual filtering of the image.
 
-Next, both the first and second order derivatives were calculated across the entire image in each dimension by taking the differences between the pixels, using the \texttt{diff} command. The resulting matrices were padded appropriately to match with the iteration through every pixel that will happen for the computational section.
+Next, both the first and second order partial derivatives were calculated across the entire image in each dimension by taking the differences between the pixels, using the \texttt{diff} command. The resulting matrices were padded appropriately to match with the iteration through every pixel that will happen for the computational section.
 
-Our algorithm then interated through every pixel in the original image. For each pixel, it created the hessian matrix and gradient using the appropriate values from the differences matrices calculated already. From the hessian matrix, the eigenvector with the corresponding eigenvalue of greatest magnitude was taken as the direction.
+Our algorithm then iterates through every pixel in the original image. For each pixel, it creates a Hessian matrix and gradient vector using the precomputed partials. From the Hessian matrix, the eigenvector with the corresponding eigenvalue of greatest magnitude was taken as the direction.
 
 \begin{equation}
 \text{direction vector} = [n_x, n_y]
