@@ -157,14 +157,14 @@ region = [ 32.0000e+000   366.0000e+000     1.2530e+003   282.0000e+000;
             1.0000e+000     1.0000e+000     1.0000e+000     1.0000e+000 ];
         
 % Sweep figures and store pixel sizes as well as cropped rectangles        
-for ii=1:numel(calibrationImages)
+for ii=1:(numel(calibrationImages)-1)
     [calibrationImages(ii).pixSize, calibrationImages(ii).rect] = ...
         funcCalibrateManually(calibrationImages(ii), plotting, ...
         region(ii, :), distance(ii));
 end
 
 % Automated approach to calibrate pixel size.
-for ii=1:numel(calibrationImages)
+for ii=1:(numel(calibrationImages)-1)
      [calibrationImages(ii).autoPixSize] = ...
          funcCalibrateAuto(calibrationImages(ii), plotting);
 end
@@ -225,16 +225,18 @@ for ii=1:numel(curveImages)
         curveImages(ii).lineDirs, ...
         curveImages(ii).deriv2] = ...
         stegerLineDetection(curveImages(ii), sigma); %#ok
+end
     
-    % Display the results
+% Display the results
+for ii=1:numel(curveImages)
     if plotting
         figure();
         imagesc(curveImages(ii).data), colormap gray, axis image;
-        
+
         xs = curveImages(ii).lineCoords(:,1);
         ys = curveImages(ii).lineCoords(:,2);
         hold on, scatter(xs, ys, 'r.');
-        
+
         title(['Lines for image ' num2str(ii)]);
     end
 end
