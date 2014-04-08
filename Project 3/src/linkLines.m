@@ -1,4 +1,4 @@
-function [junctions, lines] = linkLines(image, searchStrength)
+function [junctions, lines] = linkLines(image)
 %
 % Used in Part C2
 %
@@ -6,7 +6,6 @@ function [junctions, lines] = linkLines(image, searchStrength)
 % lines
 %
 % Inputs:  image - an image struct
-%          searchStrength - how far out to search in each direction
 %
 % Outputs: junctions - a matrix with junction locations. Each row is a
 %                      junction with [x y]
@@ -30,7 +29,7 @@ lines = [];
 % Track whether a point has been visited
 visited = zeros(size(image.data));
 for ii = I'
-    startP = image.lineCoords(ii,:)
+    startP = image.lineCoords(ii,:);
     
     % Search in both directions starting from here
     startDir = [-1 1] .* round(image.lineDirs(ii,:)); % get normal dir

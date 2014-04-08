@@ -257,17 +257,16 @@ clear ii sigma xs ys;
 %% C.2 Implementation of the pixel linking operation
 disp 'Linking line points...'
 
-strength = 3; % arbitrary
-for ii=1:1%numel(curveImages)
+for ii=1:numel(curveImages)
     fprintf('    Computing for image %d\n', ii);
     
     [curveImages(ii).junctions, curveImages(ii).lines] = ...
-        linkLines(curveImages(ii), strength);
+        linkLines(curveImages(ii));
 end
 
 % Display our results
 if plotting
-    for ii=1:1%numel(curveImages)
+    for ii=1:numel(curveImages)
         figure();
         imagesc(curveImages(ii).data), colormap gray, axis image;
     
