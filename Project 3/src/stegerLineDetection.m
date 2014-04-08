@@ -1,4 +1,4 @@
-function coords = stegerLineDetection(image, sigma)
+function [coords, eigVec, deriv2] = stegerLineDetection(image, sigma)
 %
 % Used for part C.1
 %
@@ -28,6 +28,8 @@ dydx = padarray(diff(diff(img, 1, 1), 1, 2), [1 1], 'post');
 
 % Perform computation on each pixel
 coords = [];
+eigVec = [];
+deriv2 = [];
 for y=1:size(img,1)
     for x=1:size(img,2)
         
@@ -36,7 +38,7 @@ for y=1:size(img,1)
         grad = [dx(y,x); dy(y,x)];
         
         % 1. Pick the direction from the hessian's eigenvector
-        [V,~] = eigs(hessian, 1);
+        [V,lambda] = eigs(hessian, 1);
         dir = V.'; % convert to row
         
         % 2. Compute first/second directional derivative
@@ -49,6 +51,8 @@ for y=1:size(img,1)
         % 4. Classify the point based on xstar
         if abs(xstar) < 1/2
             coords = [coords; x y]; %#ok append
+            eigVec = [eigVec; dir];
+            deriv2 = [deriv2; r2];
         end
     end
 end
