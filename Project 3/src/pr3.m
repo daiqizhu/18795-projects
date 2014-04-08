@@ -19,7 +19,7 @@ end
 mkdir('../outputs');
 
 % Define parameters
-plotting = false;
+plotting = true;
 normalityTest = false; % this is slow, so disable it for now
 
 
@@ -145,8 +145,7 @@ image_unif_illum = computeUniformIllumination(images(1).data,...
     noise_min, noise_max) %#ok print out
 
 
-% B.4 Microscope pixel calibration
-
+%% B.4 Microscope pixel calibration
 % Manual/ interactive approach to calibrate pixel size.
 
 % Predefined inputs, in case plotting is off.
@@ -174,7 +173,25 @@ clear ii distance noise_sample noise_min noise_max region;
 
 
 %% B.5 Implementation of a directional anisotropic filter
+disp 'Performing anisotropic filtering...'
 
+angles = [30 60 90 120 150];
+sigmaU = 10;
+sigmaV = 5;
+
+if plotting
+    figure();
+    for ii = 1:numel(angles)
+        img = anisotropicGaussianFilter(images(1), angles(ii), sigmaU, ...
+            sigmaV, 0.5);
+        subplot(2,3,ii);
+        imagesc(img), colormap gray, axis image;
+        title(['Filtered at angle ' num2str(angles(ii)) '^\circ']);
+    end
+end
+
+
+clear angles ii sigmaU sigmaV;
 
 
 %% C.0 Read Image Data
