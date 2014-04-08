@@ -245,3 +245,32 @@ clear ii sigma xs ys;
 
 
 %% C.2 Implementation of the pixel linking operation
+disp 'Linking line points...'
+
+strength = 3; % arbitrary
+for ii=1:1%numel(curveImages)
+    fprintf('    Computing for image %d\n', ii);
+    
+    [curveImages(ii).junctions, curveImages(ii).lines] = ...
+        linkLines(curveImages(ii), strength);
+end
+
+% Display our results
+if plotting
+    for ii=1:1%numel(curveImages)
+        figure();
+        imagesc(curveImages(ii).data), colormap gray, axis image;
+    
+        xs = curveImages(ii).junctions(:,1);
+        ys = curveImages(ii).junctions(:,2);
+        hold on, scatter(xs, ys, 'gx');
+        
+        for jj=1:length(curveImages(ii).lines)
+            xs = [curveImages(ii).lines(jj,1) curveImages(ii).lines(jj,3)];
+            ys = [curveImages(ii).lines(jj,2) curveImages(ii).lines(jj,4)];
+            plot(xs, ys, 'r');
+        end
+    end
+end
+
+clear ii jj strength;
