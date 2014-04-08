@@ -118,7 +118,7 @@ To analyze the spatial dependency of the noise, we plotted the mean of noise ove
 
 \subsection*{B.3 Characterizing illumination uniformity}
 
-The method we used to characterize uniformity of illumination was essentially to compare the extrema of the image with how a close-to-ideal uniform image should be, and is called \texttt{computeUniformIllumination}. The image is first filtered with a large low-pass Gaussian kernel to smooth out the image; this helps eliminate many extreme outliers that would strongly affect the results.\\
+The method we used to characterize uniformity of illumination was essentially to compare the extrema of the image with how a close-to-ideal uniform image should be, and is called \texttt{computeUniformIllumination}. The image is first filtered with a large low-pass Gaussian kernel to smooth out the image; this helps eliminate many extreme outliers that would strongly affect the results.
 
 The global maximum and minimum are then taken from the filtered image and then the difference is found. This difference is compared with the difference of the maximum and minimum of some background noisy image; this is because a background image is an image with close-to-ideal uniformity of illumination, so it is appropriate to compare the two differences. The comparison was selected arbitrarily, and divides the image's extrema difference with the given noise image's extrema difference. The lower and closer to 0 the quotient is, the more uniform the image's illumination is.
 
@@ -126,7 +126,7 @@ The method we used to characterize uniformity of illumination was essentially to
 
 The global maximum and minimum are then taken from the filtered image and then the difference is found.  This difference is compared with the difference of the maximum and minimum of some background noisy image; this is because a background image is an image with close-to-ideal uniformity of illumination, so it is appropriate to compare the two differences.
 
-Our characterization method was tested on the first three images, as well as the noisy backgrounds of images 2 and 3. The calibration noise passed in was the background cropped noise section from Image 1. The results upon running \texttt{computeUniformIllumination} were as follows:\\
+Our characterization method was tested on the first three images, as well as the noisy backgrounds of images 2 and 3. The calibration noise passed in was the background cropped noise section from Image 1. The results upon running \texttt{computeUniformIllumination} were as follows:
 
 Image 1: 83.1071\\
 Image 2: 5.3087\\
@@ -219,6 +219,13 @@ x^* = -\frac{r'}{r''}
 \pagebreak
 \subsection*{C.2 Implementation of the pixel Linking operation}
 
+In order to link line pixels together, we begin by sorting the pixels in order of their second directional derivative.
+
+For each pixel, we take its maximal direction, computed in the previous step. Once we have this direction, we search out one pixel, checking the three pixels that are closest to the given direction. If a line pixel is found in that direction, then it is added to the line. Search continues in this manner until we find no pixels in the given direction.
+
+We then return to the original pixel and repeat, but in the opposite direction. Once we have exhausted the other direction, we begin again at the next pixel in our unsearched set.
+
+If we find a pixel we had already seen, then we consider this a ``junction'', because we have already searched through in a different direction.
 
 
 \pagebreak
