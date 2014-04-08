@@ -28,7 +28,7 @@ noise_difference = abs(noise_max - noise_min);
 
 % Calculate a scalar using global_difference and noise_difference that
 % characterizes the image's uniformity of illumination
-uniformity = noise_difference / global_difference; % closer to 1 = more uniform
+uniformity = global_difference / noise_difference; % closer to 1 = more uniform
 
 end
 
