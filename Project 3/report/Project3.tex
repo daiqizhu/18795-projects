@@ -117,16 +117,32 @@ To analyze the spatial dependency of the noise, we plotted the mean of noise ove
 \subsection*{B.3 Characterizing illumination uniformity}
 
 The method we used to characterize uniformity of illumination was essentially to compare the extrema of
-the image with how a close-to-ideal uniform image should be. The image is first filtered with a large low-pass Gaussian kernel
+the image with how a close-to-ideal uniform image should be, and is called \texttt{computeUniformIllumination}.
+The image is first filtered with a large low-pass Gaussian kernel
 to smooth out the image; this helps eliminate many extreme outliers that would strongly affect the results.\\
 
 The global maximum and minimum are then taken from the filtered image and then the difference is found.
 This difference is compared with the difference of the maximum and minimum of some background noisy image;
 this is because a background image is an image with close-to-ideal uniformity of illumination, so it is
-appropriate to compare the two differences.
+appropriate to compare the two differences. The comparison was selected arbitrarily, and divides the
+image's extrema difference with the given noise image's extrema difference. The lower and closer to 0
+the quotient is, the more uniform the image's illumination is.
 
+Our characterization method was tested on the first three images, as well as the noisy backgrounds of 
+images 2 and 3. The calibration noise passed in was the background cropped noise section from
+Image 1. The results upon running \texttt{computeUniformIllumination} were as follows:\\
 
+Image 1: 83.1071\\
+Image 2: 5.3087\\
+Image 3: 5.3079\\
+Background Noise 1: 5.0461\\
+Background Noise 2: 0.9176\\
+Background Noise 3: 0.1283\\
 
+Image 1 has many white portions in it, whereas Images 2 and 3 are much darker overall, when shown
+on the grayscale image. Thus, Image 1 has worse uniformity than that of Images 2 and 3.\\
+
+\pagebreak
 \subsection*{B.4 Microscope pixel calibration}
  
 
@@ -190,7 +206,8 @@ x^* = -\frac{r'}{r''}
 \end{figure}
 
 
-\subsection*{C.2 Implementation of the pixel inking operation}
+\pagebreak
+\subsection*{C.2 Implementation of the pixel Linking operation}
 
 
 
