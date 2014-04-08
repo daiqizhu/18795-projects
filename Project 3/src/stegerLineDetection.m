@@ -28,8 +28,14 @@ dydx = padarray(diff(diff(img, 1, 2), 1, 1), [1 1], 'post');
 coords = [];
 eigVec = [];
 deriv2 = [];
+threshold = max(max(img)) / 4; % hand tuned
 for y=1:size(img,1)
     for x=1:size(img,2)
+        % Skip pixels that are too dark
+        if img(y,x) < threshold
+            continue;
+        end
+        
         % 0. Pack the hessian matrix and gradient
         hessian = [dxdx(y,x) dxdy(y,x); dydx(y,x), dydy(y,x)];
         grad = [dx(y,x); dy(y,x)];

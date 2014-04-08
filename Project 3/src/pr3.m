@@ -267,18 +267,25 @@ end
 % Display our results
 if plotting
     for ii=1:numel(curveImages)
+        % Display image
         figure();
         imagesc(curveImages(ii).data), colormap gray, axis image;
     
+        % Display junctions
         xs = curveImages(ii).junctions(:,1);
         ys = curveImages(ii).junctions(:,2);
         hold on, scatter(xs, ys, 'gx');
         
+        % Draw lines
         for jj=1:length(curveImages(ii).lines)
             xs = [curveImages(ii).lines(jj,1) curveImages(ii).lines(jj,3)];
             ys = [curveImages(ii).lines(jj,2) curveImages(ii).lines(jj,4)];
             plot(xs, ys, 'r');
         end
+        
+        % Label
+        title(['Linked lines for image ' num2str(ii)]);
+        legend('Junctions', 'Lines');
     end
 end
 

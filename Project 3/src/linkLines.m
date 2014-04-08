@@ -32,7 +32,7 @@ for ii = I'
     startP = image.lineCoords(ii,:);
     
     % Search in both directions starting from here
-    startDir = [-1 1] .* round(image.lineDirs(ii,:)); % get normal dir
+    startDir = [-1 1] .* round(image.lineDirs(ii,[2 1])); % get normal dir
     
     for m=[-1 1]
         dir = m*startDir;
@@ -51,28 +51,28 @@ for ii = I'
             [~,strong] = max(abs(dir));
             weak = setdiff([1 2], strong);
             
-            % Travel out around the corner
-            searchDirs = [0 0; 0 0; 0 0];
+            % Travel out around the corner, up to two pixels
+            searchDirs = [];
             if dir(weak) == 0
-                searchDirs(:,strong) = sign(dir(strong)) * [1; 1; 1];
-                searchDirs(:,weak)   = [-1; 0; 1];
+                searchDirs(:,strong) = sign(dir(strong)) * [1; 1; 1]; %#ok
+                searchDirs(:,weak)   = [-1; 0; 1]; %#ok
             else
-                searchDirs(:,strong) = sign(dir(strong)) * [1; 1; 0];
-                searchDirs(:,weak)   = sign(dir(weak)) * [0; 1; 1];
+                searchDirs(:,strong) = sign(dir(strong)) * [1; 1; 0]; %#ok
+                searchDirs(:,weak)   = sign(dir(weak)) * [0; 1; 1]; %#ok
             end
             
             found = false;
             for searchDir = searchDirs'
                 % Walk out
-                newP = p;
-                newP(strong) = newP(strong) + searchDir(strong);
-                newP(weak)   = newP(weak) + searchDir(weak);
-                
-                % If this is a point, break out, we're done
-                if newP(1) < 1 || newP(2) < 1 || ...
-                        newP(1) > size(points,2) || newP(2) > size(points,1)
+                newP(strong) = p(strong) + searchDir(strong); %#ok
+                newP(weak)   = p(weak) + searchDir(weak); %#ok
+                                
+                if newP(1) < 1 || newP(1) > size(points,2) || ...
+                   newP(2) < 1 || newP(2) > size(points,1)
                     break;
                 end
+                
+                % If this is a point, break out, we're done
                 if points(newP(2), newP(1))
                     found = true;
                     break;
@@ -94,9 +94,9 @@ for ii = I'
                 p = newP;
                 idx = points(p(2), p(1));
                 
-                % Find the closest dir
+                % Find the closest dir and take its normal
                 image.lineDirs(idx,:);
-                newDir = round([-1 1] .* image.lineDirs(idx,:));
+                newDir = round([-1 1] .* image.lineDirs(idx,[2 1]));
                 if norm(dir - newDir) > norm(dir + newDir)
                     newDir = -1*newDir;
                 end
