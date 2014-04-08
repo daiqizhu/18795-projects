@@ -24,13 +24,12 @@ dydy = padarray(diff(img, 2, 1), [1 0], 'both');
 dxdy = padarray(diff(diff(img, 1, 1), 1, 2), [1 1], 'post');
 dydx = padarray(diff(diff(img, 1, 2), 1, 1), [1 1], 'post');
 
-% Perform computation on each pixel
+% Perform computation on each pixel, thresholding on the intensity
 coords = [];
 eigVec = [];
 deriv2 = [];
 for y=1:size(img,1)
     for x=1:size(img,2)
-        
         % 0. Pack the hessian matrix and gradient
         hessian = [dxdx(y,x) dxdy(y,x); dydx(y,x), dydy(y,x)];
         grad = [dx(y,x); dy(y,x)];
