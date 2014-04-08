@@ -30,36 +30,44 @@ lines = [];
 % Track whether a point has been visited
 visited = zeros(size(image.data));
 for ii = I'
-    startP = image.lineCoords(ii,:);
-    if visited(startP(2), startP(1))
-        continue;
-    end
+    startP = image.lineCoords(ii,:)
     
     % Search in both directions starting from here
     startDir = [-1 1] .* round(image.lineDirs(ii,:)); % get normal dir
+    
     for m=[-1 1]
         dir = m*startDir;
         p = startP;
-        foundNodes = 0;
-        while p
-            % Mark this node as visited
-            visited(p(2), p(1)) = 1;
+        
+        % Keep traversing while we keep finding points
+        while p            
+            % Stop if we have seen this node, otherwise visit it
+            if visited(startP(2), startP(1))
+                break;
+            else
+                visited(p(2), p(1)) = 1;
+            end
             
             % First determine the stronger direction
             [~,strong] = max(abs(dir));
             weak = setdiff([1 2], strong);
             
-            % Travel up to the specified direction out
+            % Travel out around the corner
+            searchDirs = [0 0; 0 0; 0 0];
+            if dir(weak) == 0
+                searchDirs(:,strong) = sign(dir(strong)) * [1; 1; 1];
+                searchDirs(:,weak)   = [-1; 0; 1];
+            else
+                searchDirs(:,strong) = sign(dir(strong)) * [1; 1; 0];
+                searchDirs(:,weak)   = sign(dir(weak)) * [0; 1; 1];
+            end
+            
             found = false;
-            for s = 1:searchStrength
+            for searchDir = searchDirs'
                 % Walk out
-                strength = abs(floor(dir(weak)*s/dir(strong)));
-                if strength == 0
-                    strength = s;
-                end
                 newP = p;
-                newP(strong) = newP(strong) + sign(dir(strong))*strength;
-                newP(weak)   = newP(weak) + sign(dir(weak))*s;
+                newP(strong) = newP(strong) + searchDir(strong);
+                newP(weak)   = newP(weak) + searchDir(weak);
                 
                 % If this is a point, break out, we're done
                 if newP(1) < 1 || newP(2) < 1 || ...
@@ -74,9 +82,7 @@ for ii = I'
             
             % If we found a point, we update the stats we found
             % Otherwise, stop searching
-            if found
-                foundNodes = foundNodes + 1;
-                
+            if found                
                 % Add this line to the set
                 lines = [lines; p newP]; %#ok append
                 
@@ -98,9 +104,9 @@ for ii = I'
                 dir = newDir;
             else
                 p = [];
-            end
-        end
-    end
+            end % if found
+        end % keep traversing
+    end % search in both directions
 end
 
 end
