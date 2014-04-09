@@ -123,7 +123,7 @@ The method we used to characterize uniformity of illumination was essentially to
 
 The global maximum and minimum are then taken from the filtered image and then the difference is found.  This difference is compared with the difference of the maximum and minimum of some background noisy image; this is because a background image is an image with close-to-ideal uniformity of illumination, so it is appropriate to compare the two differences.
 
-Our characterization method was tested on the first three images, as well as the noisy backgrounds of Images 2 and 3. The calibration noise passed in was the background cropped noise section from Image 1. The results upon running \texttt{computeUniformIllumination} were as follows:
+Our characterization method was tested on the three images (seen in Figure \ref{fig:illumination_uniformity}). The calibration noise passed in was the background cropped noise section from Image 1. The results upon running \texttt{computeUniformIllumination} were as follows:
 
 Image 1: 83.1071\\
 Image 2: 5.3087\\
@@ -153,14 +153,11 @@ The first method is manual. The user is presented with an image, and asked to cr
 
 The second method is automated. First, the Hough Transform of the image is taken (Figure \ref{fig:houghT}), in the vertical direction, and edges of this transpose are found (Figure \ref{fig:autoCalib}). Once these edges are found, we match the first bar to its neighbor. The distance between these neighbors is taken, and statistical outliers are removed between elements of each bar. Finally, the distance between these bars is used in tandem with the bar spacing to report the size of each pixel in microns. 
 
-The resulting pixel size calculations using each method are given in table \ref{tab:calib}, compared to the actual theoretical pixel size, assuming an optical pixel of \unit{650}{\nano\meter}. The results largely agree with the theoretical calculation, and with each other. The one exception is the 10x zoom level. This automatic calculation is off by a factor of five. This is due to the Hough Transform bar identification. Every fifth bar is taller than the others, so a mis-detection occurs at this small zoom level that leads to an incorrect counting. On the other hand, if this is taken into account, the calibration method calculates a pixel size of \unit{650.5}{\nano\meter} that is only less than 1\% off of the theoretical pixel size at this zoom level. Therefore, the automatic calibration is accepted functioning correctly at this point.
+The resulting pixel size calculations using each method are given in Table \ref{tab:calib}, compared to the actual theoretical pixel size, assuming an optical pixel of \unit{650}{\nano\meter}. The results largely agree with the theoretical calculation, and with each other. The one exception is the 10x zoom level. This automatic calculation is off by a factor of five. This is due to the Hough Transform bar identification. Every fifth bar is taller than the others, so a mis-detection occurs at this small zoom level that leads to an incorrect counting. On the other hand, if this is taken into account, the calibration method calculates a pixel size of \unit{650.5}{\nano\meter} that is only less than 1\% off of the theoretical pixel size at this zoom level.
 
 \begin{table}
-\caption{Calibration results for different magnification levels and comparison to theoretical pixel sizes}
-\label{tab:calib}
-\begin{center}
+\centering
 \begin{tabular}{l || r | r || r}
-% Caption on top
      Magnification & Manual ($\mu m$) & Automatic ($\mu m$) & Theoretical ($\mu m$) \\
      \hline\hline
      100$\times$                & 63.5            & 62.3               & 65.0 \\ \hline
@@ -168,7 +165,8 @@ The resulting pixel size calculations using each method are given in table \ref{
      20$\times$                 & 325.7           & 344.1              & 325.0 \\ \hline
      10$\times$                 & 641.0           & 130.1              & 650.0 
 \end{tabular}
-\end{center}
+\caption{Calibration results for different magnification levels and comparison to theoretical pixel sizes}
+\label{tab:calib}
 \end{table}
 
 
