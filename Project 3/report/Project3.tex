@@ -91,15 +91,15 @@ To analyze the image sequence over time, we then generated plots showing the mea
 
 To analyze the spatial dependency of the noise, we plotted the mean of noise over columns in one plot, and rows in another (Figure \ref{fig:noise_intensity_space}). We found that the intensity was highest for our noise field in the top left, and lowest in the bottom right. The noise displays a rough linear decay across the image in both the $x$ and $y$ directions.
 
-\begin{figure}[b]
-\begin{minipage}[b]{0.45\linewidth}
+\begin{figure}[h]
+\begin{minipage}[h]{0.45\linewidth}
 \centering
 \includegraphics[width=\textwidth]{figures/noise_distribution.pdf}
 \caption{Noise distribution in background}
 \label{fig:noise_dist_background}
 \end{minipage}
 \hspace{0.5cm}
-\begin{minipage}[b]{0.45\linewidth}
+\begin{minipage}[h]{0.45\linewidth}
 \centering
 \includegraphics[width=\textwidth]{figures/noise_over_time.pdf}
 \caption{Noise Mean \& Variance over time}
@@ -107,7 +107,7 @@ To analyze the spatial dependency of the noise, we plotted the mean of noise ove
 \end{minipage}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[h]
 \centering
 \includegraphics[width=0.45\linewidth]{figures/noise_over_space.pdf}
 \caption{Average Noise Intensity over Space}
@@ -136,15 +136,17 @@ Background Noise 3: 0.1283\\
 
 Image 1 has many white portions in it, whereas Images 2 and 3 are much darker overall, when shown on the grayscale image. Thus, Image 1 has worse uniformity than that of Images 2 and 3.\\
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.3\linewidth]{figures/uniform_illumination_1.png}
+\includegraphics[width=0.3\linewidth]{figures/uniform_illumination_2.png}
+\includegraphics[width=0.3\linewidth]{figures/uniform_illumination_3.png}
+\caption{Average Noise Intensity over Space}
+\label{fig:illumination_uniformity}
+\end{figure}
 
 
-%% INSERT 3 IMAGES HERE AND LABEL AS IMAGE 1/2/3
 
-
-
-
-
-\pagebreak
 \subsection*{B.4 Microscope pixel calibration}
  
 Two different methods were implemented to calibrate pixel sizes in our images.
@@ -184,7 +186,7 @@ Generating and filtering with 2D anisotropic kernels is simple in theory. Howeve
 
 Our kernels are then convolved with individual rows for the x-axis filter, and then for the interpolated lines at arbitrary pixels along the major axis.
 
-See \ref{fig:anisotropic_filtering} for a sample image filtered at different angles, with $\sigma_u = 10$ and $\sigma_v = 5$. Though it is slightly difficult to see, certain features that are strongly directional are noticeably less distorted in some images than others; for example, at 30\degree vs 120\degree, the center portions of many cells are noticeably thicker.
+See Figure \ref{fig:anisotropic_filtering} for a sample image filtered at different angles, with $\sigma_u = 10$ and $\sigma_v = 5$. Though it is slightly difficult to see, certain features that are strongly directional are noticeably less distorted in some images than others; for example, at 30\degree vs 120\degree, the center portions of many cells are noticeably thicker.
 
 \begin{figure}[h]
 \centering
@@ -259,7 +261,7 @@ Results can be found in Figure \ref{fig:line_linking}.
 
 
 
-\pagebreak
+\clearpage
 \begin{thebibliography}{9}
 \fontsize{10pt}{12pt}\selectfont
 \raggedright
