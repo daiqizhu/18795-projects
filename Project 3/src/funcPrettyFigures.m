@@ -2,7 +2,7 @@ function y = funcPrettyFigures
 % Makes figures prettier and stores them as pdfs.
 
 % Create a clean directory for output
-pdfPath = './matlab_plots/';
+pdfPath = '../matlab_plots/';
 if exist(pdfPath,'dir')
     rmdir(pdfPath, 's');
 end

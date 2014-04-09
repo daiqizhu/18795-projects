@@ -284,7 +284,7 @@ if plotting
         for jj=1:length(curveImages(ii).lines)
             xs = [curveImages(ii).lines(jj,1) curveImages(ii).lines(jj,3)];
             ys = [curveImages(ii).lines(jj,2) curveImages(ii).lines(jj,4)];
-            plot(xs, ys, 'r');
+            plot(xs, ys, 'r', 'LineWidth', 1.5);
         end
         
         % Label
@@ -297,6 +297,7 @@ clear ii jj strength;
 
 
 %% Make figures pretty and store them as pdfs
+disp 'Saving figures...'
 
 if plotting
     funcPrettyFigures;
