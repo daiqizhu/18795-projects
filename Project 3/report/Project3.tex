@@ -91,19 +91,17 @@ To analyze the image sequence over time, we then generated plots showing the mea
 
 To analyze the spatial dependency of the noise, we plotted the mean of noise over columns in one plot, and rows in another (Figure \ref{fig:noise_intensity_space}). We found that the intensity was highest for our noise field in the top left, and lowest in the bottom right. The noise displays a rough linear decay across the image in both the $x$ and $y$ directions.
 
-% TODO: FIGURES
-
 \begin{figure}[b]
 \begin{minipage}[b]{0.45\linewidth}
 \centering
-\includegraphics[width=\textwidth]{figures/noise_distribution_background.png}
+\includegraphics[width=\textwidth]{figures/noise_distribution.pdf}
 \caption{Noise distribution in background}
 \label{fig:noise_dist_background}
 \end{minipage}
 \hspace{0.5cm}
 \begin{minipage}[b]{0.45\linewidth}
 \centering
-\includegraphics[width=\textwidth]{figures/noise_mean_variance_over_time.png}
+\includegraphics[width=\textwidth]{figures/noise_over_time.pdf}
 \caption{Noise Mean \& Variance over time}
 \label{fig:noise_mean_var_time}
 \end{minipage}
@@ -111,7 +109,7 @@ To analyze the spatial dependency of the noise, we plotted the mean of noise ove
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.45\linewidth]{figures/noise_intensity_over_space.png}
+\includegraphics[width=0.45\linewidth]{figures/noise_over_space.pdf}
 \caption{Average Noise Intensity over Space}
 \label{fig:noise_intensity_space}
 \end{figure}
@@ -150,9 +148,8 @@ The second method is automated. First, the Hough Transform of the image is taken
 Below are the resulting pixel size calculations using each method, compared to the actual theoretical pixel size, assuming an optical pixel of \unit{650}{\nano\meter}:
 
 \begin{center}
-%\begin{tabular}{l | r | r | r}
+\begin{tabular}{l | r | r | r}
 % Caption on top
-\begin{tabular}{c | c | c | c}
      Magnification & Manual ($\mu m$) & Automatic ($\mu m$) & Theoretical ($\mu m$) \\
      \hline\hline
      100$\times$                & 63.5            & 62.3               & 65.0 \\ \hline
@@ -162,7 +159,7 @@ Below are the resulting pixel size calculations using each method, compared to t
 \end{tabular}
 \end{center}
 
-As you can see, the results largely agree with the theoretical calculation, and with each other. The one exception is the 10x zoom level. This automatic calculation is off by a factor of five. This is due to the Hough Transform bar identification. Every fifth bar is taller than the others, so a mis-detection occurs at this small zoom level that leads to an incorrect counting.
+The results largely agree with the theoretical calculation, and with each other. The one exception is the 10x zoom level. This automatic calculation is off by a factor of five. This is due to the Hough Transform bar identification. Every fifth bar is taller than the others, so a mis-detection occurs at this small zoom level that leads to an incorrect counting.
 
 
 \subsection*{B.5 Implementation of a directional anisotropic filter}
@@ -178,6 +175,15 @@ Generating and filtering with 2D anisotropic kernels is simply in theory. Howeve
 \[ \sigma_\varphi = \sqrt{a_{22}} \]
 
 Our kernels are then be convolved with individual rows for the x-axis filter, and then for interpolated lines at arbitrary pixels along the major axis.
+
+See \ref{fig:anisotropic_filtering} for a sample image filtered at different angles, with $\sigma_u = 10$ and $\sigma_v = 5$. Though it is slightly difficult to see, certain features that are strongly directional are noticeably less distorted in some images than others; for example, at 30\degree vs 120\degree, the center portions of many cells are noticeably thicker.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/anisotropic_filtering.pdf}
+\caption{Results of filtering with an anisotropic filter at different angles}
+\label{fig:anisotropic_filtering}
+\end{figure}
 
 
 \pagebreak
@@ -198,6 +204,8 @@ Our algorithm then iterates through every pixel in the original image. For each 
 
 The first and second order directional derivatives were then calculated using equations \ref{eq:1_directional_derivative} and \ref{eq:2_directional_derivative}. The location of the local intensity maximum was calculated via equation \ref{eq:local_intensity_max}, then tested if its absolute value was less than $\frac{1}{2}$; if it was, then the pixel was marked as a center line point.
 
+Results can be found in Figure \ref{fig:line_detect}.
+
 \begin{equation}
 r' = [n_x,n_y][f_x,f_y]^T
 \label{eq:1_directional_derivative}
@@ -212,29 +220,14 @@ x^* = -\frac{r'}{r''}
 \end{equation}
 
 \begin{figure}[h]
-\begin{minipage}[b]{0.3\linewidth}
-\centering
-\includegraphics[width=\textwidth]{figures/line_detection_1.png}
-\caption{Line Detect (Image 1)}
-\label{fig:line_detect_1}
-\end{minipage}
-\hspace{0.5cm}
-\begin{minipage}[b]{0.3\linewidth}
-\centering
-\includegraphics[width=\textwidth]{figures/line_detection_2.png}
-\caption{Line Detect (Image 2)}
-\label{fig:line_detect_2}
-\end{minipage}
-\begin{minipage}[b]{0.3\linewidth}
-\centering
-\includegraphics[width=\textwidth]{figures/line_detection_3.png}
-\caption{Line Detect (Image 3)}
-\label{fig:line_detect_3}
-\end{minipage}
+\includegraphics[width=\textwidth]{figures/line_detection_1.pdf}
+\includegraphics[width=\textwidth]{figures/line_detection_2.pdf}
+\includegraphics[width=\textwidth]{figures/line_detection_3.pdf}
+\caption{Line Detection}
+\label{fig:line_detect}
 \end{figure}
 
 
-\pagebreak
 \subsection*{C.2 Implementation of the pixel Linking operation}
 
 In order to link line pixels together, we begin by sorting the pixels in order of their second directional derivative.
@@ -244,6 +237,18 @@ For each pixel, we take its maximal direction, computed in the previous step. On
 We then return to the original pixel and repeat, but in the opposite direction. Once we have exhausted the other direction, we begin again at the next pixel in our unsearched set.
 
 If we find a pixel we had already seen, then we consider this a ``junction'', because we have already searched through in a different direction.
+
+Results can be found in Figure \ref{fig:line_linking}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/line_linking_1.pdf}
+\includegraphics[width=\textwidth]{figures/line_linking_2.pdf}
+\includegraphics[width=\textwidth]{figures/line_linking_3.pdf}
+\caption{Line Linking Results}
+\label{fig:line_linking}
+\end{figure}
+
 
 
 \pagebreak
