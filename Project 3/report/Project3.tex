@@ -12,6 +12,7 @@
 \usepackage{subcaption}
 \usepackage[hidelinks]{hyperref}
 \usepackage{soul}
+\usepackage[mediumspace,mediumqspace,Grey,squaren]{SIunits}
 
 % In case you need to adjust margins:
 \topmargin=-0.5in
@@ -145,6 +146,21 @@ Two different methods were implemented to calibrate pixel sizes in our images.
 The first method is manual. The user is presented with an image, and asked to crop out a section of it along the provided calibration bars. They are then asked to report how many bars wide the section they cropped is. The crop width is then matched with the bar spacing to report the size of each pixel in microns.
 
 The second method is automated. First, the Hough Transform of the image is taken, in the vertical direction, and edges of this transpose are found. Once these edges are found, we match the first bar to its neighbor. The distance between these neighbors is taken, and statistical outliers are removed between elements of each bar. Finally, the distance between these bars is used in tandem with the bar spacing to report the size of each pixel in microns.
+
+Below are the resulting pixel size calculations using each method, compared to the actual theoretical pixel size, assuming an optical pixel of \unit{650}{\nano\meter}:
+
+\begin{center}
+\begin{tabular}{l | r | r | r}
+     Image Magnification & Manual (micron) & Automatic (micron) & Theoretical (micron) \\
+     \hline
+     100x                & 63.5            & 62.3               & 65.0 \\
+     60x                 & 107.0           & 115.0              & 108.3 \\
+     20x                 & 325.7           & 344.1              & 325.0 \\
+     10x                 & 641.0           & 130.1              & 650.0
+\end{tabular}
+\end{center}
+
+As you can see, the results largely agree with the theoretical calculation, and with each other. The one exception is the 10x zoom level. This automatic calculation is off by a factor of five. This is due to the Hough Transform bar identification. Every fifth bar is taller than the others, so a mis-detection occurs at this small zoom level that leads to an incorrect counting.
 
 
 \subsection*{B.5 Implementation of a directional anisotropic filter}
