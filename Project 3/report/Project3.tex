@@ -76,16 +76,16 @@ Due: \hmwkDueDate\\
 
 \subsection*{B.1 Image Data}
 
-All of our image data is read into a vector of structs, with consistent field naming. This allows us to write generic functions that can operate on any set of images we pass to it, and gives us a grouping with which to store all results bundled together.
+All image data is read into a vector of structs, with consistent field naming. This allows us to write generic functions that can operate on any set of images we pass to it, and gives us a grouping with which to store all results bundled together.
 
 
 \subsection*{B.2 Characterizing fluorescence image background noise}
 
-To compute noise statistics, we first crop out a region of the image containing noise. To do so, a region in each image that contained no features was manually found, and then that region was stored into our script for repeatability. Each image is then cropped using this region, and the mean and variance is calculated over the cropped region.
+To compute noise statistics, we first crop out a region of the image containing noise. To do so, a feature-less region in each image was manually found, and then that region was stored into the script for repeatability. Each image is then cropped using this region, and the mean and variance is calculated over the cropped region. This represents the background region and contains the noise that is analyzed in this section.
 
 To determine the distribution of the data, the noise samples were plotted in a histogram and inspected visually. Upon observation, it was found that the data appears to follow a Gaussian distribution, shown in Figure \ref{fig:noise_dist_background}.
 
-Once we had a belief that our noise was normally distributed, we used the Kolmogorov-Smirnov test (implemented in MATLAB as \verb|kstest|) to verify this. This test works by comparing the analytic cumulative distribution function of a distribution to the actually observed CDF for the data. The difference in the distribution gives a confidence interval on how likely the data is to come from a given distribution, and this test confirms with with 95\% confidence that at least 140 of our 150 cropped noise images are drawn from a normal distribution.
+After we observed that the noise followed a Gaussian distribution, we used the Kolmogorov-Smirnov test (implemented in MATLAB as \verb|kstest|) to verify this. This test works by comparing the analytic cumulative distribution function of a distribution to the actually observed CDF for the data. The difference in the distribution gives a confidence interval on how likely the data is to come from a given distribution, and this test confirms with with 95\% confidence that at least 140 of our 150 cropped noise images are drawn from a normal distribution.
 
 To analyze the image sequence over time, we then generated plots showing the mean and variance of the noise over time for the image sequence. We found that both the mean and variance of the noise intensity decreased over time, shown in Figure \ref{fig:noise_mean_var_time}.
 
@@ -117,7 +117,7 @@ To analyze the spatial dependency of the noise, we plotted the mean of noise ove
 
 \subsection*{B.3 Characterizing illumination uniformity}
 
-The method we used to characterize uniformity of illumination was essentially to compare the extrema of the image with how a close-to-ideal uniform image should be, and is called \texttt{computeUniformIllumination}. The image is first filtered with a large low-pass Gaussian kernel to smooth out the image; this helps eliminate many extreme outliers that would strongly affect the results.
+The method \texttt{compuateUniformIllumination} characterizes uniformity of illumination; it accomplishes this by comparing the extrema of the image with how a close-to-ideal uniform image should be. The image is first filtered with a large low-pass Gaussian kernel to smooth out the image; this helps eliminate many extreme outliers that would strongly affect the results.
 
 The global maximum and minimum are then taken from the filtered image and then the difference is found. This difference is compared with the difference of the maximum and minimum of some background noisy image; this is because a background image is an image with close-to-ideal uniformity of illumination, so it is appropriate to compare the two differences. The comparison was selected arbitrarily, and divides the image's extrema difference with the given noise image's extrema difference. The lower and closer to 0 the quotient is, the more uniform the image's illumination is.
 
@@ -125,7 +125,7 @@ The method we used to characterize uniformity of illumination was essentially to
 
 The global maximum and minimum are then taken from the filtered image and then the difference is found.  This difference is compared with the difference of the maximum and minimum of some background noisy image; this is because a background image is an image with close-to-ideal uniformity of illumination, so it is appropriate to compare the two differences.
 
-Our characterization method was tested on the first three images, as well as the noisy backgrounds of images 2 and 3. The calibration noise passed in was the background cropped noise section from Image 1. The results upon running \texttt{computeUniformIllumination} were as follows:
+Our characterization method was tested on the first three images, as well as the noisy backgrounds of Images 2 and 3. The calibration noise passed in was the background cropped noise section from Image 1. The results upon running \texttt{computeUniformIllumination} were as follows:
 
 Image 1: 83.1071\\
 Image 2: 5.3087\\
@@ -135,6 +135,14 @@ Background Noise 2: 0.9176\\
 Background Noise 3: 0.1283\\
 
 Image 1 has many white portions in it, whereas Images 2 and 3 are much darker overall, when shown on the grayscale image. Thus, Image 1 has worse uniformity than that of Images 2 and 3.\\
+
+
+
+%% INSERT 3 IMAGES HERE AND LABEL AS IMAGE 1/2/3
+
+
+
+
 
 \pagebreak
 \subsection*{B.4 Microscope pixel calibration}
@@ -164,9 +172,9 @@ The results largely agree with the theoretical calculation, and with each other.
 
 \subsection*{B.5 Implementation of a directional anisotropic filter}
 
-In order to detect lines in a certain direction, it can be useful to blur an image more strongly in directions parallel to the line than perpendicular. This can preserve detail in the salient directions while helping to disguise noise off axis. In order to do this, we have implemented a Gaussian anisotropic filter as described by Geusebroek et.\ al.\cite{geusebroek}.
+In order to detect lines in a certain direction, it can be useful to blur an image more in directions parallel to the line than perpendicular. This can preserve detail in the salient directions while helping to disguise noise off axis. In order to do this, we have implemented a Gaussian anisotropic filter as described by Geusebroek et.\ al.\cite{geusebroek}.
 
-Generating and filtering with 2D anisotropic kernels is simply in theory. However, it is often advantageous to separate a 2D kernel into a composition of two 1D kernels, for decreased computational complexity. This method does just that, by decomposing an anisotropic Gaussian kernel into a 1D kernel along the x-axis with STD $\sigma_x$, and another 1D kernel along the major axis of the Gaussian with STD $\sigma_\varphi$. Parameters for these kernels are derived as:
+Generating and filtering with 2D anisotropic kernels is simple in theory. However, it is often advantageous to separate a 2D kernel into a composition of two 1D kernels, for decreased computational complexity. This method does that by decomposing an anisotropic Gaussian kernel into a 1D kernel along the x-axis with STD $\sigma_x$, and another 1D kernel along the major axis of the Gaussian with STD $\sigma_\varphi$. Parameters for these kernels are derived as:
 
 \[ a_{11} = \sigma_u^2 \cos^2 \theta + \sigma_v^2 \sin^2 \theta \]
 \[ a_{12} = (\sigma_u^2 + \sigma_v^2)\cos\theta \sin\theta \]
@@ -174,7 +182,7 @@ Generating and filtering with 2D anisotropic kernels is simply in theory. Howeve
 \[ \sigma_x = \sqrt{a_{11} - a_{12}^2/a_{22}} \]
 \[ \sigma_\varphi = \sqrt{a_{22}} \]
 
-Our kernels are then be convolved with individual rows for the x-axis filter, and then for interpolated lines at arbitrary pixels along the major axis.
+Our kernels are then convolved with individual rows for the x-axis filter, and then for the interpolated lines at arbitrary pixels along the major axis.
 
 See \ref{fig:anisotropic_filtering} for a sample image filtered at different angles, with $\sigma_u = 10$ and $\sigma_v = 5$. Though it is slightly difficult to see, certain features that are strongly directional are noticeably less distorted in some images than others; for example, at 30\degree vs 120\degree, the center portions of many cells are noticeably thicker.
 
@@ -191,18 +199,18 @@ See \ref{fig:anisotropic_filtering} for a sample image filtered at different ang
 
 \subsection*{C.1 Implementation of the Steger's algorithm}
 
-We implemented Steger's algorithm to detect and identify pixels for being on lines and curves of a given image. Our implementation of Steger's algorithm first blurred a given image with a Gaussian kernel with the standard deviation of $\sigma = \frac{n}{\sqrt{3}}$, where $n$ is the estimated maximum line size in pixels. We used $n = 10$ pixels, found by visual estimation on the source images. The MATLAB command \texttt{fspecial} was used to create the kernel, followed by \texttt{filter2} for the actual filtering of the image.
+We implemented Steger's algorithm to detect and identify pixels on lines and curves of a given image. Our implementation of Steger's algorithm first blurred a given image with a Gaussian kernel with the standard deviation of $\sigma = \frac{n}{\sqrt{3}}$, where $n$ is the estimated maximum line size in pixels. We used $n = 10$ pixels, found by visual estimation on the source images. The MATLAB command \texttt{fspecial} was used to create the Gaussian kernel, followed by \texttt{filter2} for the actual filtering of the image.
 
-Next, both the first and second order partial derivatives were calculated across the entire image in each dimension by taking the differences between the pixels, using the \texttt{diff} command. The resulting matrices were padded appropriately to match with the iteration through every pixel that will happen for the computational section.
+Next, both the first and second order partial derivatives are calculated across the entire image in each dimension by taking the differences between the pixels, using \texttt{diff}. The resulting matrices were padded appropriately to match with the iteration through every pixel that will happen for the computational section.
 
-Our algorithm then iterates through every pixel in the original image. For each pixel, it creates a Hessian matrix and gradient vector using the precomputed partials. From the Hessian matrix, the eigenvector with the corresponding eigenvalue of greatest magnitude was taken as the direction.
+The algorithm then iterates through every pixel in the original image. For each pixel, it creates a Hessian matrix and gradient vector using the precomputed partials. From the Hessian matrix, the eigenvector with the corresponding eigenvalue of greatest magnitude was taken as the direction.
 
 \begin{equation}
 \text{direction vector} = [n_x, n_y]
 \label{eq:direction}
 \end{equation}
 
-The first and second order directional derivatives were then calculated using equations \ref{eq:1_directional_derivative} and \ref{eq:2_directional_derivative}. The location of the local intensity maximum was calculated via equation \ref{eq:local_intensity_max}, then tested if its absolute value was less than $\frac{1}{2}$; if it was, then the pixel was marked as a center line point.
+The first and second order directional derivatives are then calculated using equations \ref{eq:1_directional_derivative} and \ref{eq:2_directional_derivative}. The location of the local intensity maximum is calculated via equation \ref{eq:local_intensity_max}, then is tested if its magnitude is less than $\frac{1}{2}$. If it is, then the pixel is marked as a center line point.
 
 Results can be found in Figure \ref{fig:line_detect}.
 
@@ -232,9 +240,9 @@ x^* = -\frac{r'}{r''}
 
 In order to link line pixels together, we begin by sorting the pixels in order of their second directional derivative.
 
-For each pixel, we take its maximal direction, computed in the previous step. Once we have this direction, we search out one pixel, checking the three pixels that are closest to the given direction. If a line pixel is found in that direction, then it is added to the line. Search continues in this manner until we find no pixels in the given direction.
+For each pixel, we take its maximal direction, previously computed in C.1 via eigenvector. Once we have this direction, we search out one pixel, checking the three pixels that are closest to the given direction. If a line pixel is found in that direction, then it is added to the line. Search continues in this manner until we find no pixels in the given direction.
 
-We then return to the original pixel and repeat, but in the opposite direction. Once we have exhausted the other direction, we begin again at the next pixel in our unsearched set.
+We then returned to the original pixel and repeat the above process, but in the opposite direction. Once we have exhausted the other direction, we repeat the overall process at the next pixel in our unsearched set.
 
 If we find a pixel we had already seen, then we consider this a ``junction'', because we have already searched through in a different direction.
 
