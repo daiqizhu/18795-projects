@@ -150,13 +150,15 @@ The second method is automated. First, the Hough Transform of the image is taken
 Below are the resulting pixel size calculations using each method, compared to the actual theoretical pixel size, assuming an optical pixel of \unit{650}{\nano\meter}:
 
 \begin{center}
-\begin{tabular}{l | r | r | r}
-     Image Magnification & Manual (micron) & Automatic (micron) & Theoretical (micron) \\
-     \hline
-     100x                & 63.5            & 62.3               & 65.0 \\
-     60x                 & 107.0           & 115.0              & 108.3 \\
-     20x                 & 325.7           & 344.1              & 325.0 \\
-     10x                 & 641.0           & 130.1              & 650.0
+%\begin{tabular}{l | r | r | r}
+% Caption on top
+\begin{tabular}{c | c | c | c}
+     Magnification & Manual ($\mu m$) & Automatic ($\mu m$) & Theoretical ($\mu m$) \\
+     \hline\hline
+     100$\times$                & 63.5            & 62.3               & 65.0 \\ \hline
+     60$\times$                 & 107.0           & 115.0              & 108.3 \\ \hline
+     20$\times$                 & 325.7           & 344.1              & 325.0 \\ \hline
+     10$\times$                 & 641.0           & 130.1              & 650.0
 \end{tabular}
 \end{center}
 
