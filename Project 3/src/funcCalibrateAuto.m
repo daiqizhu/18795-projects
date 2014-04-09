@@ -52,6 +52,7 @@ if plotting
         plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
         plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
     end
+    axis on, axis normal, hold on;
     legend('Detected edges', 'Edge start', 'Edge end');
 end 
 

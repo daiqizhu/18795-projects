@@ -192,10 +192,13 @@ sigmaV = 5;
 
 if plotting
     figure();
+    subplot(2,3,1);
+    imagesc(images(1).data), colormap gray, axis image;
+    title('Original image');
     for ii = 1:numel(angles)
         img = anisotropicGaussianFilter(images(1), angles(ii), sigmaU, ...
             sigmaV, 0.5);
-        subplot(2,3,ii);
+        subplot(2,3,ii+1);
         imagesc(img), colormap gray, axis image;
         title(['Filtered at angle ' num2str(angles(ii)) '^\circ']);
     end
@@ -291,3 +294,10 @@ if plotting
 end
 
 clear ii jj strength;
+
+
+%% Make figures pretty and store them as pdfs
+
+if plotting
+    funcPrettyFigures;
+end
