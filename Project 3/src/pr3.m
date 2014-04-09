@@ -21,7 +21,7 @@ mkdir('../outputs');
 % Define parameters
 plotting = true;
 normalityTest = false; % this is slow, so disable it for now
-
+calibrateAuto = true;
 
 
 %% B.1 Read Image Data
@@ -158,27 +158,28 @@ image_unif_illum_noise_3 = computeUniformIllumination(images(3).cropped,...
 %% B.4 Microscope pixel calibration
 % Manual/ interactive approach to calibrate pixel size.
 
-% Predefined inputs, in case plotting is off.
-distance = [8 80 40 10 1]*10e-6;
-region = [ 32.0000e+000   366.0000e+000     1.2530e+003   282.0000e+000;
-          134.0000e+000   363.0000e+000     1.2340e+003    92.0000e+000;
-           26.0000e+000   375.0000e+000     1.2460e+003   177.0000e+000;
-          244.0000e+000   237.0000e+000   933.0000e+000   339.0000e+000;
-            1.0000e+000     1.0000e+000     1.0000e+000     1.0000e+000 ];
-        
-% Sweep figures and store pixel sizes as well as cropped rectangles        
-for ii=1:(numel(calibrationImages)-1)
-    [calibrationImages(ii).pixSize, calibrationImages(ii).rect] = ...
-        funcCalibrateManually(calibrationImages(ii), plotting, ...
-        region(ii, :), distance(ii));
-end
+if  ~calibrateAuto
+    % Predefined inputs, in case plotting is off.
+    distance = [8 80 40 10 1]*10e-6;
+    region = [ 32.0000e+000   366.0000e+000     1.2530e+003   282.0000e+000;
+              134.0000e+000   363.0000e+000     1.2340e+003    92.0000e+000;
+               26.0000e+000   375.0000e+000     1.2460e+003   177.0000e+000;
+              244.0000e+000   237.0000e+000   933.0000e+000   339.0000e+000;
+                1.0000e+000     1.0000e+000     1.0000e+000     1.0000e+000 ];
 
-% Automated approach to calibrate pixel size.
-for ii=1:(numel(calibrationImages)-1)
-     [calibrationImages(ii).autoPixSize] = ...
-         funcCalibrateAuto(calibrationImages(ii), plotting);
+    % Sweep figures and store pixel sizes as well as cropped rectangles        
+    for ii=1:(numel(calibrationImages)-1)
+        [calibrationImages(ii).pixSize, calibrationImages(ii).rect] = ...
+            funcCalibrateManually(calibrationImages(ii), plotting, ...
+            region(ii, :), distance(ii));
+    end
+else 
+    % Automated approach to calibrate pixel size.
+    for ii=1:(numel(calibrationImages)-1)
+         [calibrationImages(ii).autoPixSize] = ...
+             funcCalibrateAuto(calibrationImages(ii), plotting);
+    end
 end
-
 clear ii distance noise_sample noise_min noise_max region;
 
 

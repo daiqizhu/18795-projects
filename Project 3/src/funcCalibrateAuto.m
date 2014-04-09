@@ -9,6 +9,12 @@ function  [pixSize] = funcCalibrateAuto(image, plotting)
 %
 
 img = imadjust(image.data);
+imgName = num2str(sscanf(image.name, '%d%*c',[1 inf]));
+if isempty(imgName)
+    imgName = 'stage background';
+else
+    imgName = ['calibration image for ' imgName 'X magnification'];
+end
 
 % Find all edges in the image
 BW = edge(img,'canny');
@@ -19,6 +25,7 @@ P  = houghpeaks(H,1e12); %, 'threshold',ceil(0.5*max(H(:))));
 
 if plotting
     % Shows the image in Hough domain
+    figure
     imshow(H,[],'XData',T,'YData',R,'InitialMagnification','fit');
     xlabel('\theta'), ylabel('\rho');
     axis on, axis normal, hold on;
@@ -27,31 +34,35 @@ if plotting
     plot(x,y,'s','color','white');
     colorbar
     colormap(hot)
+    title(['Hough transform of ' imgName]);
 end 
 
 % Finds Hough Transform edges
-lines = houghlines(BW,T,R,P,'FillGap', 3,'MinLength',35);
+houghLines = houghlines(BW,T,R,P,'FillGap', 3,'MinLength',35);
 
 % Shows the processed calibration image together with the found edges
 if plotting
     figure, imshow(img, []), hold on
-    for k = 1:length(lines)
-        xy = [lines(k).point1; lines(k).point2];
+    title(['The ' imgName ...
+        ', together with the detected vertical Hough edges'])
+    for k = 1:length(houghLines)
+        xy = [houghLines(k).point1; houghLines(k).point2];
         plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
         % Plots beginnings and ends of lines
         plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
         plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
     end
+    legend('Detected edges', 'Edge start', 'Edge end');
 end 
 
 % Assuming the lines are almost vertical, the x-position of only one of the
 % Hough line beginning OR end points is necessary. We pick the x coordinate of 
 % beginning point
 
-firstPoints = zeros(1,length(lines));
-firstPoints(1) = lines(1).point1(1);
+firstPoints = zeros(1,length(houghLines));
+firstPoints(1) = houghLines(1).point1(1);
 for i = 2:length(firstPoints)
-    firstPoints(i) = lines(i).point1(1);
+    firstPoints(i) = houghLines(i).point1(1);
 end
 % Sort them to find relative distances
 firstPoints = sort(firstPoints);
