@@ -92,24 +92,22 @@ To analyze the image sequence over time, we then generated plots showing the mea
 To analyze the spatial dependency of the noise, we plotted the mean of noise over columns in one plot, and rows in another (Figure \ref{fig:noise_intensity_space}). We found that the intensity was highest for our noise field in the top left, and lowest in the bottom right. The noise displays a rough linear decay across the image in both the $x$ and $y$ directions.
 
 \begin{figure}[h]
-\begin{minipage}[h]{0.45\linewidth}
 \centering
-\includegraphics[width=\textwidth]{figures/noise_distribution.pdf}
+\includegraphics[width=0.7\textwidth]{figures/noise_distribution.pdf}
 \caption{Noise distribution in background}
 \label{fig:noise_dist_background}
-\end{minipage}
-\hspace{0.5cm}
-\begin{minipage}[h]{0.45\linewidth}
-\centering
-\includegraphics[width=\textwidth]{figures/noise_over_time.pdf}
-\caption{Noise Mean \& Variance over time}
-\label{fig:noise_mean_var_time}
-\end{minipage}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.45\linewidth]{figures/noise_over_space.pdf}
+\includegraphics[width=0.7\textwidth]{figures/noise_over_time.pdf}
+\caption{Noise Mean \& Variance over time}
+\label{fig:noise_mean_var_time}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\linewidth]{figures/noise_over_space.pdf}
 \caption{Average Noise Intensity over Space}
 \label{fig:noise_intensity_space}
 \end{figure}
