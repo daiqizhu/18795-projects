@@ -30,11 +30,11 @@ plotting = true;
 disp 'PART 1', disp 'Loading image files...'
 
 imagesDir = '../images/';
-images(1).name = [imagesDir '60x_02.tif'];
-images(1).data = double(imread(images(1).name));
+images(1).name = '60x_02.tif';
+images(1).data = double(imread([imagesDir images(1).name]));
 
-images(2).name = [imagesDir 'Blue0001.tif'];
-images(2).data = double(imread(images(2).name));
+images(2).name = 'Blue0001.tif';
+images(2).data = double(imread([imagesDir images(2).name]));
 
 clear imagesDir;
 
@@ -84,6 +84,7 @@ seed = double(images(2).data > 60); %#ok used
 [~,images(2).sllsSegment] = evalc('performSLLS(images(2), seed)');
 
 
+% Display results
 if plotting
     figure();
     subplot(1,2,1), imshow(images(1).sctSegment);
@@ -98,11 +99,70 @@ if plotting
     title('SLLS segmentation for image 2');
 end
 
-clear threshold seed seeds;
+
+% Save results
+for ii = 1:length(images)
+    sct = ['../outputs/' images(ii).name(1:end-4) '_sct.tif'];
+    imwrite(images(ii).sctSegment, sct, 'tif', 'Compression', 'none');
+
+    slls = ['../outputs/' images(ii).name(1:end-4) '_slls.tif'];
+    imwrite(images(ii).sllsSegment, slls, 'tif', 'Compression', 'none');
+end
+
+
+clear ii threshold sct seed seeds slls;
 
 
 %% B.2.2 Segmentation of image series
 disp 'Segmenting image series...'
+
+% Hard code thresholds for two methods
+sctThresh = [150 1024]; sctPeakThresh = 200; %#ok used
+sllsThresh = 200;
+
+for ii = 1:length(seriesImages)
+    fprintf('    Processing image %d...\n', ii);
+    % Construct seed points from maxima and perform SCT
+    % Only do certain points to avoid bug in library
+    [rows cols] = find(seriesImages(ii).data > sctPeakThresh);
+    seeds = [];
+    for jj = 1:length(rows)
+        if max(rows(jj),cols(jj)) < min(size(seriesImages(ii).data))
+            seeds = [seeds; rows(jj) cols(jj)]; %#ok append
+        end
+    end
+    
+    [~,seriesImages(ii).sctSegment] = ...
+        evalc('performSCT(seriesImages(ii), sctThresh, seeds)'); %#ok
+    
+    % Perform SLLS
+    seed = double(seriesImages(ii).data > sllsThresh); %#ok used
+    [~,seriesImages(ii).sllsSegment] = ...
+        evalc('performSLLS(seriesImages(ii), seed)'); %#ok
+end
+
+
+% Display sample output
+if plotting
+    figure();
+    subplot(2,1,1), imshow(seriesImages(1).sctSegment);
+    title('Sample SCT segmentation for image series');
+    subplot(2,1,2), imshow(seriesImages(1).sllsSegment);
+    title('Sample SLLS segmentation for image series');
+    
+end
+
+
+% Save results
+for ii = 1:length(seriesImages)
+    sct = ['../outputs/' seriesImages(ii).name(1:end-4) '_sct.tif'];
+    imwrite(seriesImages(ii).sctSegment, sct, 'tif', 'Compression', 'none');
+
+    slls = ['../outputs/' seriesImages(ii).name(1:end-4) '_slls.tif'];
+    imwrite(seriesImages(ii).sllsSegment, slls, 'tif', 'Compression', 'none');
+end
+
+clear cols ii jj rows sct sctPeakThresh sctThresh seed seeds slls sllsThresh;
 
 
 %% C.1.1 Graph cut based image segmentation

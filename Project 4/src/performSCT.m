@@ -19,4 +19,8 @@ for ii=1:size(seed,1)
     out = out + matitk('SCT', threshold, in, [], [seed(ii,:) 1]);
 end
 
+% Convert to 1D and clip
+out = out(:,:,1);
+out(out > 255) = 255;
+
 end

@@ -27,7 +27,8 @@ seed = repmat(seed, [1 1 3]);
 out = matitk('SLLS', [isoSurfaceValue, propogationScaling, 1.0, 0.02, 800], ...
     in, seed);
 
-% Reverse so white is our detected
+% Convert to 1D and reverse so white is our detected
+out = out(:,:,1);
 out = max(max(max(out))) - out;
 
 end
