@@ -76,11 +76,60 @@ Due: \hmwkDueDate\\
 
 \subsection*{B.1 MAT-ITK and image data}
 
+Our images and their corresponding segmentations are stored in a vector of structs, allowing us to keep all information bundled together.
+
+The MAT\_ITK library is included in our code as a MEX file. We elected to write wrapper functions to convert between our data structs and the format required by the library. This simplifies repeatedly calling the library, as the data format for the library is strange and poorly documented.
+
+It was difficult to find documentation on what function parameters actually were. Fortunately, I was able to find external documentation on how to use some functions\cite{designest}.
+
+
 \subsection*{B.2.1 Segmentation of static images}
+
+For this assignment, our two assigned algorithms were Connected Threshold Segmentation (CST), and Laplacian Level Set Segmentation (LLSS).
+
+\subsubsection*{Connected Threshold Segmentation}
+To perform CST, we must pass in two parameters. The first is a pair of thresholds corresponding to the minimum and maximum values in our segments. The second is a set of seed coordinates, one for each blob we want to segment. For our two test images, these were both derived by manually inspecting the image. See Figure {\bf FIGNUMHERE} for results.
+
+\subsubsection*{Laplacian Level Set Segmentation}
+To perform LLSS, several parameters were required. The last three had suggested values in the documentation, and we found that the suggested values produced quite good segmentation results. Second, we had to pass in a starting segmentation and a parameter that informs the algorithm what is a segment in the starting segmentation.
+
+LLSS requires an initial segmentation as a seed that it then uses to refine to a better boundary. To seed the algorithm, we used a naive thresholding segment on the image, derived manually by inspecting the image. Finally, the algorithm required a propagation scaling constant. This was manually tuned, and found to produce optimal results between 0 and 1.
+
+% TODO: CST/LLSS figures
+
 
 \subsection*{B.2.2 Segmentation of images series}
 
+The image series was segmented using the same functions as the in B.2.1. Thresholds were again manually determined by inspecting representative images in the series. The CST was instead seeded using local maxima in the image. See {\bf FIGNUMHERE} for results.
+
+% TODO: results figure
+
+
 \subsection*{B.2.3 Theoretical background}
+
+\subsubsection*{Connected Threshold Segmentation}
+Connected Threshold Segmentation is a very simple algorithm. It begins with one or more starting coordinates, called the {\bf seeds}. For each seed location, we search the neighborhood around the point. The most common neighborhood is simply the eight adjacent pixels. For each grayscale pixel, we compare against two thresholds, $T_L$ and $T_H$. If the pixel intensity $p_i$ is in the range $T_L \leq p_i \leq T_H$, then this pixel is added to the segmentation. Finally, for each pixel found this way, iteratively continue expanding the segmentation. The algorithm terminates when no new pixels are found in the next iteration step.\cite{svi}
+
+This algorithm is incredibly simple, and thus easy both to implement and tune the parameters for. In the case of our clean test images, it actually produces quite clean results with minimal effort. However, it requires that the user feeds the algorithm with knowledge for each image that describes the segments, meaning it is hard to fully automate.
+
+\subsubsection*{Laplacian Level Set Segmentation}
+
+Level set segmentation derives form a mathematical property called the level set. A level set is simply the set of all points for a function $f$ where $f(x) = c$, where $c$ is some constant. Level set algorithms define the ``interface'' as the dividing line between a segment and everything else, and seeks to define a function $\varphi(\mathbf{x},t)$ such that $\varphi$ is strictly positive when inside a segment, strictly negative outside a segment, and strictly $0$ on the dividing line. Thus, the segmentation can be found by finding the level set $\Gamma(t)$ that causes $\varphi$ to {\emph vanish} (that is, to go to zero).
+
+To perform optimization, a velocity field is defined $\mathbf{v}(\mathbf{x},t)$. Thus, we evolve the equation\cite{osher}:
+
+\[\frac{\delta\varphi}{\delta t} + \mathbf{v} \nabla\varphi = 0 \]
+
+Using Lagrangian methods, this is done by evolving particle positions to track the interface. Starting at an initial position $\mathbf{x_0}$, with an initial volume of segmentation $v_0$, on the initial boundary, we update our state on the next $p$th step as follows\cite{hieber}:
+
+\[\frac{D\varphi_p}{Dt} = 0 \]
+\[\frac{Dv}{Dt} = \left< \nabla\mathbf{v}\right>_p v_p \]
+\[\frac{D\mathbf{x}_p}{Dt} = \mathbf{v}_p \]
+
+By iterating this for each point on our segmentation boundary, we will eventually converge on our final boundary. The advantage of using particle based adjustment of these boundaries is that they allow for fast and relatively accurate approximations of our actual surface we are traversing. Their primary disadvantage is that sometimes, points can get caught in ``snags'' along their path that causes them to converge to suboptimal locations. This is usually a result of accumulated errors in the approximation of our distance function, and it can be fixed reinitializing our sets by recomputing initial values at our current position and continuing\cite{hieber}.
+
+LLSS as an algorithm is very good at adjusting existing edges that are near actual segmentations. However, because the gradients tend to be small far from edges, it is not as good at guessing initial boundaries and crossing wide spaces\cite{osher}. Thus, given very rough or noisy segmentations by other methods, LLSS makes an excellent second pass to produce clean segmentations.
+
 
 
 \clearpage
@@ -98,11 +147,26 @@ Due: \hmwkDueDate\\
 \fontsize{10pt}{12pt}\selectfont
 \raggedright
 
-    \bibitem{placeholder}
-        Author, Paper Title, 
-        \emph{Publisher},
-        volume and page
+    \bibitem{designest}
+        ``MATITK: Additional documentation''.
+        \emph{designest}.
+        \url{http://designest.de/2009/11/matitk-additional-documentation/}.
 
+    \bibitem{hieber}
+        Hieber, Simone E., and Koumoutsakos, Petros.
+        \emph{A Lagrangian particle level set method}.
+        Institute of Computational Science, ETH Zürich.
+        Journal of Computational Physics, 2005, 342-367.
+
+    \bibitem{osher}
+        Osher, Stanley, and Nikos Paragios, eds. 
+        \emph{Geometric level set methods in imaging, vision, and graphics}.
+        Springer, 2003.
+
+    \bibitem{svi}
+        ``Seed and threshold Segmentation''.
+        \emph{Scientific Volume Imaging}.
+        \url{http://www.svi.nl/SeedAndThreshold}.
 
 \end{thebibliography}
 
