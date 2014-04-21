@@ -24,6 +24,7 @@ addpath('../matitk');
 
 % Define parameters
 plotting = true;
+processImageSeries = false; % disable because it is slow
 
 
 %% B.1 Read Image Data
@@ -58,8 +59,8 @@ disp 'Segmenting static images with SCT...'
 % TODO: fix the values that don't work
 threshold = [400 800]; %#ok used
 seeds = [400 69; 400 160; 400 250; 400 350; 400 440; 400 535; 400 720; ...
-    400 900; 400 1000; ...% 400 1090; 400 1180; 400 1280; 400 1370];
-    40 700; 134 700; 230 700; 602 700; 692 700; 785 700; 875 700; 971 700]; %#ok used
+    400 900; 400 1000; 400 1090; 400 1180; 400 1280; 400 1370; 40 700; ...
+    134 700; 230 700; 602 700; 692 700; 785 700; 875 700; 971 700]; %#ok used
 
 % Use evalc to supress output
 [~,images(1).sctSegment] = evalc('performSCT(images(1), threshold, seeds)');
@@ -67,8 +68,8 @@ seeds = [400 69; 400 160; 400 250; 400 350; 400 440; 400 535; 400 720; ...
 
 % Hardcode values for second image
 threshold = [50 256]; %#ok used
-seeds = [133 91; 19 187; 5 420; 188 413; 332 210; 337 436; 508 78]; %#ok used
-        %; 439 555; 510 664];
+seeds = [133 91; 19 187; 5 420; 188 413; 332 210; 337 436; 508 78; ...
+    439 555; 510 664]; %#ok used
 
 % Use evalc to supress output
 [~,images(2).sctSegment] = evalc('performSCT(images(2), threshold, seeds)');
@@ -120,17 +121,12 @@ disp 'Segmenting image series...'
 sctThresh = [150 1024]; sctPeakThresh = 200; %#ok used
 sllsThresh = 200;
 
-for ii = 1:length(seriesImages)
+for ii = 1:max(1, length(seriesImages) * processImageSeries)
     fprintf('    Processing image %d...\n', ii);
+    
     % Construct seed points from maxima and perform SCT
-    % Only do certain points to avoid bug in library
     [rows cols] = find(seriesImages(ii).data > sctPeakThresh);
-    seeds = [];
-    for jj = 1:length(rows)
-        if max(rows(jj),cols(jj)) < min(size(seriesImages(ii).data))
-            seeds = [seeds; rows(jj) cols(jj)]; %#ok append
-        end
-    end
+    seeds = [rows cols]; %#ok used
     
     [~,seriesImages(ii).sctSegment] = ...
         evalc('performSCT(seriesImages(ii), sctThresh, seeds)'); %#ok
@@ -139,6 +135,13 @@ for ii = 1:length(seriesImages)
     seed = double(seriesImages(ii).data > sllsThresh); %#ok used
     [~,seriesImages(ii).sllsSegment] = ...
         evalc('performSLLS(seriesImages(ii), seed)'); %#ok
+    
+    % Save image
+    sct = ['../outputs/' seriesImages(ii).name(1:end-4) '_sct.tif'];
+    imwrite(seriesImages(ii).sctSegment, sct, 'tif', 'Compression', 'none');
+
+    slls = ['../outputs/' seriesImages(ii).name(1:end-4) '_slls.tif'];
+    imwrite(seriesImages(ii).sllsSegment, slls, 'tif', 'Compression', 'none');
 end
 
 
@@ -153,16 +156,7 @@ if plotting
 end
 
 
-% Save results
-for ii = 1:length(seriesImages)
-    sct = ['../outputs/' seriesImages(ii).name(1:end-4) '_sct.tif'];
-    imwrite(seriesImages(ii).sctSegment, sct, 'tif', 'Compression', 'none');
-
-    slls = ['../outputs/' seriesImages(ii).name(1:end-4) '_slls.tif'];
-    imwrite(seriesImages(ii).sllsSegment, slls, 'tif', 'Compression', 'none');
-end
-
-clear cols ii jj rows sct sctPeakThresh sctThresh seed seeds slls sllsThresh;
+clear cols ii jj N rows sct sctPeakThresh sctThresh seed seeds slls sllsThresh;
 
 
 %% C.1.1 Graph cut based image segmentation
