@@ -21,6 +21,8 @@ mkdir('../outputs');
 % Add matitk to you search path
 % matitk.dll or matitk.mex must be placed in ../matitk
 addpath('../matitk');
+% Add directory containing GVF functions
+addpath('../gvf');
 
 % Define parameters
 plotting = true;
@@ -165,6 +167,49 @@ disp 'Performing graph cut segmentation...'
 
 %% C.1.2 Active contour based image segmentation
 disp 'Performing active countour segmentation...'
+fprintf('   Processing single images...\n');
+sigmaCanny = 1;
+for ii = 2%1:numel(images) 
+    [images(ii).GVFfirst, images(ii).GVFlast, images(ii).edgeMap] = ...
+        performGVF(images(ii).data, sigmaCanny,'rect',true);
+    
+    if plotting
+        figure; imshow(images(ii).data,[]);
+        snakedisp(images(ii).GVFfirst(:,1),images(ii).GVFfirst(:,2),'--y');
+        snakedisp(images(ii).GVFlast(:,1),images(ii).GVFlast(:,2),'c');
+        legend('Initial snake', 'Final snake')
+        title('GVF snake convergence on the real image')
+        
+        figure; imshow((1-images(ii).edgeMap),[]);
+        snakedisp(images(ii).GVFfirst(:,1),images(ii).GVFfirst(:,2),'--r');
+        snakedisp(images(ii).GVFlast(:,1),images(ii).GVFlast(:,2),'b');
+        legend('Initial snake', 'Final snake')
+        title('GVF snake convergence on the edge map')
+    end
+end
+
+% This part needs some more tuning
+%
+% fprintf('   Processing batch images...\n');
+% for ii = 1:max(1, length(seriesImages) * processImageSeries)
+%     fprintf('      Processing image %d...\n', ii);
+%     [seriesImages(ii).GVFfirst, seriesImages(ii).GVFlast, seriesImages(ii).edgeMap] = ...
+%         performGVF(seriesImages(ii).data, sigmaCanny,'rect',true);
+%     
+%     if plotting
+%         figure; imshow(seriesImages(ii).data,[]);
+%         snakedisp(seriesImages(ii).GVFfirst(:,1),seriesImages(ii).GVFfirst(:,2),'--y');
+%         snakedisp(seriesImages(ii).GVFlast(:,1),seriesImages(ii).GVFlast(:,2),'c');
+%         legend('Initial snake', 'Final snake')
+%         title('GVF snake convergence on the real image')
+%         
+%         figure; imshow((1-seriesImages(ii).edgeMap),[]);
+%         snakedisp(seriesImages(ii).GVFfirst(:,1),seriesImages(ii).GVFfirst(:,2),'--r');
+%         snakedisp(seriesImages(ii).GVFlast(:,1),seriesImages(ii).GVFlast(:,2),'b');
+%         legend('Initial snake', 'Final snake')
+%         title('GVF snake convergence on the edge map')
+%     end
+% end
 
 
 %% Make figures pretty and store them as pdfs
