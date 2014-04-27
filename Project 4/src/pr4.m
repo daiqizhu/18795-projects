@@ -167,11 +167,11 @@ disp 'Performing graph cut segmentation...'
 
 %% C.1.2 Active contour based image segmentation
 disp 'Performing active countour segmentation...'
-fprintf('   Processing single images...\n');
-sigmaCanny = 1;
+fprintf('   Processing static images...\n');
+
 for ii = 2%1:numel(images) 
     [images(ii).GVFfirst, images(ii).GVFlast, images(ii).edgeMap] = ...
-        performGVF(images(ii).data, sigmaCanny,'rect',true);
+        performGVF(images(ii).data, 1,'rect',true);
     
     if plotting
         figure; imshow(images(ii).data,[]);
@@ -188,28 +188,28 @@ for ii = 2%1:numel(images)
     end
 end
 
-% This part needs some more tuning
-%
-% fprintf('   Processing batch images...\n');
-% for ii = 1:max(1, length(seriesImages) * processImageSeries)
-%     fprintf('      Processing image %d...\n', ii);
-%     [seriesImages(ii).GVFfirst, seriesImages(ii).GVFlast, seriesImages(ii).edgeMap] = ...
-%         performGVF(seriesImages(ii).data, sigmaCanny,'rect',true);
-%     
-%     if plotting
-%         figure; imshow(seriesImages(ii).data,[]);
-%         snakedisp(seriesImages(ii).GVFfirst(:,1),seriesImages(ii).GVFfirst(:,2),'--y');
-%         snakedisp(seriesImages(ii).GVFlast(:,1),seriesImages(ii).GVFlast(:,2),'c');
-%         legend('Initial snake', 'Final snake')
-%         title('GVF snake convergence on the real image')
-%         
-%         figure; imshow((1-seriesImages(ii).edgeMap),[]);
-%         snakedisp(seriesImages(ii).GVFfirst(:,1),seriesImages(ii).GVFfirst(:,2),'--r');
-%         snakedisp(seriesImages(ii).GVFlast(:,1),seriesImages(ii).GVFlast(:,2),'b');
-%         legend('Initial snake', 'Final snake')
-%         title('GVF snake convergence on the edge map')
-%     end
-% end
+fprintf('   Processing batch images...\n');
+for ii = 1:max(1, length(seriesImages) * processImageSeries)
+    fprintf('      Processing image %d...\n', ii);
+    [seriesImages(ii).GVFfirst, seriesImages(ii).GVFlast, seriesImages(ii).edgeMap] = ...
+        performGVFbatch(seriesImages(ii).data, [],'rect',true);
+    
+    if plotting
+        figure; imshow(seriesImages(ii).data,[]);
+        snakedisp(seriesImages(ii).GVFfirst(:,1),seriesImages(ii).GVFfirst(:,2),'--y');
+        snakedisp(seriesImages(ii).GVFlast(:,1),seriesImages(ii).GVFlast(:,2),'c');
+        legend('Initial snake', 'Final snake');
+        h = title(['GVF snake convergence on the batch image ' seriesImages(ii).name]);
+        set(h,'interpreter','none');
+        
+        figure; imshow((1-seriesImages(ii).edgeMap),[]);
+        snakedisp(seriesImages(ii).GVFfirst(:,1),seriesImages(ii).GVFfirst(:,2),'--r');
+        snakedisp(seriesImages(ii).GVFlast(:,1),seriesImages(ii).GVFlast(:,2),'b');
+        legend('Initial snake', 'Final snake')
+        h = title(['GVF snake convergence on the edge map of batch image '...
+            seriesImages(ii).name]); set(h,'interpreter','none');
+    end
+end
 
 
 %% Make figures pretty and store them as pdfs
@@ -217,3 +217,4 @@ if plotting
     disp 'Saving figures...'
     funcPrettyFigures;
 end
+disp 'Done!'
