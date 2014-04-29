@@ -162,6 +162,42 @@ clear cols ii jj N rows sct sctPeakThresh sctThresh seed seeds slls sllsThresh;
 %% C.1.1 Graph cut based image segmentation
 disp 'Performing graph cut segmentation...'
 
+% Add directories from graph_cut_based_algs to search path
+addpath('graph_cut_based_algs/algorithm1')
+
+
+% Algorithm 1 from http://www.mathworks.com/matlabcentral/fileexchange
+%    41526-gray-scale-image-segmentation-using-normalized-graphcuts
+
+disp 'Performing Graph-Cut Algorithm #1...'
+
+images(1).graphcut1 = graphcuts(images(1).data, 4);
+%images(2).graphcut1 = graphcuts(images(2).data, 4);
+
+
+
+disp 'Performing Graph-Cut Algorithm #2...'
+
+
+if plotting
+
+    % Plot for Image 1
+    figure;
+    subplot(2,2,1) ; imshow(images(1).graphcut1{1});
+    subplot(2,2,2) ; imshow(images(1).graphcut1{2});
+    subplot(2,2,3) ; imshow(images(1).graphcut1{3});
+    subplot(2,2,4) ; imshow(images(1).graphcut1{4});
+    suptitle('Graph-Cut Segmentation 1 for Image 1')
+
+    % Plot for Image 2
+%     figure;
+%     subplot(2,2,1) ; imshow(images(2).graphcut1{1});
+%     subplot(2,2,2) ; imshow(images(2).graphcut1{2});
+%     subplot(2,2,3) ; imshow(images(2).graphcut1{3});
+%     subplot(2,2,4) ; imshow(images(2).graphcut1{4});
+%     
+%     suptitle('Graph-Cut Segmentation 1 for Image 2')
+end
 
 %% C.1.2 Active contour based image segmentation
 disp 'Performing active countour segmentation...'
