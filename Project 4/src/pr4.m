@@ -23,10 +23,15 @@ mkdir('../outputs');
 addpath('../matitk');
 % Add directory containing GVF functions
 addpath('../gvf');
+% Add directory containing GVF functions
+addpath('../drlse');
 
 % Define parameters
 plotting = true;
 processImageSeries = false; % disable because it is slow
+
+% Suppress image resizing warning
+warning('off',  'images:initSize:adjustingMag'); 
 
 
 %% B.1 Read Image Data
@@ -167,9 +172,11 @@ disp 'Performing graph cut segmentation...'
 
 %% C.1.2 Active contour based image segmentation
 disp 'Performing active countour segmentation...'
+fprintf('\nStarting Gradient Vector Flow (GVF) segmentation...\n')
+
 fprintf('   Processing static images...\n');
 
-for ii = 2%1:numel(images) 
+for ii = 1:numel(images) 
     [images(ii).GVFfirst, images(ii).GVFlast, images(ii).edgeMap] = ...
         performGVF(images(ii).data, 1,'rect',true);
     
@@ -210,6 +217,52 @@ for ii = 1:max(1, length(seriesImages) * processImageSeries)
             seriesImages(ii).name]); set(h,'interpreter','none');
     end
 end
+
+
+fprintf('Starting Distance Regularized Level Set Evolution (DRLSE) segmentation...\n')
+fprintf('   Processing static images...\n');
+
+iter_in = 5;
+iter_out = (250-10)/5;
+for ii = 1:numel(images) 
+    c1 = (numel(images(ii).data)/numel(images(2).data))^1.5; % Hand tuning
+    [images(ii).LSFfirst, images(ii).LSFlast] = ...
+        performDRLSE(images(ii).data, 10*c1, iter_in, iter_out, ...
+                                5*c1, 2*c1, 1.5, 2, plotting);    
+    if  plotting
+        figure;
+        imshow(images(ii).data,[]);
+        axis off; axis equal; colormap(gray);
+        hold on;  [~,h1] = contour(images(ii).LSFfirst, [0,0], 'y');
+        hold on;  [~,h2] = contour(images(ii).LSFlast, [0,0], 'c');
+        str=['Final zero level contour, ', ...
+            num2str(iter_in*iter_out+10), ' iterations'];
+        title(str);
+        legend([h1  h2], 'Initial snake', 'Final snake')
+    end
+end
+
+fprintf('   Processing batch images...\n');
+
+for ii = 1:max(1, length(seriesImages) * processImageSeries)
+    [seriesImages(ii).LSFfirst, seriesImages(ii).LSFlast] = ...
+        performDRLSE(seriesImages(ii).data, 10, iter_in, iter_out, ...
+                     5, 1.5, 1.5, 1, plotting);
+     if  plotting
+         figure;
+         imshow(seriesImages(ii).data, []);
+         axis off; axis equal; colormap(gray);
+         hold on;  [~,h1] = contour(seriesImages(ii).LSFfirst, [0,0], 'y');
+         hold on;  [~,h2] = contour(seriesImages(ii).LSFlast, [0,0], 'c');
+         str=['Final zero level contour, ', ...
+             num2str(iter_in*iter_out+10), ' iterations'];
+         title(str);
+         legend([h1  h2], 'Initial snake', 'Final snake')
+     end
+end
+
+
+
 
 
 %% Make figures pretty and store them as pdfs

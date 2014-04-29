@@ -37,7 +37,7 @@ end
 tmp = img - min(min(img));
 tmp = tmp / max(max(tmp));
 tmp = imadjust(tmp);
-disp('   Compute edge map ...');
+disp('   Computing the edge map ...');
 
 % Edge detection
 level = graythresh(tmp);    % The average grayness is stored in level
@@ -135,6 +135,6 @@ snakeFINAL = [x y];
 % title(['Final result,  iter = ' num2str(125)]);
 % disp(' ');
 
-disp('   GVF converged');
+disp('   GVF converged!');
 
 end
