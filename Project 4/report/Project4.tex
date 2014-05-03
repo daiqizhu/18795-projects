@@ -88,21 +88,48 @@ It was difficult to find documentation on what function parameters actually were
 For this assignment, our two assigned algorithms were Connected Threshold Segmentation (CST), and Laplacian Level Set Segmentation (LLSS).
 
 \subsubsection*{Connected Threshold Segmentation}
-To perform CST, we must pass in two parameters. The first is a pair of thresholds corresponding to the minimum and maximum values in our segments. The second is a set of seed coordinates, one for each blob we want to segment. For our two test images, these were both derived by manually inspecting the image. See Figure {\bf FIGNUMHERE} for results.
+To perform CST, we must pass in two parameters. The first is a pair of thresholds corresponding to the minimum and maximum values in our segments. The second is a set of seed coordinates, one for each blob we want to segment. For our two test images, these were both derived by manually inspecting the image. See Figures \ref{fig:b21_image1}\&\ref{fig:b21_image2} for results.
 
 \subsubsection*{Laplacian Level Set Segmentation}
 To perform LLSS, several parameters were required. The last three had suggested values in the documentation, and we found that the suggested values produced quite good segmentation results. Second, we had to pass in a starting segmentation and a parameter that informs the algorithm what is a segment in the starting segmentation.
 
 LLSS requires an initial segmentation as a seed that it then uses to refine to a better boundary. To seed the algorithm, we used a naive thresholding segment on the image, derived manually by inspecting the image. Finally, the algorithm required a propagation scaling constant. This was manually tuned, and found to produce optimal results between 0 and 1.
 
-% TODO: CST/LLSS figures
+\subsection*{Results Comparison}
+Both algorithms perform quite well for their simplicity. In both the calibration slide and the cell images, they correctly identify all of the expected foreground features, while rejecting most of the background. LLSS creates a more clean segmentation boundary, and does a better job of rejecting noise around each object; this is most prominent in the cell images in Figure \ref{fig:b21_image2}. However, the cost of this clean segmentation boundary in most cases is that a few internal locations become speckled, rather than a solid region. In contrast, the CST manages to segment the full feature.
+
+The biggest difference is in the work that must go into seeding the image. CST requires manually pinpointing starting seeds inside every object, and determining a threshold for those objects. Meanwhile, LLSS requires only a starting segmentation that somewhat resembles the targeted image; therefore, it can be seeded from a single threshold that need not be precise.
+
+Overall, LLSS produces more desirable results, and has a much easier burden of work placed on the user before it takes place, and so is clearly the stronger algorithm.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{figures/60x_02_sct.png}
+\includegraphics[width=0.4\textwidth]{figures/60x_02_slls.png}
+\caption{60x\_02 segmented using CST (left) and LLSS (right)}
+\label{fig:b21_image1}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{figures/Blue0001_sct.png}
+\includegraphics[width=0.4\textwidth]{figures/Blue0001_slls.png}
+\caption{Blue0001 segmented using CST (left) and LLSS (right)}
+\label{fig:b21_image2}
+\end{figure}
 
 
 \subsection*{B.2.2 Segmentation of images series}
 
-The image series was segmented using the same functions as the in B.2.1. Thresholds were again manually determined by inspecting representative images in the series. The CST was instead seeded using local maxima in the image. See {\bf FIGNUMHERE} for results.
+The image series was segmented using the same functions as the in B.2.1. Thresholds were again manually determined by inspecting representative images in the series. The CST was instead seeded using local maxima in the image. See Figure \ref{fig:b21_imageseries} for results.
 
-% TODO: results figure
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{figures/MitoGFP_LgtGal4_a01r01s02001_sct.png}
+\includegraphics[width=0.8\textwidth]{figures/MitoGFP_LgtGal4_a01r01s02001_slls.png}
+\caption{First frame of the image series segmented using CST (top) and LLSS (bottom)}
+\label{fig:b21_imageseries}
+\end{figure}
 
 
 \subsection*{B.2.3 Theoretical background}
