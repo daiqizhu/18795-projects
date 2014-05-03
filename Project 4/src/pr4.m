@@ -159,7 +159,6 @@ if plotting
     title('Sample SCT segmentation for image series');
     subplot(2,1,2), imshow(seriesImages(1).sllsSegment);
     title('Sample SLLS segmentation for image series');
-    
 end
 
 
@@ -170,38 +169,29 @@ clear cols ii jj N rows sct sctPeakThresh sctThresh seed seeds slls sllsThresh;
 disp 'Performing graph cut segmentation...'
 
 % Add directories from graph_cut_based_algs to search path
-addpath('graph_cut_based_algs/algorithm1')
-addpath('graph_cut_based_algs/algorithm2')
+addpath('graph_cut_based_algs/Ncut_9')
 
-
-% Algorithm 1 from http://www.mathworks.com/matlabcentral/fileexchange
-%    41526-gray-scale-image-segmentation-using-normalized-graphcuts
-
-disp 'Performing Graph-Cut Algorithm #1...'
-
-%images(1).graphcut1 = graphcuts(images(1).data, 4);
-%images(2).graphcut1 = graphcuts(images(2).data, 4);
+% Test first algorithm
+disp 'Testing Ncut algorithm...'
+images(1).ncutLabels = performNcut(images(1), 25);
+images(2).ncutLabels = performNcut(images(2), 15);
+seriesImages(1).ncutLabels = performNcut(seriesImages(1), 25);
 
 
 if plotting
-
-%     % Plot for Image 1
-%     figure;
-%     subplot(2,2,1) ; imshow(images(1).graphcut1{1});
-%     subplot(2,2,2) ; imshow(images(1).graphcut1{2});
-%     subplot(2,2,3) ; imshow(images(1).graphcut1{3});
-%     subplot(2,2,4) ; imshow(images(1).graphcut1{4});
-%     suptitle('Graph-Cut Segmentation 1 for Image 1')
-
-%     % Plot for Image 2
-%     figure;
-%     subplot(2,2,1) ; imshow(images(2).graphcut1{1});
-%     subplot(2,2,2) ; imshow(images(2).graphcut1{2});
-%     subplot(2,2,3) ; imshow(images(2).graphcut1{3});
-%     subplot(2,2,4) ; imshow(images(2).graphcut1{4});
+    figure();
+    imagesc(images(1).ncutLabels); colormap jet;
+    title('Image 1 ncut segmentation');
     
-    suptitle('Graph-Cut Segmentation 1 for Image 2')
+    figure();
+    imagesc(images(2).ncutLabels); colormap jet;
+    title('Image 2 ncut segmentation');
+    
+    figure();
+    imagesc(seriesImages(1).ncutLabels); colormap jet;
+    title('Image series sample ncut segmentation');
 end
+
 
 %% C.1.2 Active contour based image segmentation
 disp 'Performing active countour segmentation...'
