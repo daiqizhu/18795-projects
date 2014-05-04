@@ -212,7 +212,7 @@ Ncut(A,B) = 2 - Nassoc(A,B)
 This relationship makes the partitioning criteria more trivial, as maximizing one minimizes the other. For an ideal segmentation with the N-cut algorithm, the dissociation in equation \ref{eq:norm_cut1} should be maximized and the association in equation \ref{eq:norm_cut2} should be minimized.
 
 
-Examples of N-Cut Image Segmentation on the two static sample images are shown in figures \ref{fig:gc1_1} and \ref{fig:gc1_2}. The code used to run this algorithm on these images are from reference \cite{ncut_code}
+Examples of N-Cut Image Segmentation on the two static sample images are shown in figures \ref{fig:gc1_1} and \ref{fig:gc1_2}. The code used to run this algorithm on these images are from reference \cite{ncut_code}.
 
 \pagebreak
 \begin{figure}
@@ -237,7 +237,18 @@ Examples of N-Cut Image Segmentation on the two static sample images are shown i
 \pagebreak
 \subsubsection*{Convex Multiphase Image Segmentation with Graph Cut}
 
-The image segmentation algorithm used by \cite{jun} is a graph cut algorithm that 
+The image segmentation algorithm used by \cite{jun} is another algorithm based off of graph cut that minimizes the global energy via convexifying the non-convex cost functions.
+
+Graphically, a convex function is one where graphically, the line segment between any two points on the function is above the function itself (or just below; one or the other). Simple low-dimensional examples include $f(x)=x^2$, $f(x)=e^x$ and so on. A non-convex function is one where this property does not hold. The mathematical definition is provided in equation \ref{eq:convex} \cite{convex}.
+
+\begin{equation}
+\forall x_1,x_2 \in X, \forall t\in [0,1]: f(tx_1 + (1-t)x_2 \leq tf(x_1) + (1-t)f(x_2)
+\label{eq:convex}
+\end{equation}
+
+where $x_1,x_2$ are vectors in any dimension, and $f$ is a function in this dimension. There are very significant advantages to having the minimum energy problem be convex rather than non-convex. A non-convex optimization problem generally takes much longer and may have multiple solutions in linear programming, whereas convexifying it into a convex optimization problem will always have exactly one extrema (or none). One can visualize this with the simple example $f(x)=x^2$ where the minimum is very clearly at the origin, and is very easy to calculate.
+
+Most graph-cut algorithms are non-convex. The general idea behind convexifying the minimization problem is to "relax the binary characteristic function into a continuous interval [0,1] such that the non-convex original problem becomes convex" \cite{jun}. Two non-convex algorithms studied are the Chan-Vese (CV) model and the piecewise constant level-set method (PCLSM), both of which reference \cite{jun} has found a method for convexifying them. The code used in this project (also provided by \cite{jun}) follows the convexification of the CV algorithm, which partitions "an image into $K$ parts by using $\text{log}_2 K$ level set functions" \cite{jun}. 
 
 Results for the initial two images are in figures \ref{fig:gc2_1} and \ref{fig:gc2_2}.
 
@@ -245,16 +256,19 @@ Results for the initial two images are in figures \ref{fig:gc2_1} and \ref{fig:g
 \begin{figure}
 \centering
 \includegraphics[width=0.5\textwidth]{figures/60x_02_gc2.png}
-\caption{60x\_02 segmentation using Multiphase Image Segmetation}
+\caption{60x\_02 segmentation using Convexified CV Image Segmetation}
 \label{fig:gc2_1}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[width=0.5\textwidth]{figures/Blue0001_gc2.png}
-\caption{Blue0001 segmentation using Multiphase Image Segmetation}
+\caption{Blue0001 segmentation using Convexified CV Image Segmetation}
 \label{fig:gc2_2}
 \end{figure}
+
+
+
 
 
 
@@ -459,7 +473,9 @@ The DRLSE algorithm is quite powerful as it provides flexibility in segmenting s
         \emph{IEEE Trans. Image Processing}, 
         vol. 19 (12), 2010.
         
-        
+    \bibitem{convex}
+        Convex function. (2014, April 21). \emph{Wikipedia}. Retrieved May 3, 2014, from http://en.wikipedia.org/wiki/Convex\_function        
+
 \end{thebibliography}
 
 
