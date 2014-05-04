@@ -172,48 +172,10 @@ LLSS as an algorithm is very good at adjusting existing edges that are near actu
 
 \subsection*{C.1.1 Graph cut based image segmentation}
 
-The general concept of using graph cuts for image segmentation is to use a weighed graph to represent the entire image, such that each vertex represents one pixel of the image, and each edge's weight is a scalar that is a function of some factor of similarity between the two vertices. If the image is partitioned into two whole segments, then a graph cut for that partitioning is defined as the sum of weights between every combination of pairs of vertices between the two regions, as shown in equation \ref{eq:graph_cut}.
-
-\begin{equation}
-cut(A,B) = \sum_{u\in A,v\in B} w(u,v)
-\label{eq:graph_cut}
-\end{equation}
-...such that $A$ and $B$ are the set of vertices in their respective regions of the given image, and the function $w(u,v)$ is the weight between vertices $u,v$.
-
-Typically, the ideal partitioning into regions $A$ and $B$ is one that minimizes the cut, so the two regions are as distinguishable as possible from each other, implying good segmentation (this is called finding the minimum-cut). There are other methods of taking advantage of graph cuts, or uses a similar idea, however. Two such methods are normalized cuts and non-convex.
-
-
-
-\subsubsection*{Normalized Cuts in Image Segmentation}
-
-Rather than calculating and using equation \ref{eq:graph_cut}, Shi and Malik formulated the normalized cut (or N-cut), which ``computes the cut cost as a fraction of the total edge connections to all the nodes in the graph'' \cite{ncut}. The normalized cut formula for dissociation is given below in equation \ref{eq:norm_cut1}: \cite{ncut}
-
-\begin{equation}
-Ncut(A,B) = \frac{cut(A,B)}{assoc(A,V)} + \frac{cut(A,B)}{assoc(B,V)}
-\label{eq:norm_cut1}
-\end{equation}
-
-where $assoc(A,V) = \sum_{u\in A, t\in V} w(u,t)$, or the ``graph cut'' between region $A$ and the entire graph itself. The idea behind this is to perform segmentation based off of not only each partition's relationship with each other, but also relationship to the entire image \cite{ncut}. The normalization cut addresses the issue with the minimization cut in equation \ref{eq:graph_cut} where it favors partitioning out sets of isolated vertices.
-
-The normalized cuts algorithm also calculates the total normalized association within the partitions themselves, which is given in equation \ref{eq:norm_cut2}: \cite{ncut}
-
-\begin{equation}
-Nassoc(A,B) = \frac{assoc(A,A)}{assoc(A,V)} + \frac{assoc(B,B)}{assoc(B,V)}
-\label{eq:norm_cut2}
-\end{equation}
-
-The association and dissociation in equations \ref{eq:norm_cut1} and \ref{eq:norm_cut2} are also directly related: \cite{ncut}
-
-\begin{equation}
-Ncut(A,B) = 2 - Nassoc(A,B)
-\end{equation}
-
-This relationship makes the partitioning criteria more trivial, as maximizing one minimizes the other. For an ideal segmentation with the N-cut algorithm, the dissociation in equation \ref{eq:norm_cut1} should be maximized and the association in equation \ref{eq:norm_cut2} should be minimized.
 
 
 Examples of N-Cut Image Segmentation on the two static sample images are shown in figures \ref{fig:gc1_1} and \ref{fig:gc1_2}. The code used to run this algorithm on these images are from reference \cite{ncut_code}.
 
-\pagebreak
 \begin{figure}
 \centering
 \includegraphics[width=0.5\textwidth]{figures/60x_02_gc1.pdf}
@@ -230,24 +192,7 @@ Examples of N-Cut Image Segmentation on the two static sample images are shown i
 
 
 
-
-
-
-\pagebreak
-\subsubsection*{Convex Multiphase Image Segmentation with Graph Cut}
-
-The image segmentation algorithm used by \cite{jun} is another algorithm based off of graph cut that minimizes the global energy via convexifying the non-convex cost functions.
-
-Graphically, a convex function is one where graphically, the line segment between any two points on the function is above the function itself (or just below; one or the other). Simple low-dimensional examples include $f(x)=x^2$, $f(x)=e^x$ and so on. A non-convex function is one where this property does not hold. The mathematical definition is provided in equation \ref{eq:convex} \cite{convex}.
-
-\begin{equation}
-\forall x_1,x_2 \in X, \forall t\in [0,1]: f(tx_1 + (1-t)x_2 \leq tf(x_1) + (1-t)f(x_2)
-\label{eq:convex}
-\end{equation}
-
-where $x_1,x_2$ are vectors in any dimension, and $f$ is a function in this dimension. There are very significant advantages to having the minimum energy problem be convex rather than non-convex. A non-convex optimization problem generally takes much longer and may have multiple solutions in linear programming, whereas convexifying it into a convex optimization problem will always have exactly one extrema (or none). One can visualize this with the simple example $f(x)=x^2$ where the minimum is very clearly at the origin, and is very easy to calculate.
-
-Most graph-cut algorithms are non-convex. The general idea behind convexifying the minimization problem is to "relax the binary characteristic function into a continuous interval [0,1] such that the non-convex original problem becomes convex" \cite{jun}. Two non-convex algorithms studied are the Chan-Vese (CV) model and the piecewise constant level-set method (PCLSM), both of which reference \cite{jun} has found a method for convexifying them. The code used in this project (also provided by \cite{jun}) follows the convexification of the CV algorithm, which partitions "an image into $K$ parts by using $\text{log}_2 K$ level set functions" \cite{jun}. 
+ The code used in this project (also provided by \cite{jun}) follows the convexification of the CV algorithm, which partitions "an image into $K$ parts by using $\text{log}_2 K$ level set functions" \cite{jun}. 
 
 Results for the initial two images are in figures \ref{fig:gc2_1} and \ref{fig:gc2_2}.
 
@@ -363,6 +308,69 @@ Lastly, the GVF shows pretty good convergence to the detected edges. In fact, th
 
 
 \subsection*{C.1.3 Theoretical background}
+
+
+
+\subsubsection*{Normalized Cuts in Image Segmentation}
+
+The general concept of using graph cuts for image segmentation is to use a weighed graph to represent the entire image, such that each vertex represents one pixel of the image, and each edge's weight is a scalar that is a function of some factor of similarity between the two vertices. If the image is partitioned into two whole segments, then a graph cut for that partionining is defined as the sum of weights between every combination of pairs of vertices between the two regions, as shown in equation \ref{eq:graph_cut}.
+
+\begin{equation}
+cut(A,B) = \sum_{u\in A,v\in B} w(u,v)
+\label{eq:graph_cut}
+\end{equation}
+...such that $A$ and $B$ are the set of vertices in their respective regions of the given image, and the function $w(u,v)$ is the weight between vertices $u,v$.
+
+Typically, the ideal partioning into regions $A$ and $B$ is one that minimizes the cut, so the two regions are as distinguishable as possible from each other, implying good segmentation (this is called finding the minimum-cut). There are other methods of taking advantage of graph cuts, or uses a similar idea, however. Two such methods are normalized cuts and non-convex.
+
+Rather than calculating and using equation \ref{eq:graph_cut}, however, Shi and Malik formulated the normalized cut (or N-cut), which "computes the cut cost as a fraction of the total edge connections to all the nodes in the graph" \cite{ncut}. The normalized cut formula for dissociation is given below in equation \ref{eq:norm_cut1}: \cite{ncut}
+
+\begin{equation}
+Ncut(A,B) = \frac{cut(A,B)}{assoc(A,V)} + \frac{cut(A,B)}{assoc(B,V)}
+\label{eq:norm_cut1}
+\end{equation}
+
+where $assoc(A,V) = \sum_{u\in A, t\in V} w(u,t)$, or the "graph cut" between region $A$ and the entire graph itself; the idea behind this is to perform segmentation based off of not only each partition's relationship with each other, but also relationship to the entire image \cite{ncut}. The normalization cut addresses the issue with the minimization cut in equation \ref{eq:graph_cut} where it favors partitioning out sets of isolated vertices.
+
+The normalized cuts algorithm also calculates the total normalized association within the partitions themselves, which is given in equation \ref{eq:norm_cut2}: \cite{ncut}
+
+\begin{equation}
+Nassoc(A,B) = \frac{assoc(A,A)}{assoc(A,V)} + \frac{assoc(B,B)}{assoc(B,V)}
+\label{eq:norm_cut2}
+\end{equation}
+
+The association and dissociation in equations \ref{eq:norm_cut1} and \ref{eq:norm_cut2} are also directly related: \cite{ncut}
+
+\begin{equation}
+Ncut(A,B) = 2 - Nassoc(A,B)
+\end{equation}
+
+This relationship makes the partitioning criteria more trivial, as maximizing one minimizes the other. For an ideal segmentation with the N-cut algorithm, the dissociation in equation \ref{eq:norm_cut1} should be maximized and the association in equation \ref{eq:norm_cut2} should be minimized.
+
+
+
+
+\subsubsection*{Convex Multiphase Image Segmentation with Graph Cut}
+
+The image segmentation algorithm used by \cite{jun} is another algorithm based off of graph cut that minimizes the global energy via convexifying the non-convex cost functions.
+
+Graphically, a convex function is one where graphically, the line segment between any two points on the function is above the function itself (or just below; one or the other). Simple low-dimensional examples include $f(x)=x^2$, $f(x)=e^x$ and so on. A non-convex function is one where this property does not hold. The mathematical definition is provided in equation \ref{eq:convex} \cite{convex}.
+
+\begin{equation}
+\forall x_1,x_2 \in X, \forall t\in [0,1]: f(tx_1 + (1-t)x_2 \leq tf(x_1) + (1-t)f(x_2)
+\label{eq:convex}
+\end{equation}
+
+where $x_1,x_2$ are vectors in any dimension, and $f$ is a function in this dimension. There are very significant advantages to having the minimum energy problem be convex rather than non-convex. A non-convex optimization problem generally takes much longer and may have multiple solutions in linear programming, whereas convexifying it into a convex optimization problem will always have exactly one extrema (or none). One can visualize this with the simple example $f(x)=x^2$ where the minimum is very clearly at the origin, and is very easy to calculate.
+
+Most graph-cut algorithms are non-convex. The general idea behind convexifying the minimization problem is to "relax the binary characteristic function into a continuous interval [0,1] such that the non-convex original problem becomes convex" \cite{jun}. Two non-convex algorithms studied are the Chan-Vese (CV) model and the piecewise constant level-set method (PCLSM), both of which reference \cite{jun} has found a method for convexifying them.
+
+
+
+
+
+
+
 
 \subsubsection*{Gradient Vector Flow Segmentation}
 
