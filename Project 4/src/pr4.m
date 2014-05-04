@@ -199,7 +199,7 @@ fprintf('\nStarting Gradient Vector Flow (GVF) segmentation...\n')
 
 fprintf('   Processing static images...\n');
 
-for ii = 1:numel(images) 
+for ii = 1:1%numel(images) 
     [images(ii).GVFfirst, images(ii).GVFlast, images(ii).edgeMap] = ...
         performGVF(images(ii).data, 1,'rect',true);
     
@@ -210,13 +210,15 @@ for ii = 1:numel(images)
         legend('Initial snake', 'Final snake')
         title('GVF snake convergence on the real image')
         
-        figure; imshow((1-images(ii).edgeMap),[]);
+        figure; imshow((1-images(ii).edgeMap),[]); 
+        axis on;   set(gca, 'XTick', []);   set(gca, 'YTick', []);
         snakedisp(images(ii).GVFfirst(:,1),images(ii).GVFfirst(:,2),'--r');
         snakedisp(images(ii).GVFlast(:,1),images(ii).GVFlast(:,2),'b');
         legend('Initial snake', 'Final snake')
         title('GVF snake convergence on the edge map')
     end
 end
+
 
 fprintf('   Processing batch images...\n');
 for ii = 1:max(1, length(seriesImages) * processImageSeries)
@@ -232,7 +234,8 @@ for ii = 1:max(1, length(seriesImages) * processImageSeries)
         h = title(['GVF snake convergence on the batch image ' seriesImages(ii).name]);
         set(h,'interpreter','none');
         
-        figure; imshow((1-seriesImages(ii).edgeMap),[]);
+        figure; imshow((1-seriesImages(ii).edgeMap),[]); 
+        axis on;   set(gca, 'XTick', []);   set(gca, 'YTick', []);
         snakedisp(seriesImages(ii).GVFfirst(:,1),seriesImages(ii).GVFfirst(:,2),'--r');
         snakedisp(seriesImages(ii).GVFlast(:,1),seriesImages(ii).GVFlast(:,2),'b');
         legend('Initial snake', 'Final snake')
@@ -258,7 +261,7 @@ for ii = 1:numel(images)
         axis off; axis equal; colormap(gray);
         hold on;  [~,h1] = contour(images(ii).LSFfirst, [0,0], 'y');
         hold on;  [~,h2] = contour(images(ii).LSFlast, [0,0], 'c');
-        str=['Final zero level contour, ', ...
+        str=['Initial and final zero level contours in DRLSE, ', ...
             num2str(iter_in*iter_out+10), ' iterations'];
         title(str);
         legend([h1  h2], 'Initial snake', 'Final snake')
@@ -277,14 +280,12 @@ for ii = 1:max(1, length(seriesImages) * processImageSeries)
          axis off; axis equal; colormap(gray);
          hold on;  [~,h1] = contour(seriesImages(ii).LSFfirst, [0,0], 'y');
          hold on;  [~,h2] = contour(seriesImages(ii).LSFlast, [0,0], 'c');
-         str=['Final zero level contour, ', ...
+         str=['Initial and final zero level contours in DRLSE, ', ...
              num2str(iter_in*iter_out+10), ' iterations'];
          title(str);
          legend([h1  h2], 'Initial snake', 'Final snake')
      end
 end
-
-
 
 
 

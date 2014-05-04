@@ -1,6 +1,6 @@
 function [snakeINIT, snakeFINAL, f] = performGVF(img, sigma, shape, plotting)
 %
-% Uses MATITK to perform Laplacian Level Set Segmentation.
+% Performs Gradient Vector Flow (GVF) Segmentation
 %
 % Inputs:  img - an img struct
 %          sigma - Gaussian sigma for Canny Edge Detection
