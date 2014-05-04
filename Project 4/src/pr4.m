@@ -262,6 +262,17 @@ for ii = 1:max(1, length(seriesImages) * processImageSeries)
         h = title(['GVF snake convergence on the edge map of batch image '...
             seriesImages(ii).name]); set(h,'interpreter','none');
     end
+    
+    tmp = 0*seriesImages(ii).data;
+    tmp2 = seriesImages(ii).GVFlast;
+    [x, y] = snakeinterp(tmp2(:,1), tmp2(:,2), 1, 1); 
+    for j = 1:length(x)
+        tmp(round(y(j)), round(x(j))) = 1;
+    end
+    tmp = imfill(tmp, 'holes');
+    seriesImages(ii).gvfMovie = seriesImages(ii).data .* tmp;
+    gvf = ['../outputs/' seriesImages(ii).name(1:end-4) '_gvf.tif']; 
+    imwrite(seriesImages(ii).gvfMovie, gvf, 'tif', 'Compression', 'none');
 end
 
 fprintf('Starting Distance Regularized Level Set Evolution (DRLSE) segmentation...\n')
@@ -289,9 +300,11 @@ end
 
 fprintf('   Processing batch images...\n');
 
+iter_in = 5;
+iter_out = (100-10)/iter_in;
 for ii = 1:max(1, length(seriesImages) * processImageSeries)
     [seriesImages(ii).LSFfirst, seriesImages(ii).LSFlast] = ...
-        performDRLSE(seriesImages(ii).data, 10, iter_in, iter_out, ...
+        performDRLSEbatch(seriesImages(ii).data, 10, iter_in, iter_out, ...
                      5, 1.5, 1.5, 1, plotting); %#ok
      if  plotting
          figure;
@@ -304,6 +317,11 @@ for ii = 1:max(1, length(seriesImages) * processImageSeries)
          title(str);
          legend([h1  h2], 'Initial snake', 'Final snake')
      end
+     tmp = double(im2bw(-seriesImages(ii).LSFlast, 0)); 
+     seriesImages(ii).drlseMovie = seriesImages(ii).data .* tmp;
+     drlse = ['../outputs/' seriesImages(ii).name(1:end-4) '_drlse.tif']; 
+     imwrite(seriesImages(ii).drlseMovie, drlse, 'tif',...
+         'Compression', 'none');
 end
 
 
