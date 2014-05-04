@@ -200,7 +200,7 @@ fprintf('\nStarting Gradient Vector Flow (GVF) segmentation...\n')
 fprintf('   Processing static images...\n');
 for ii = 1:numel(images) 
     [images(ii).GVFfirst, images(ii).GVFlast, images(ii).edgeMap] = ...
-        performGVF(images(ii).data, 1,'rect',true);
+        performGVF(images(ii).data, 1,'rect',true); %#ok
     
     if plotting
         figure; imshow(images(ii).data,[]);
@@ -222,7 +222,7 @@ fprintf('   Processing batch images...\n');
 for ii = 1:max(1, length(seriesImages) * processImageSeries)
     fprintf('      Processing image %d...\n', ii);
     [seriesImages(ii).GVFfirst, seriesImages(ii).GVFlast, seriesImages(ii).edgeMap] = ...
-        performGVFbatch(seriesImages(ii).data, [],'rect',true);
+        performGVFbatch(seriesImages(ii).data, [],'rect',true); %#ok
     
     if plotting
         figure; imshow(seriesImages(ii).data,[]);
@@ -251,7 +251,7 @@ for ii = 1:numel(images)
     c1 = (numel(images(ii).data)/numel(images(2).data))^1.5; % Hand tuning
     [images(ii).LSFfirst, images(ii).LSFlast] = ...
         performDRLSE(images(ii).data, 10*c1, iter_in, iter_out, ...
-                                5*c1, 2*c1, 1.5, 2, plotting);    
+                                5*c1, 2*c1, 1.5, 2, plotting); %#ok
     if  plotting
         figure;
         imshow(images(ii).data,[]);
@@ -270,7 +270,7 @@ fprintf('   Processing batch images...\n');
 for ii = 1:max(1, length(seriesImages) * processImageSeries)
     [seriesImages(ii).LSFfirst, seriesImages(ii).LSFlast] = ...
         performDRLSE(seriesImages(ii).data, 10, iter_in, iter_out, ...
-                     5, 1.5, 1.5, 1, plotting);
+                     5, 1.5, 1.5, 1, plotting); %#ok
      if  plotting
          figure;
          imshow(seriesImages(ii).data, []);
