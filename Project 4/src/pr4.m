@@ -28,7 +28,7 @@ addpath('../drlse');
 
 % Define parameters
 plotting = true;
-processImageSeries = false; % disable because it is slow
+processImageSeries = true; % disable because it is slow
 
 % Suppress image resizing warning
 warning('off',  'images:initSize:adjustingMag'); 
@@ -172,12 +172,32 @@ disp 'Performing graph cut segmentation...'
 addpath('graph_cut_based_algs/Ncut_9')
 
 % Test first algorithm
-disp 'Testing Ncut algorithm...'
+disp 'Testing ncut algorithm on images...'
 images(1).ncutLabels = performNcut(images(1), 25);
 images(2).ncutLabels = performNcut(images(2), 15);
-seriesImages(1).ncutLabels = performNcut(seriesImages(1), 25);
+
+% Save results
+for ii = 1:length(images)
+    name = ['../outputs/' images(ii).name(1:end-4) '_ncut.tif'];
+    ncut = images(ii).ncutLabels;
+    ncut = ncut / max(max(ncut));
+    imwrite(ncut, name, 'tif', 'Compression', 'none');
+end
+
+disp 'Testing ncut algorithm on image series...'
+for ii = 1:max(1, length(seriesImages) * processImageSeries)
+    disp(['    Image ' int2str(ii)]);
+    seriesImages(ii).ncutLabels = performNcut(seriesImages(ii), 25, 0.5); %#ok
+    
+    % Save image
+    name = ['../outputs/' seriesImages(ii).name(1:end-4) '_ncut.tif'];
+    ncut = seriesImages(ii).ncutLabels;
+    ncut = ncut / max(max(ncut));
+    imwrite(ncut, name, 'tif', 'Compression', 'none');
+end
 
 
+% Display results
 if plotting
     figure();
     imagesc(images(1).ncutLabels); colormap jet;
@@ -191,6 +211,8 @@ if plotting
     imagesc(seriesImages(1).ncutLabels); colormap jet;
     title('Image series sample ncut segmentation');
 end
+
+clear ii name ncut;
 
 
 %% C.1.2 Active contour based image segmentation
