@@ -157,12 +157,7 @@ By iterating this for each point on our segmentation boundary, we will eventuall
 
 LLSS as an algorithm is very good at adjusting existing edges that are near actual segmentations. However, because the gradients tend to be small far from edges, it is not as good at guessing initial boundaries and crossing wide spaces\cite{osher}. Thus, given very rough or noisy segmentations by other methods, LLSS makes an excellent second pass to produce clean segmentations.
 
-\begin{figure}
-\centering
-\includegraphics[width=0.7\textwidth]{figures/changme.pdf}
-\caption{CHANGEME figure as a placeholder}
-\label{fig:noise_dist_background}
-\end{figure}
+
 
 
 \clearpage
@@ -176,15 +171,84 @@ Active contours, or \emph{snakes}, are quite useful for finding object boundarie
 \item Initial contours should start in the vicinity of the true region boundaries
 \item It is generally hard to penetrate into concave regions.
 \end{itemize}
-In this project, Gradient Vector Flow Segmentation (GVF) \cite{gvf} and Distance Regularized Level Set Evolution (DRLSE) Segmentation \cite{drlse} are examined and applied to the current sample images, in order to exemplify the functionality and challenges in active contour based image segmentation. In the following, the results for the implementation of each algorithm will be given, however, the technical background will be discussed in section C.1.3.
+In this project, Gradient Vector Flow Segmentation (GVF) \cite{gvf} and Distance Regularized Level Set Evolution (DRLSE) Segmentation \cite{drlse} are examined and applied to the current sample images, in order to exemplify the functionality and challenges in active contour based image segmentation. In the following, the results and the implementation of each algorithm will be discussed, however, the technical background will be given in section C.1.3. 
 
 
 
 \subsubsection*{Gradient Vector Flow Segmentation}
-The GVF segmentation has several user inputs from the user. First of all, it needs the initial snake entered by the user. The snake deformation starts from this initial curve. Second, it needs some weighting parameters to evaluate the deformed curve. These parameters are, $\mu$, a parameter that weights the GVF strength, $\alpha$, that weighs the tension of the curve and $\beta$ that controls the rigidity of the snake.
+The GVF segmentation has several inputs from the user. First, it needs the initial snake entered by the user. The snake deformation starts from this initial curve. Second, it needs some weighting parameters to evaluate the deformed curve. These parameters are, $\mu$, a parameter that weights the GVF strength, $\alpha$, that weighs the tension of the curve and $\beta$ that controls the rigidity of the snake. These parameters are chosen as $0.2$, $0.05$ and $0.1$ respectively, according to \cite{gvf} and optimized for practical reasons. Resulting figures are available in figures \ref{fig:gvf1p1}-\ref{fig:gvf3}.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\textwidth]{figures/gvf_1p1.pdf}
+\includegraphics[width=0.85\textwidth]{figures/gvf_1p1_edge.pdf}
+\caption{60x\_02 segmented using GVF (top) and projection on the edge map (bottom)}
+\label{fig:gvf1p1}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\textwidth]{figures/gvf_1p2.pdf}
+\includegraphics[width=0.85\textwidth]{figures/gvf_1p2_edge.pdf}
+\caption{60x\_02 segmented using GVF (top) and projection on the edge map (bottom)}
+\label{fig:gvf1p2}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\textwidth]{figures/gvf2.pdf}
+\includegraphics[width=0.85\textwidth]{figures/gvf2_edge.pdf}
+\caption{Blue0001 segmented using GVF (top) and projection on the edge map (bottom)}
+\label{fig:gvf2}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\textwidth]{figures/gvf3.pdf}
+
+\includegraphics[width=0.85\textwidth]{figures/gvf3_edge.pdf}
+\caption{First frame of image series segmented using GVF (top) and projection on the edge map (bottom)}
+\label{fig:gvf3}
+\end{figure}
+
 
 
 \subsubsection*{Distance Regularized Level Set Evolution Segmentation}
+The DRLSE segmentation needs to have an initial guess at the segmentation boundary, that is entered by the user, same as the GVF. Because the DRLSE algorithm has some more flexibility in the snake deformation, the algorithm is modified to ask for 2 regions as user's initial guess. The initial contour is the combination of these 2 regions. In that way, the DRLSE's performance could be observed easier in cases such as region delineation. In addition, the function calls of the developed algorithm asks for parameters such as time step for evolution, length and area weights of the cost function and some other parameters, which are all set according to the examples in \cite{gvf} and adjusted for practical reasons when necessary. This necessity arises when the image contains significantly more pixels than other sample images, such that the simulation time is inadequate to converge feature boundaries. In order to effectively run these algorithms, above explained parameters are normalized according to number of pixels in images, for each image. In practice, the evolution is at a similar pace in terms of CPU time but much faster in terms of snake deformation in pixels per evolution step, for larger images. Obviously, this results in loss of weak features in large images, but worked out well in this project. The resulting segmentations are available in figures \ref{fig:drlse1}-\ref{fig:drlse3}. 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\textwidth]{figures/drlse1.pdf}
+\caption{60x\_02 segmented using DRLSE}
+\label{fig:drlse1}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.85\textwidth]{figures/drlse2.pdf}
+\caption{Blue0001 segmented using DRLSE}
+\label{fig:drlse2}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{figures/drlse3.pdf}
+\caption{First frame of image series segmented using DRLSE}
+\label{fig:drlse3}
+\end{figure}
+
+
+
+\subsubsection*{Results Comparison}
+Each algorithm performs really well on sample images, although they each have their natural limitations. These algorithms will be compared in 3 aspects: direction of the snake deformation, segmenting multiple regions within an initial guess and reliability.
+
+Firstly,the direction of the snake deformation will be examined. the GVF snake moves towards image gradients, meaning every possible direction. Shrinking and expanding are observable when figures \ref{fig:gvf1p1} \& \ref{fig:gvf1p2} are compared, while figure \ref{fig:gvf3} standalone illustrates shrinking in some directions and expanding other directions. On the other hand, the DRLSE snake has its direction hard-coded and that is inwards,  i.e. shrinking, in our implementation. That is why in all of figures \ref{fig:drlse1}-\ref{fig:drlse3}, the initial guess is always encapsulating objects to be segmented, instead of lying inside the objects.
+
+Secondly, the segmentation of multiple objects that fall within the same initial guess will be compared. If the GVF initial guess contains multiple objects, the algorithm will encapsulate each region and diffuse into the area inbetween disjoint regions. However, the GVF does not have a property to divide itself into multiple regions, therefore the final snake looks like few segmented regions attached by a string, as seen in figure \ref{fig:gvf3}. On the other hand, the DRLSE naturally divides into multiple regions and detects separate objects easily: in figure \ref{fig:drlse1} it divides into 4 regions on the left and 2 regions on the right,while in figure \ref{fig:drlse3} an exaggerated large initial snake returns 8 detected objects in the image.
+
+Lastly, the GVF shows pretty good convergence to the detected edges. In fact, the GVF is built to stop snake deformation when the detected edges are reached, so if the GVF convergence looks messy, the problem is simply the edge detection. This behavior is observable in bottom plots (edge maps) of figures \ref{fig:gvf1p1}-\ref{fig:gvf3}. On the other hand, the DRLSE works on an energy function that has only a weighted ``edge indicator'' (theory is explained below in part C.1.3). Therefore, DRLSE needs some correction steps, where the energy function disregards the external forces for deformation and tries to find its equilibrium. This balancing step does not show up in theoretical results, but applied for practical reasons. Effectively, the DRLSE outcome could have some leakage into the true object boundaries and that is partly observable in figure \ref{fig:drlse2}, as there are some grayish area left outside the segmented regions.
 
 
 \subsection*{C.1.3 Theoretical background}
@@ -213,11 +277,41 @@ The 3$^{rd}$ step is basically a user entry of the initial snake whether a circu
 \begin{align*}
 \mathbf{x}_t(s,t) = \alpha \mathbf{x}'' - \beta \mathbf{x}'''' + \mathbf{v}
 \end{align*}
-where the resulting parametric curve $\mathbf{x}(s,t)$ is the GVF snake at a time $t$. After a sufficient amount of time, this curve supposedly converges to feature boundaries in the image.
+where the resulting parametric curve $\mathbf{x}(s,t)$ is the GVF snake at a time $t$ and the parameter $s$ is the location in the spatial domain. After a sufficient amount of time, this curve supposedly converges to feature boundaries in the image.
 
 GVF is quite powerful, especially because of the fact that the initial guess could be inside or outside or even partly overlapping with the targeted segmentation. The GVF snake can expand and shrink in every direction. One drawback is that it relies on high quality edge detection. If the smoothing filter in Canny edge detection is not strong enough (i.e. small $\sigma$ and consequently small span) then some residual edges are left in target regions. In that case, the snake stops when it reaches to these residual edges. Therefore, the implemented filtering functionality is tailored for our images.
 
 \subsubsection*{Distance Regularized Level Set Evolution Segmentation}
+Level set algorithms are widely used in image segmentation and one of those algorithms is used in this project above in Part I, Laplacian Level Set Segmentation. Shortly, these algorithms start with an initial level set and evolves the level set to traverse the non-boundary pixels. As the evolution is executed some number of steps, the level sets form some irregularities (snags in \cite{hieber}) and therefore the level sets need to be ``reinitialized''. However, the means to reinitialize and its frequency is proven to be problematic \cite{drlse}. Reference \cite{drlse} proposes a new way for implementation of level set segmentation, the DRLSE, such that the evolution is regulated in its distance so that it remedies the potential irregularities that could occur during evolution. DRLSE method falls into geometric algorithms' category in active contour segmentation. Because, unlike in GVF, the DRLSE snake and its deformation are computed in the image domain. In mathematical terms as given in \cite{drlse}, $\phi(x,y,t)$ is a level set, function of image coordinates and evolution time and the energy function is defined as:
+\begin{align*}
+\varepsilon(\phi) = \mu \mathcal{R}_p + \lambda \mathcal{L}_g (\phi)+\alpha \mathcal{A}_g (\phi)
+\end{align*}
+where the $\mathcal{R}_p$ is the distance regularization energy, $\mathcal{L}_g$ and the $ \mathcal{A}_g$ are the length and area regularization terms respectively. The subscript p denotes the potential function and the g denotes the edge indicator function. Coefficients $\mu$, $\lambda$ and $\alpha$ are constituting weights of their multiplier terms in the energy function. If these functions are written explicitly,
+\begin{align*}
+\varepsilon(\phi) = \mu\int_\Omega p(|\nabla \phi | ) d \mathbf{x} +  \lambda\int_\Omega g\delta_{\varepsilon}(|\nabla \phi | ) d \mathbf{x} +  \alpha \int_\Omega g H_{\varepsilon}(- \nabla \phi  ) d \mathbf{x} 
+\end{align*}
+where the $\delta_{\varepsilon}$ is the Dirac delta function and the $H_{\varepsilon}$ is the Heaviside function. This energy function is minimized by solving the gradient flow given below:
+\begin{align*}
+\frac{\delta \phi}{\delta t} = \mu div(d_p( |\nabla \phi | ) \nabla \phi ) + \lambda \delta_{\varepsilon}(\phi)div \left( g \frac{\nabla \phi}{|\nabla \phi|} \right) + \alpha g \delta_{\varepsilon}(\phi)
+\end{align*}
+where the $d_p$ and g are 
+\begin{align*}
+d_p(s)&=\frac{p'(s)}{s}\\
+g &= \frac{1}{1+|\nabla G * I|^2}
+\end{align*}
+where $G$ is a Gaussian kernel and $I$ is the image. Shortly, the $\phi$ is computed for incremental time steps and it is expected to converge a segmentation boundary after a sufficient time. The way the algorithm implemented is explained below step by step.
+\begin{enumerate}
+\item Initialize level set contour, $\phi (x,y, t=0)$
+%\item Set $\mu$, $\lambda$ \& $\alpha$ according to image properties
+\item Compute the edge indicator, g.
+\item Solve the gradient flow ($\delta \phi / \delta t$) and find new level set
+\item Iterate the last step for a number of times (e.g. 250), to find segmentation boundaries
+\item Solve the gradient flow ($\delta \phi / \delta t$)  for $\alpha=0$
+\item Iterate the last step for a given number of times (e.g. 10) to remedy boundary leakage
+\end{enumerate}
+This flow follows above explained theoretical results smoothly. One striking deviation is the last 2 steps. Because the non-zero $\alpha$ basically drives the external forces and area term in particular, the DRLSE snake can leak into true object boundaries. Running the algorithm for $\alpha=0$ for a couple of runs, helps converging to object boundaries. 
+
+The DRLSE algorithm is quite powerful as it provides flexibility in segmenting separate regions. The DRLSE snake can easily break into 2 or more disjoint parts and find the boundaries of each region. The direction of the DRLSE expansion is hardcoded in the sign of the parameter $\alpha$, where positive signs indicate shrinking inwards and negative signs indicate expansion outwards. Our implementation has positive $\alpha$'s, therefore, the users are expected to initialize a level set contour outside of the targeted segmentation.
 
 
 
