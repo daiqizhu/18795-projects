@@ -140,7 +140,6 @@ Connected Threshold Segmentation is a very simple algorithm. It begins with one 
 This algorithm is incredibly simple, and thus easy both to implement and tune the parameters for. In the case of our clean test images, it actually produces quite clean results with minimal effort. However, it requires that the user feeds the algorithm with knowledge for each image that describes the segments, meaning it is hard to fully automate.
 
 \subsubsection*{Laplacian Level Set Segmentation}
-
 Level set segmentation derives form a mathematical property called the level set. A level set is simply the set of all points for a function $f$ where $f(x) = c$, where $c$ is some constant. Level set algorithms define the ``interface'' as the dividing line between a segment and everything else, and seeks to define a function $\varphi(\mathbf{x},t)$ such that $\varphi$ is strictly positive (or negative) when inside a segment, strictly negative (or positive) outside a segment, and strictly $0$ on the dividing line. Thus, the segmentation can be found by finding the level set $\Gamma(t)$ that causes $\varphi$ to {\emph vanish} (that is, to go to zero).
 
 To perform optimization, a velocity field is defined $\mathbf{v}(\mathbf{x},t)$. Thus, we evolve the equation\cite{osher}:
@@ -173,7 +172,7 @@ LLSS as an algorithm is very good at adjusting existing edges that are near actu
 
 \subsection*{C.1.1 Graph cut based image segmentation}
 
-The general concept of using graph cuts for image segmentation is to use a weighed graph to represent the entire image, such that each vertex represents one pixel of the image, and each edge's weight is a scalar that is a function of some factor of similarity between the two vertices. If the image is partitioned into two whole segments, then a graph cut for that partionining is defined as the sum of weights between every combination of pairs of vertices between the two regions, as shown in equation \ref{eq:graph_cut}.
+The general concept of using graph cuts for image segmentation is to use a weighed graph to represent the entire image, such that each vertex represents one pixel of the image, and each edge's weight is a scalar that is a function of some factor of similarity between the two vertices. If the image is partitioned into two whole segments, then a graph cut for that partitioning is defined as the sum of weights between every combination of pairs of vertices between the two regions, as shown in equation \ref{eq:graph_cut}.
 
 \begin{equation}
 cut(A,B) = \sum_{u\in A,v\in B} w(u,v)
@@ -181,20 +180,20 @@ cut(A,B) = \sum_{u\in A,v\in B} w(u,v)
 \end{equation}
 ...such that $A$ and $B$ are the set of vertices in their respective regions of the given image, and the function $w(u,v)$ is the weight between vertices $u,v$.
 
-Typically, the ideal partioning into regions $A$ and $B$ is one that minimizes the cut, so the two regions are as distinguishable as possible from each other, implying good segmentation (this is called finding the minimum-cut). There are other methods of taking advantage of graph cuts, or uses a similar idea, however. Two such methods are normalized cuts and non-convex.
+Typically, the ideal partitioning into regions $A$ and $B$ is one that minimizes the cut, so the two regions are as distinguishable as possible from each other, implying good segmentation (this is called finding the minimum-cut). There are other methods of taking advantage of graph cuts, or uses a similar idea, however. Two such methods are normalized cuts and non-convex.
 
 
 
 \subsubsection*{Normalized Cuts in Image Segmentation}
 
-Rather than calculating and using equation \ref{eq:graph_cut}, Shi and Malik formulated the normalized cut (or N-cut), which "computes the cut cost as a fraction of the total edge connections to all the nodes in the graph" \cite{ncut}. The normalized cut formula for dissociation is given below in equation \ref{eq:norm_cut1}: \cite{ncut}
+Rather than calculating and using equation \ref{eq:graph_cut}, Shi and Malik formulated the normalized cut (or N-cut), which ``computes the cut cost as a fraction of the total edge connections to all the nodes in the graph'' \cite{ncut}. The normalized cut formula for dissociation is given below in equation \ref{eq:norm_cut1}: \cite{ncut}
 
 \begin{equation}
 Ncut(A,B) = \frac{cut(A,B)}{assoc(A,V)} + \frac{cut(A,B)}{assoc(B,V)}
 \label{eq:norm_cut1}
 \end{equation}
 
-where $assoc(A,V) = \sum_{u\in A, t\in V} w(u,t)$, or the "graph cut" between region $A$ and the entire graph itself; the idea behind this is to perform segmentation based off of not only each partition's relationship with each other, but also relationship to the entire image \cite{ncut}. The normalization cut addresses the issue with the minimization cut in equation \ref{eq:graph_cut} where it favors partitioning out sets of isolated vertices.
+where $assoc(A,V) = \sum_{u\in A, t\in V} w(u,t)$, or the ``graph cut'' between region $A$ and the entire graph itself. The idea behind this is to perform segmentation based off of not only each partition's relationship with each other, but also relationship to the entire image \cite{ncut}. The normalization cut addresses the issue with the minimization cut in equation \ref{eq:graph_cut} where it favors partitioning out sets of isolated vertices.
 
 The normalized cuts algorithm also calculates the total normalized association within the partitions themselves, which is given in equation \ref{eq:norm_cut2}: \cite{ncut}
 
@@ -279,7 +278,7 @@ Results for the initial two images are in figures \ref{fig:gc2_1} and \ref{fig:g
 
 \pagebreak
 \subsection*{C.1.2 Active contour based image segmentation}
-Active contours, or \emph{snakes}, are quite useful for finding object boundaries in an image. The initial contours are evolving due to the internal forces, that are elasticity forces, holding the curve together, and bending forces, controlling stiffness of the curve, and external forces, that are potential forces due to image gradients and pressure forces. Reference \cite{gvf} indicates that there are 2 main challenges in active contour based image segmentation:
+Active contours, or \emph{snakes}, are quite useful for finding object boundaries in an image. The initial contours are evolving due to the internal, elastic forces holding the curve together, bending forces controlling stiffness of the curve, and external forces, that are potential forces due to image gradients and pressure forces. Reference \cite{gvf} indicates that there are 2 main challenges in active contour based image segmentation:
 \begin{itemize}
 \item Initial contours should start in the vicinity of the true region boundaries
 \item It is generally hard to penetrate into concave regions.
@@ -356,9 +355,9 @@ The DRLSE segmentation needs to have an initial guess at the segmentation bounda
 \subsubsection*{Results Comparison}
 Each algorithm performs really well on sample images, although they each have their natural limitations. These algorithms will be compared in 3 aspects: direction of the snake deformation, segmenting multiple regions within an initial guess and reliability.
 
-Firstly,the direction of the snake deformation will be examined. the GVF snake moves towards image gradients, meaning every possible direction. Shrinking and expanding are observable when figures \ref{fig:gvf1p1} \& \ref{fig:gvf1p2} are compared, while figure \ref{fig:gvf3} standalone illustrates shrinking in some directions and expanding other directions. On the other hand, the DRLSE snake has its direction hard-coded and that is inwards,  i.e. shrinking, in our implementation. That is why in all of figures \ref{fig:drlse1}-\ref{fig:drlse3}, the initial guess is always encapsulating objects to be segmented, instead of lying inside the objects.
+Firstly, the direction of the snake deformation will be examined. The GVF snake moves towards image gradients, meaning every possible direction. Shrinking and expanding are observable when figures \ref{fig:gvf1p1} \& \ref{fig:gvf1p2} are compared, while figure \ref{fig:gvf3} standalone illustrates shrinking in some directions and expanding other directions. On the other hand, the DRLSE snake has its direction hard-coded and that is inwards,  i.e. shrinking, in our implementation. That is why in all of figures \ref{fig:drlse1}-\ref{fig:drlse3}, the initial guess is always encapsulating objects to be segmented, instead of lying inside the objects.
 
-Secondly, the segmentation of multiple objects that fall within the same initial guess will be compared. If the GVF initial guess contains multiple objects, the algorithm will encapsulate each region and diffuse into the area inbetween disjoint regions. However, the GVF does not have a property to divide itself into multiple regions, therefore the final snake looks like few segmented regions attached by a string, as seen in figure \ref{fig:gvf3}. On the other hand, the DRLSE naturally divides into multiple regions and detects separate objects easily: in figure \ref{fig:drlse1} it divides into 4 regions on the left and 2 regions on the right,while in figure \ref{fig:drlse3} an exaggerated large initial snake returns 8 detected objects in the image.
+Secondly, the segmentation of multiple objects that fall within the same initial guess will be compared. If the GVF initial guess contains multiple objects, the algorithm will encapsulate each region and diffuse into the area in between disjoint regions. However, the GVF does not have a property to divide itself into multiple regions, therefore the final snake looks like few segmented regions attached by a string, as seen in figure \ref{fig:gvf3}. On the other hand, the DRLSE naturally divides into multiple regions and detects separate objects easily: in figure \ref{fig:drlse1} it divides into 4 regions on the left and 2 regions on the right,while in figure \ref{fig:drlse3} an exaggerated large initial snake returns 8 detected objects in the image.
 
 Lastly, the GVF shows pretty good convergence to the detected edges. In fact, the GVF is built to stop snake deformation when the detected edges are reached, so if the GVF convergence looks messy, the problem is simply the edge detection. This behavior is observable in bottom plots (edge maps) of figures \ref{fig:gvf1p1}-\ref{fig:gvf3}. On the other hand, the DRLSE works on an energy function that has only a weighted ``edge indicator'' (theory is explained below in part C.1.3). Therefore, DRLSE needs some correction steps, where the energy function disregards the external forces for deformation and tries to find its equilibrium. This balancing step does not show up in theoretical results, but applied for practical reasons. Effectively, the DRLSE outcome could have some leakage into the true object boundaries and that is partly observable in figure \ref{fig:drlse2}, as there are some grayish area left outside the segmented regions.
 
