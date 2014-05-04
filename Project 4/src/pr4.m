@@ -244,7 +244,7 @@ fprintf('   Processing batch images...\n');
 for ii = 1:max(1, length(seriesImages) * processImageSeries)
     fprintf('      Processing image %d...\n', ii);
     [seriesImages(ii).GVFfirst, seriesImages(ii).GVFlast, seriesImages(ii).edgeMap] = ...
-        performGVFbatch(seriesImages(ii).data, [],'rect',true); %#ok
+        performGVFbatch(seriesImages(ii).data, [],'rect',false); %#ok
     
     if plotting
         figure; imshow(seriesImages(ii).data,[]);
@@ -305,7 +305,7 @@ iter_out = (100-10)/iter_in;
 for ii = 1:max(1, length(seriesImages) * processImageSeries)
     [seriesImages(ii).LSFfirst, seriesImages(ii).LSFlast] = ...
         performDRLSEbatch(seriesImages(ii).data, 10, iter_in, iter_out, ...
-                     5, 1.5, 1.5, 1, plotting); %#ok
+                     5, 1.5, 1.5, 1, false); %#ok
      if  plotting
          figure;
          imshow(seriesImages(ii).data, []);
