@@ -198,8 +198,7 @@ disp 'Performing active countour segmentation...'
 fprintf('\nStarting Gradient Vector Flow (GVF) segmentation...\n')
 
 fprintf('   Processing static images...\n');
-
-for ii = 1:1%numel(images) 
+for ii = 1:numel(images) 
     [images(ii).GVFfirst, images(ii).GVFlast, images(ii).edgeMap] = ...
         performGVF(images(ii).data, 1,'rect',true);
     
@@ -218,7 +217,6 @@ for ii = 1:1%numel(images)
         title('GVF snake convergence on the edge map')
     end
 end
-
 
 fprintf('   Processing batch images...\n');
 for ii = 1:max(1, length(seriesImages) * processImageSeries)
@@ -244,10 +242,9 @@ for ii = 1:max(1, length(seriesImages) * processImageSeries)
     end
 end
 
-
 fprintf('Starting Distance Regularized Level Set Evolution (DRLSE) segmentation...\n')
-fprintf('   Processing static images...\n');
 
+fprintf('   Processing static images...\n');
 iter_in = 5;
 iter_out = (250-10)/5;
 for ii = 1:numel(images) 
@@ -286,7 +283,6 @@ for ii = 1:max(1, length(seriesImages) * processImageSeries)
          legend([h1  h2], 'Initial snake', 'Final snake')
      end
 end
-
 
 
 %% Make figures pretty and store them as pdfs
