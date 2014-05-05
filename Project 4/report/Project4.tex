@@ -74,13 +74,15 @@ Due: \hmwkDueDate\\
 
 \section*{Part 1: Image segmentation using MAT-ITK}
 
-\subsection*{B.1 MAT-ITK and image data}
+\subsection*{B.1 MAT-ITK, code layout and image data}
 
 Our images and their corresponding segmentations are stored in a vector of structs, allowing us to keep all information bundled together.
 
-The MAT\_ITK library is included in our code as a MEX file. We elected to write wrapper functions to convert between our data structs and the format required by the library. This simplifies repeatedly calling the library, as the data format for the library is strange and poorly documented.
+The MAT\_ITK library is included in our code as a MEX file. We elected to write wrapper functions (implemented as \texttt{performSCT} and \texttt{performSLLS}) to convert between our data structs and the format required by the library. This simplifies repeatedly calling the library, as the data format for the library is strange and poorly documented. It was difficult to find documentation on what function parameters actually were. Fortunately, I was able to find external documentation on how to use some functions\cite{designest}.
 
-It was difficult to find documentation on what function parameters actually were. Fortunately, I was able to find external documentation on how to use some functions\cite{designest}.
+The code included for Part C was also called primarily from wrapper functions, in order to handle shuffling data around.
+
+Finally, a main script (\texttt{pr4.m}) serves as glue code to read in all the images, call functions for each of the methods, store data, and display plots. This allows us to easily change parts of the script without having to manually copy and paste lots of code, and to make adjustments to code path easily to facilitate testing.
 
 
 \subsection*{B.2.1 Segmentation of static images}
@@ -121,7 +123,7 @@ Overall, LLSS produces more desirable results, and has a much easier burden of w
 
 \subsection*{B.2.2 Segmentation of images series}
 
-The image series was segmented using the same functions as the in B.2.1. Thresholds were again manually determined by inspecting representative images in the series. The CST was instead seeded using local maxima in the image. See Figure \ref{fig:b21_imageseries} for results.
+The image series was segmented using the same functions as the in B.2.1. In order to select thresholds, the image intensities were again determined by manually inspecting representative images in the series. The CST algorithm was seeded using local maxima in the image, inside the selected threshold. See Figure \ref{fig:b21_imageseries} for results.
 
 \begin{figure}
 \centering
@@ -172,7 +174,7 @@ LLSS as an algorithm is very good at adjusting existing edges that are near actu
 
 \subsection*{C.1.1 Graph cut based image segmentation}
 
-The general concept of using graph cuts for image segmentation is to use a weighed graph to represent the entire image, such that each vertex represents one pixel of the image, and each edge's weight is a scalar that is a function of some factor of similarity between the two vertices. If the image is partitioned into two whole segments, then a graph cut for that partionining is defined as the sum of weights between every combination of pairs of vertices between the two regions, as shown in equation \ref{eq:graph_cut}.
+The general concept of using graph cuts for image segmentation is to use a weighed graph to represent the entire image, such that each vertex represents one pixel of the image, and each edge's weight is a scalar that is a function of some factor of similarity between the two vertices. If the image is partitioned into two whole segments, then a graph cut for that partitioning is defined as the sum of weights between every combination of pairs of vertices between the two regions, as shown in equation \ref{eq:graph_cut}.
 
 \begin{equation}
 cut(A,B) = \sum_{u\in A,v\in B} w(u,v)
@@ -180,7 +182,7 @@ cut(A,B) = \sum_{u\in A,v\in B} w(u,v)
 \end{equation}
 ...such that $A$ and $B$ are the set of vertices in their respective regions of the given image, and the function $w(u,v)$ is the weight between vertices $u,v$.
 
-Typically, the ideal partioning into regions $A$ and $B$ is one that minimizes the cut, so the two regions are as distinguishable as possible from each other, implying good segmentation (this is called finding the minimum-cut). There are other methods of taking advantage of graph cuts, or uses a similar idea, however. Two such methods used in this project are image segmentation using normalized cuts and convexification of non-convex algorithms for image segmentation. The technical background for both is explained in section C.1.3.
+Typically, the ideal partitioning into regions $A$ and $B$ is one that minimizes the cut, so the two regions are as distinguishable as possible from each other, implying good segmentation (this is called finding the minimum-cut). There are other methods of taking advantage of graph cuts, or uses a similar idea, however. Two such methods used in this project are image segmentation using normalized cuts and convexification of non-convex algorithms for image segmentation. The technical background for both is explained in section C.1.3.
 
 \subsubsection*{Normalized Cuts in Image Segmentation}
 
@@ -492,6 +494,29 @@ The DRLSE algorithm is quite powerful as it provides flexibility in segmenting s
 
 \end{thebibliography}
 
+
+
+
+\clearpage
+\subsection*{Appendix}
+
+The image stack has been processed with each 6 method used in this project. The processed images are put into a movie for each case and available in folder \texttt{results} in the project directory. We would like to briefly comment on these results.
+
+\begin{enumerate}
+\item \emph{CST}: In order to seed each image, maxima that fell within the threshold were passed in as seed locations. The detected blobs are consistently larger than the visible particles, and only the larger particles are detected. However, the segmented images are very clean.
+
+\item \emph{LLSS}: Like in CST, only larger particles were detected. However, in comparison to CST, particle sizes were much more accurate. The segmented images are still very clean.
+
+\item \emph{Ncut}: As mentioned in the results comparison, the Ncut algorithm seems to partition the background in addition to the particles themselves. As a result, the video shows the background split into various static regions. The detected particles themselves move as expected, and are distinguishable, but it is difficult to observe them as the clustering labels are inconsistent.
+
+\item \emph{Convexification}: The results are very clear as the entire background is completely black, and the only spots that are not black in the video are the particles themselves. The video also does not capture any unnecessary particles (though a few frames do have a particle on the left side, which can be decided as either a few cases of a false positive, or several cases of false negatives, which is an undetected particle otherwise).
+
+\item \emph{GVF}: The initial snake was chosen wide enough to capture the whole microtubule and high enough to accommodate frame to frame drift of the microtubule. As the GVF works on the image gradients, the parts of the initial snake that are on empty space remains undeformed after the processing. In addition, as GVF was designed for single particle detection, the snake does not split. These 2 factors cause the final GVF snake to have large empty spaces usually in triangular shapes. In the end, the generated movie is not of high quality as it missed a good deal of temporal, spatial and morphological information.
+
+\item \emph{DRLSE}: The initial snake was chosen to fit to the field of view horizontally and was high enough, so that the particles were lying inside the predefined snake, in each frame. The DRLSE snake shrinks towards the object boundaries, however it does not necessarily stop when the snake reaches there. This means that if the algorithm has not been tuned carefully for processing each frame, the snake can aggressively leak into the object boundaries. Eventually, some object with small sizes or weak features could disappear completely, causing blinking spots in the movie. Moreover, the nonuniform leakage corrupts morphological information on particles in many cases. The resulting movie is significantly better than the GVF, but was still below commercial standards.
+
+
+\end {enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
