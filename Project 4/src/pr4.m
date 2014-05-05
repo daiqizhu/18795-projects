@@ -28,7 +28,7 @@ addpath('../drlse');
 
 % Define parameters
 plotting = true;
-processImageSeries = false; % disable because it is slow
+processImageSeries = true; % disable because it is slow
 
 % Suppress image resizing warning
 warning('off',  'images:initSize:adjustingMag'); 
@@ -172,12 +172,32 @@ disp 'Performing graph cut segmentation...'
 addpath('graph_cut_based_algs/Ncut_9')
 
 % Test first algorithm
-disp 'Testing Ncut algorithm...'
+disp 'Testing ncut algorithm on images...'
 images(1).ncutLabels = performNcut(images(1), 25);
 images(2).ncutLabels = performNcut(images(2), 15);
-seriesImages(1).ncutLabels = performNcut(seriesImages(1), 25);
+
+% Save results
+for ii = 1:length(images)
+    name = ['../outputs/' images(ii).name(1:end-4) '_ncut.tif'];
+    ncut = images(ii).ncutLabels;
+    ncut = ncut / max(max(ncut));
+    imwrite(ncut, name, 'tif', 'Compression', 'none');
+end
+
+disp 'Testing ncut algorithm on image series...'
+for ii = 1:max(1, length(seriesImages) * processImageSeries)
+    disp(['    Image ' int2str(ii)]);
+    seriesImages(ii).ncutLabels = performNcut(seriesImages(ii), 25, 0.5); %#ok
+    
+    % Save image
+    name = ['../outputs/' seriesImages(ii).name(1:end-4) '_ncut.tif'];
+    ncut = seriesImages(ii).ncutLabels;
+    ncut = ncut / max(max(ncut));
+    imwrite(ncut, name, 'tif', 'Compression', 'none');
+end
 
 
+% Display results
 if plotting
     figure();
     imagesc(images(1).ncutLabels); colormap jet;
@@ -191,6 +211,8 @@ if plotting
     imagesc(seriesImages(1).ncutLabels); colormap jet;
     title('Image series sample ncut segmentation');
 end
+
+clear ii name ncut;
 
 
 %% C.1.2 Active contour based image segmentation
@@ -222,7 +244,7 @@ fprintf('   Processing batch images...\n');
 for ii = 1:max(1, length(seriesImages) * processImageSeries)
     fprintf('      Processing image %d...\n', ii);
     [seriesImages(ii).GVFfirst, seriesImages(ii).GVFlast, seriesImages(ii).edgeMap] = ...
-        performGVFbatch(seriesImages(ii).data, [],'rect',true); %#ok
+        performGVFbatch(seriesImages(ii).data, [],'rect',false); %#ok
     
     if plotting
         figure; imshow(seriesImages(ii).data,[]);
@@ -240,6 +262,17 @@ for ii = 1:max(1, length(seriesImages) * processImageSeries)
         h = title(['GVF snake convergence on the edge map of batch image '...
             seriesImages(ii).name]); set(h,'interpreter','none');
     end
+    
+    tmp = 0*seriesImages(ii).data;
+    tmp2 = seriesImages(ii).GVFlast;
+    [x, y] = snakeinterp(tmp2(:,1), tmp2(:,2), 1, 1); 
+    for j = 1:length(x)
+        tmp(round(y(j)), round(x(j))) = 1;
+    end
+    tmp = imfill(tmp, 'holes');
+    seriesImages(ii).gvfMovie = seriesImages(ii).data .* tmp;
+    gvf = ['../outputs/' seriesImages(ii).name(1:end-4) '_gvf.tif']; 
+    imwrite(seriesImages(ii).gvfMovie, gvf, 'tif', 'Compression', 'none');
 end
 
 fprintf('Starting Distance Regularized Level Set Evolution (DRLSE) segmentation...\n')
@@ -267,10 +300,12 @@ end
 
 fprintf('   Processing batch images...\n');
 
+iter_in = 5;
+iter_out = (100-10)/iter_in;
 for ii = 1:max(1, length(seriesImages) * processImageSeries)
     [seriesImages(ii).LSFfirst, seriesImages(ii).LSFlast] = ...
-        performDRLSE(seriesImages(ii).data, 10, iter_in, iter_out, ...
-                     5, 1.5, 1.5, 1, plotting); %#ok
+        performDRLSEbatch(seriesImages(ii).data, 10, iter_in, iter_out, ...
+                     5, 1.5, 1.5, 1, false); %#ok
      if  plotting
          figure;
          imshow(seriesImages(ii).data, []);
@@ -282,6 +317,11 @@ for ii = 1:max(1, length(seriesImages) * processImageSeries)
          title(str);
          legend([h1  h2], 'Initial snake', 'Final snake')
      end
+     tmp = double(im2bw(-seriesImages(ii).LSFlast, 0)); 
+     seriesImages(ii).drlseMovie = seriesImages(ii).data .* tmp;
+     drlse = ['../outputs/' seriesImages(ii).name(1:end-4) '_drlse.tif']; 
+     imwrite(seriesImages(ii).drlseMovie, drlse, 'tif',...
+         'Compression', 'none');
 end
 
 

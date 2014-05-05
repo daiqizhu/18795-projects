@@ -61,16 +61,19 @@ px = u./(mag+1e-10); py = v./(mag+1e-10);
 % Setting up initial snake
 
 % User selection if plotting, predefined if not
-if plotting
+if false
     disp('   Please select the initial snake as a region on the image');
     figure; imshow(img,[]); title('Please select the initial snake as a region on the image');
     rect = getrect; close gcf;
 else    % Select a predefined value 
     %rect = [18.0000e+000    99.0000e+000   132.0000e+000    62.0000e+000];
     %rect = [474.0000e+000   148.0000e+000    38.0000e+000    42.0000e+000];
-    rect = [147.0000e+000   257.0000e+000    23.0000e+000 27.0000e+000];
+    %rect = [147.0000e+000   257.0000e+000    23.0000e+000 27.0000e+000];
     %rect = [186.0000e+000   289.0000e+000    73.0000e+000    99.0000e+000];
     %rect = [547.0000e+000   378.0000e+000    53.0000e+000   119.0000e+000];
+    %rect = [1   80    col 20];
+    %rect = [ 285.0000   80.0000   26.0000   26.0000];
+    rect = [ 5.0000   80.0000  col-5   15.0000];
 end
 disp('   Building the GVF snake');
 
