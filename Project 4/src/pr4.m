@@ -27,7 +27,7 @@ addpath('../gvf');
 addpath('../drlse');
 
 % Define parameters
-plotting = true;
+plotting = false;
 processImageSeries = true; % disable because it is slow
 
 % Suppress image resizing warning
@@ -303,6 +303,7 @@ fprintf('   Processing batch images...\n');
 iter_in = 5;
 iter_out = (100-10)/iter_in;
 for ii = 1:max(1, length(seriesImages) * processImageSeries)
+    fprintf('      Processing image %d...\n', ii);
     [seriesImages(ii).LSFfirst, seriesImages(ii).LSFlast] = ...
         performDRLSEbatch(seriesImages(ii).data, 10, iter_in, iter_out, ...
                      5, 1.5, 1.5, 1, false); %#ok

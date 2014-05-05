@@ -42,8 +42,8 @@ c0=2;
 [row, col] = size(img);
 initialLSF = c0*ones(row,col);
 warning('off', 'MATLAB:colon:nonIntegerIndex');
-h = figure; imshow(img,[]);
 if false
+    h = figure; imshow(img,[]);
     disp('   Please select the initial snake as a region on the image');
     for i = 1:numRegions
         title(['Please select the area to initialize LSF region #' ...
