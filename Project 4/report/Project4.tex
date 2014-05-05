@@ -447,6 +447,32 @@ The DRLSE algorithm is quite powerful as it provides flexibility in segmenting s
 
 
 
+
+
+\clearpage
+\subsection*{Appendix}
+
+The image stack has been processed with each 6 method used in this project. The processed images are put into a movie for each case and available in folder \texttt{results} in the project directory. We would like to briefly comment on these results.
+
+\begin{enumerate}
+\item \emph{CST}: In order to seed each image, maxima that fell within the threshold were passed in as seed locations. The detected blobs are consistently larger than the visible particles, and only the larger particles are detected. However, the segmented images are very clean.
+
+\item \emph{LLSS}: Like in CST, only larger particles were detected. However, in comparison to CST, particle sizes were much more accurate. The segmented images are still very clean.
+
+\item \emph{Ncut}: As mentioned in the results comparison, the Ncut algorithm seems to partition the background in addition to the particles themselves. As a result, the video shows the background split into various static regions. The detected particles themselves move as expected, and are distinguishable, but it is difficult to observe them as the clustering labels are inconsistent.
+
+\item \emph{Convexification}: The results are very clear as the entire background is completely black, and the only spots that are not black in the video are the particles themselves. The video also does not capture any unnecessary particles (though a few frames do have a particle on the left side, which can be decided as either a few cases of a false positive, or several cases of false negatives, which is an undetected particle otherwise).
+
+\item \emph{GVF}: The initial snake was chosen wide enough to capture the whole microtubule and high enough to accommodate frame to frame drift of the microtubule. As the GVF works on the image gradients, the parts of the initial snake that are on empty space remains undeformed after the processing. In addition, as GVF was designed for single particle detection, the snake does not split. These 2 factors cause the final GVF snake to have large empty spaces usually in triangular shapes. In the end, the generated movie is not of high quality as it missed a good deal of temporal, spatial and morphological information.
+
+\item \emph{DRLSE}: The initial snake was chosen to fit to the field of view horizontally and was high enough, so that the particles were lying inside the predefined snake, in each frame. The DRLSE snake shrinks towards the object boundaries, however it does not necessarily stop when the snake reaches there. This means that if the algorithm has not been tuned carefully for processing each frame, the snake can aggressively leak into the object boundaries. Eventually, some object with small sizes or weak features could disappear completely, causing blinking spots in the movie. Moreover, the nonuniform leakage corrupts morphological information on particles in many cases. The resulting movie is significantly better than the GVF, but was still below commercial standards.
+
+
+\end {enumerate}
+
+
+
+
 \clearpage
 \begin{thebibliography}{9}
 \fontsize{10pt}{12pt}\selectfont
@@ -499,28 +525,6 @@ The DRLSE algorithm is quite powerful as it provides flexibility in segmenting s
 \end{thebibliography}
 
 
-
-
-\clearpage
-\subsection*{Appendix}
-
-The image stack has been processed with each 6 method used in this project. The processed images are put into a movie for each case and available in folder \texttt{results} in the project directory. We would like to briefly comment on these results.
-
-\begin{enumerate}
-\item \emph{CST}: In order to seed each image, maxima that fell within the threshold were passed in as seed locations. The detected blobs are consistently larger than the visible particles, and only the larger particles are detected. However, the segmented images are very clean.
-
-\item \emph{LLSS}: Like in CST, only larger particles were detected. However, in comparison to CST, particle sizes were much more accurate. The segmented images are still very clean.
-
-\item \emph{Ncut}: As mentioned in the results comparison, the Ncut algorithm seems to partition the background in addition to the particles themselves. As a result, the video shows the background split into various static regions. The detected particles themselves move as expected, and are distinguishable, but it is difficult to observe them as the clustering labels are inconsistent.
-
-\item \emph{Convexification}: The results are very clear as the entire background is completely black, and the only spots that are not black in the video are the particles themselves. The video also does not capture any unnecessary particles (though a few frames do have a particle on the left side, which can be decided as either a few cases of a false positive, or several cases of false negatives, which is an undetected particle otherwise).
-
-\item \emph{GVF}: The initial snake was chosen wide enough to capture the whole microtubule and high enough to accommodate frame to frame drift of the microtubule. As the GVF works on the image gradients, the parts of the initial snake that are on empty space remains undeformed after the processing. In addition, as GVF was designed for single particle detection, the snake does not split. These 2 factors cause the final GVF snake to have large empty spaces usually in triangular shapes. In the end, the generated movie is not of high quality as it missed a good deal of temporal, spatial and morphological information.
-
-\item \emph{DRLSE}: The initial snake was chosen to fit to the field of view horizontally and was high enough, so that the particles were lying inside the predefined snake, in each frame. The DRLSE snake shrinks towards the object boundaries, however it does not necessarily stop when the snake reaches there. This means that if the algorithm has not been tuned carefully for processing each frame, the snake can aggressively leak into the object boundaries. Eventually, some object with small sizes or weak features could disappear completely, causing blinking spots in the movie. Moreover, the nonuniform leakage corrupts morphological information on particles in many cases. The resulting movie is significantly better than the GVF, but was still below commercial standards.
-
-
-\end {enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
