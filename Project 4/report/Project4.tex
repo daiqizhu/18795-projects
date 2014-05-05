@@ -173,54 +173,72 @@ LLSS as an algorithm is very good at adjusting existing edges that are near actu
 
 \subsection*{C.1.1 Graph cut based image segmentation}
 
+The general concept of using graph cuts for image segmentation is to use a weighed graph to represent the entire image, such that each vertex represents one pixel of the image, and each edge's weight is a scalar that is a function of some factor of similarity between the two vertices. If the image is partitioned into two whole segments, then a graph cut for that partionining is defined as the sum of weights between every combination of pairs of vertices between the two regions, as shown in equation \ref{eq:graph_cut}.
+
+\begin{equation}
+cut(A,B) = \sum_{u\in A,v\in B} w(u,v)
+\label{eq:graph_cut}
+\end{equation}
+...such that $A$ and $B$ are the set of vertices in their respective regions of the given image, and the function $w(u,v)$ is the weight between vertices $u,v$.
+
+Typically, the ideal partioning into regions $A$ and $B$ is one that minimizes the cut, so the two regions are as distinguishable as possible from each other, implying good segmentation (this is called finding the minimum-cut). There are other methods of taking advantage of graph cuts, or uses a similar idea, however. Two such methods used in this project are image segmentation using normalized cuts and convexification of non-convex algorithms for image segmentation.
+
+\subsubsection*{Normalized Cuts in Image Segmentation}
+
+The code used for Normalized Cuts in Image Segmentation, by \cite{ncut_code}, uses the normalized cuts algorithm to segment an image appropriately. The function to run that performs this on the test images is \texttt{performNcut.m} which is a MATLAB wrapper function that takes in the data for an image, and the parameter $n$ for number of segments, and calls the MATLAB function \texttt{NcutImage} with those parameters.
+
+The \texttt{NcutImage} function defaults to 10 segments if $n$ is not provided (it is an optional parameter). It calls a helper function \texttt{ICgraph} that creates a graph for the inputted grayscale image with pixels as the vertices, and edges as a similarity matrix between all of the pixels.
 
 
 
 
 
 
+Examples of N-Cut Image Segmentation on the two static sample images are shown in figures \ref{fig:60x_02_gc} and \ref{fig:blue_gc}. The code used to run this algorithm on these images are from reference \cite{ncut_code}.
 
-Examples of N-Cut Image Segmentation on the two static sample images are shown in figures \ref{fig:gc1_1} and \ref{fig:gc1_2}. The code used to run this algorithm on these images are from reference \cite{ncut_code}.
+
+
+
+
+
+\subsubsection*{Convex Multiphase Image Segmentation with Graph Cut}
+
+ The code used for Convex Multiphase Image Segmentation, by \cite{jun}, follows the convexification of the CV algorithm. The wrapper function that calls the algorithm is \texttt{performGraphCut2} which takes the appropriate file paths of the test images and inserts them into the \texttt{main\_CV} MATLAB function. The original \texttt{main\_CV} script was altered into a function to take in an input image filpath, and a filepath to output the resulting segmentation results.
+
+The provided code begins with initiating with $K=4$ clusters, with initiated intensity means and covariance matrices. The code then constructs the corresponding $K$-phase graph for the CV algorithm. The code inserts the graph into another function that solves the max-flow problem.
+
+Results for the initial two images are in figures \ref{fig:60x_02_gc} and \ref{fig:blue_gc}.
+
+\pagebreak
+
+
 
 \begin{figure}
 \centering
 \includegraphics[width=0.5\textwidth]{figures/60x_02_gc1.pdf}
-\caption{60x\_02 segmentation using N-Cut Image Segmetation}
-\label{fig:gc1_1}
+\includegraphics[width=0.4\textwidth]{figures/60x_02_gc2.png}
+\caption{60x\_02 segmented using N-cut (left) and Convexifying (right)}
+\label{fig:60x_02_gc}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[width=0.5\textwidth]{figures/Blue0001_gc1.pdf}
-\caption{Blue0001 segmentation using N-Cut Image Segmetation}
-\label{fig:gc1_2}
+\includegraphics[width=0.4\textwidth]{figures/Blue0001_gc2.png}
+\caption{Blue0001 segmented using N-cut (left) and Convexifying (right)}
+\label{fig:blue_gc}
 \end{figure}
 
 
+\subsubsection*{Results Comparison}
 
- The code used in this project (also provided by \cite{jun}) follows the convexification of the CV algorithm, which partitions "an image into $K$ parts by using $\text{log}_2 K$ level set functions" \cite{jun}. 
+Both algorithms obtain the majority of the significant partitions in both the 60x\_02 and Blue0001 images. In the case of the 60x\_02 image, both algorithms obtained the majority of the lines. For the Blue0001 image, both algorithms partitioned most of the cells on the image.
 
-Results for the initial two images are in figures \ref{fig:gc2_1} and \ref{fig:gc2_2}.
+However, the N-cut segmentation also partitions the overall background, which is made clear in figures \ref{fig:60x_02_gc} and \ref{fig:blue_gc}, whereas the latter segmentation algorithm does not. In the original images, there is no clear partitioning of the background of either image, so this may be seen as a flaw in the current examples; however, some examples of bioimages may have partitions of light background, so the N-cut algorithm would likely partition those better than the convexification algorithm.
 
-\pagebreak
-\begin{figure}
-\centering
-\includegraphics[width=0.5\textwidth]{figures/60x_02_gc2.png}
-\caption{60x\_02 segmentation using Convexified CV Image Segmetation}
-\label{fig:gc2_1}
-\end{figure}
+There is one region in the 60x\_02 image with the convexifying algorithm that seems to be a false positive of a partition, which is represented by the gray square near the center.
 
-\begin{figure}
-\centering
-\includegraphics[width=0.5\textwidth]{figures/Blue0001_gc2.png}
-\caption{Blue0001 segmentation using Convexified CV Image Segmetation}
-\label{fig:gc2_2}
-\end{figure}
-
-
-
-
-
+The convexification algorithm with CV seems to be more fine on the edges of the partitions, than the N-cut algorithm; this is more apparent with the 60x\_02 image, particularly with the center square crosshair.
 
 
 
@@ -319,17 +337,7 @@ Lastly, the GVF shows pretty good convergence to the detected edges. In fact, th
 
 \subsubsection*{Normalized Cuts in Image Segmentation}
 
-The general concept of using graph cuts for image segmentation is to use a weighed graph to represent the entire image, such that each vertex represents one pixel of the image, and each edge's weight is a scalar that is a function of some factor of similarity between the two vertices. If the image is partitioned into two whole segments, then a graph cut for that partionining is defined as the sum of weights between every combination of pairs of vertices between the two regions, as shown in equation \ref{eq:graph_cut}.
-
-\begin{equation}
-cut(A,B) = \sum_{u\in A,v\in B} w(u,v)
-\label{eq:graph_cut}
-\end{equation}
-...such that $A$ and $B$ are the set of vertices in their respective regions of the given image, and the function $w(u,v)$ is the weight between vertices $u,v$.
-
-Typically, the ideal partioning into regions $A$ and $B$ is one that minimizes the cut, so the two regions are as distinguishable as possible from each other, implying good segmentation (this is called finding the minimum-cut). There are other methods of taking advantage of graph cuts, or uses a similar idea, however. Two such methods are normalized cuts and non-convex.
-
-Rather than calculating and using equation \ref{eq:graph_cut}, however, Shi and Malik formulated the normalized cut (or N-cut), which "computes the cut cost as a fraction of the total edge connections to all the nodes in the graph" \cite{ncut}. The normalized cut formula for dissociation is given below in equation \ref{eq:norm_cut1}: \cite{ncut}
+Rather than calculating and using equation \ref{eq:graph_cut}, Shi and Malik formulated the normalized cut (or N-cut), which "computes the cut cost as a fraction of the total edge connections to all the nodes in the graph" \cite{ncut}. The normalized cut formula for dissociation is given below in equation \ref{eq:norm_cut1}: \cite{ncut}
 
 \begin{equation}
 Ncut(A,B) = \frac{cut(A,B)}{assoc(A,V)} + \frac{cut(A,B)}{assoc(B,V)}
