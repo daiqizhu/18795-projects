@@ -88,7 +88,7 @@ It was difficult to find documentation on what function parameters actually were
 For this assignment, our two assigned algorithms were Connected Threshold Segmentation (CST), and Laplacian Level Set Segmentation (LLSS).
 
 \subsubsection*{Connected Threshold Segmentation}
-To perform CST, we must pass in two parameters. The first is a pair of thresholds corresponding to the minimum and maximum values in our segments. The second is a set of seed coordinates, one for each blob we want to segment. For our two test images, these were both derived by manually inspecting the image. See Figures \ref{fig:b21_image1}\&\ref{fig:b21_image2} for results.
+To perform CST, we must pass in two parameters. The first is a pair of thresholds corresponding to the minimum and maximum values in our segments. The second is a set of seed coordinates, one for each blob we want to segment. For our two test images, these were both derived by manually inspecting the image. See Figures \ref{fig:b21_image1} \& \ref{fig:b21_image2} for results.
 
 \subsubsection*{Laplacian Level Set Segmentation}
 To perform LLSS, several parameters were required. The last three had suggested values in the documentation, and we found that the suggested values produced quite good segmentation results. Second, we had to pass in a starting segmentation and a parameter that informs the algorithm what is a segment in the starting segmentation.
@@ -96,7 +96,7 @@ To perform LLSS, several parameters were required. The last three had suggested 
 LLSS requires an initial segmentation as a seed that it then uses to refine to a better boundary. To seed the algorithm, we used a naive thresholding segment on the image, derived manually by inspecting the image. Finally, the algorithm required a propagation scaling constant. This was manually tuned, and found to produce optimal results between 0 and 1.
 
 \subsection*{Results Comparison}
-Both algorithms perform quite well for their simplicity. In both the calibration slide and the cell images, they correctly identify all of the expected foreground features, while rejecting most of the background. LLSS creates a more clean segmentation boundary, and does a better job of rejecting noise around each object; this is most prominent in the cell images in Figure \ref{fig:b21_image2}. However, the cost of this clean segmentation boundary in most cases is that a few internal locations become speckled, rather than a solid region. In contrast, the CST manages to segment the full feature.
+Both algorithms perform quite well given their simplicity. In both the calibration slide and the cell images, they correctly identify all of the expected foreground features, while rejecting most of the background. LLSS creates a more clean segmentation boundary, and does a better job of rejecting noise around each object; this is most prominent in the cell images in Figure \ref{fig:b21_image2}. However, the cost of this clean segmentation boundary in most cases is that a few internal locations become speckled, rather than a solid region. In contrast, the CST manages to segment the full feature.
 
 The biggest difference is in the work that must go into seeding the image. CST requires manually pinpointing starting seeds inside every object, and determining a threshold for those objects. Meanwhile, LLSS requires only a starting segmentation that somewhat resembles the targeted image; therefore, it can be seeded from a single threshold that need not be precise.
 
@@ -180,7 +180,7 @@ cut(A,B) = \sum_{u\in A,v\in B} w(u,v)
 \end{equation}
 ...such that $A$ and $B$ are the set of vertices in their respective regions of the given image, and the function $w(u,v)$ is the weight between vertices $u,v$.
 
-Typically, the ideal partioning into regions $A$ and $B$ is one that minimizes the cut, so the two regions are as distinguishable as possible from each other, implying good segmentation (this is called finding the minimum-cut). There are other methods of taking advantage of graph cuts, or uses a similar idea, however. Two such methods used in this project are image segmentation using normalized cuts and convexification of non-convex algorithms for image segmentation.
+Typically, the ideal partioning into regions $A$ and $B$ is one that minimizes the cut, so the two regions are as distinguishable as possible from each other, implying good segmentation (this is called finding the minimum-cut). There are other methods of taking advantage of graph cuts, or uses a similar idea, however. Two such methods used in this project are image segmentation using normalized cuts and convexification of non-convex algorithms for image segmentation. The technical background for both is explained in section C.1.3.
 
 \subsubsection*{Normalized Cuts in Image Segmentation}
 
@@ -233,7 +233,7 @@ However, the N-cut segmentation also partitions the overall background, which is
 
 There is one region in the 60x\_02 image with the convexifying algorithm that seems to be a false positive of a partition, which is represented by the gray square near the center.
 
-The convexification algorithm with CV seems to be more fine on the edges of the partitions, than the N-cut algorithm; this is more apparent with the 60x\_02 image, particularly with the center square crosshair.
+The convexification algorithm with CV seems to be more fine on the edges of the partitions, than the N-cut algorithm; this is more apparent with the 60x\_02 image, particularly with the center square crosshair. It is difficult to determine directly which of the two sets of results are more desirable, based off of figures \ref{fig:60x_02_gc} and \ref{fig:blue_gc}, as both algorithms show advantages and disadvantages over the other.
 
 
 
@@ -247,11 +247,11 @@ Active contours, or \emph{snakes}, are quite useful for finding object boundarie
 \item Initial contours should start in the vicinity of the true region boundaries
 \item It is generally hard to penetrate into concave regions.
 \end{itemize}
-In this project, Gradient Vector Flow Segmentation (GVF) \cite{gvf} and Distance Regularized Level Set Evolution (DRLSE) Segmentation \cite{drlse} are examined and applied to the current sample images, in order to exemplify the functionality and challenges in active contour based image segmentation. In the following, the results and the implementation of each algorithm will be discussed, however, the technical background will be given in section C.1.3. 
+In this project, Gradient Vector Flow Segmentation (GVF) \cite{gvf} and Distance Regularized Level Set Evolution (DRLSE) Segmentation \cite{drlse} are examined and applied to the current sample images, in order to exemplify the functionality and challenges in active contour based image segmentation. In the following, the results and the implementation of each algorithm will be discussed, however, again, the technical background will be given in section C.1.3. 
 
 
 \subsubsection*{Gradient Vector Flow Segmentation}
-The GVF segmentation has several inputs from the user. First, it needs the initial snake entered by the user. The snake deformation starts from this initial curve. Second, it needs some weighting parameters to evaluate the deformed curve. These parameters are, $\mu$, a parameter that weights the GVF strength, $\alpha$, that weighs the tension of the curve and $\beta$ that controls the rigidity of the snake. These parameters are chosen as $0.2$, $0.05$ and $0.1$ respectively, according to \cite{gvf} and optimized for practical reasons. Resulting figures are available in figures \ref{fig:gvf1p1}-\ref{fig:gvf3}.
+The GVF segmentation has several inputs from the user. First, it requires the initial snake entered by the user, because the snake deformation starts from this initial curve. Second, it needs some weighting parameters to evaluate the deformed curve. These parameters are, $\mu$, a parameter that weights the GVF strength, $\alpha$, that weighs the tension of the curve and $\beta$ that controls the rigidity of the snake. These parameters are chosen as $0.2$, $0.05$ and $0.1$ respectively, according to \cite{gvf} and optimized for practical reasons. Resulting figures are available in figures \ref{fig:gvf1p1}-\ref{fig:gvf3}.
 
 \begin{figure}
 \centering
@@ -290,7 +290,7 @@ The GVF segmentation has several inputs from the user. First, it needs the initi
 
 
 \subsubsection*{Distance Regularized Level Set Evolution Segmentation}
-The DRLSE segmentation needs to have an initial guess at the segmentation boundary, that is entered by the user, same as the GVF. Because the DRLSE algorithm has some more flexibility in the snake deformation, the algorithm is modified to ask for 2 regions as user's initial guess. The initial contour is the combination of these 2 regions. In that way, the DRLSE's performance could be observed easier in cases such as region delineation. In addition, the function calls of the developed algorithm asks for parameters such as time step for evolution, length and area weights of the cost function and some other parameters, which are all set according to the examples in \cite{gvf} and adjusted for practical reasons when necessary. This necessity arises when the image contains significantly more pixels than other sample images, such that the simulation time is inadequate to converge feature boundaries. In order to effectively run these algorithms, above explained parameters are normalized according to number of pixels in images, for each image. In practice, the evolution is at a similar pace in terms of CPU time but much faster in terms of snake deformation in pixels per evolution step, for larger images. Obviously, this results in loss of weak features in large images, but worked out well in this project. The resulting segmentations are available in figures \ref{fig:drlse1}-\ref{fig:drlse3}. 
+Similarly with the VGF, the DRLSE segmentation requires an initial guess at the segmentation boundary. Because the DRLSE algorithm is more flexible in the snake deformation, the algorithm is modified to ask for 2 regions as user's initial guess. The initial contour is the combination of these 2 regions. In that way, the DRLSE's performance could be observed more easily in cases such as region delineation. In addition, the function calls of the developed algorithm asks for parameters such as time step for evolution, length and area weights of the cost function and some other parameters, which are all set according to the examples in \cite{gvf} and adjusted for practical reasons when necessary. This necessity arises when the image contains significantly more pixels than other sample images, such that the simulation time is inadequate to converge feature boundaries. In order to effectively run these algorithms, the above explained parameters are normalized according to number of pixels in images, for each image. In practice, the evolution is at a similar pace in terms of CPU time but much faster in terms of snake deformation in pixels per evolution step, for larger images. Obviously, this results in loss of weak features in large images, but worked out well in this project. The resulting segmentations are available in figures \ref{fig:drlse1}-\ref{fig:drlse3}. 
 
 \begin{figure}
 \centering
@@ -372,9 +372,7 @@ Graphically, a convex function is one where graphically, the line segment betwee
 
 where $x_1,x_2$ are vectors in any dimension, and $f$ is a function in this dimension. There are very significant advantages to having the minimum energy problem be convex rather than non-convex. A non-convex optimization problem generally takes much longer and may have multiple solutions in linear programming, whereas convexifying it into a convex optimization problem will always have exactly one extrema (or none). One can visualize this with the simple example $f(x)=x^2$ where the minimum is very clearly at the origin, and is very easy to calculate.
 
-Most graph-cut algorithms are non-convex. The general idea behind convexifying the minimization problem is to "relax the binary characteristic function into a continuous interval [0,1] such that the non-convex original problem becomes convex" \cite{jun}. Two non-convex algorithms studied are the Chan-Vese (CV) model and the piecewise constant level-set method (PCLSM), both of which reference \cite{jun} has found a method for convexifying them.
-
-
+Most graph-cut algorithms are non-convex. The general idea behind convexifying the minimization problem is to "relax the binary characteristic function into a continuous interval [0,1] such that the non-convex original problem becomes convex" \cite{jun}. Two non-convex algorithms studied are the Chan-Vese (CV) model and the piecewise constant level-set method (PCLSM), both of which reference \cite{jun} has found a method for convexifying them. The method used in this project is the convexified version of the CV model, which partitions "an image into $K$ parts by using $\text{log}_2 K$ level set functions" \cite{jun}.
 
 
 
@@ -384,7 +382,7 @@ Most graph-cut algorithms are non-convex. The general idea behind convexifying t
 \subsubsection*{Gradient Vector Flow Segmentation}
 
 
-GVF method is proposed in \cite{gvf} and it implements a parametric active contour segmentation that addresses above explained challenges by building a force balance equation where the external forces are represented by the GVF function, derived from the image itself. When a couple of exact partial differential equations are solved, the resulting GVF is utilized to build a snake that minimizes a cost function (energy function) and practically, it can penetrate into concave regions easily and it is not sensitive to the initialization any more. 
+GVF method is proposed in \cite{gvf} and it implements a parametric active contour segmentation that addresses the above explained challenges by building a force balance equation where the external forces are represented by the GVF function, derived from the image itself. When a couple of exact partial differential equations are solved, the resulting GVF is utilized to build a snake that minimizes a cost function (energy function) and practically, it can penetrate into concave regions easily and is no longer sensitive to the initialization.
 
 The GVF segmentation is implemented in several steps. Although the mathematical representation looks complex, the notion of the algorithm is reasonably simple and summarized in the following steps:
 \begin{enumerate}
@@ -395,11 +393,11 @@ The GVF segmentation is implemented in several steps. Although the mathematical 
 \item Iteration of the previous step for a given number of times.
 \end{enumerate}
 
-The edge detection in step 1 is implemented by some preprocessing effort for background suppression and ``Canny Edge Detection'' using built-in functions in MATLAB and in particular the `edge' function. For the step 2, the GVF is evaluated as a vector $\mathbf{v}=(u(x,y),\, v(x,y)$, that minimizes an energy function, $\varepsilon$:
+The edge detection in step 1 is implemented by some preprocessing effort for background suppression and ``Canny Edge Detection'' using built-in functions in MATLAB and in particular the `edge' function. For step 2, the GVF is evaluated as a vector $\mathbf{v}=(u(x,y),\, v(x,y)$, that minimizes an energy function, $\varepsilon$:
 \begin{align*}
 \varepsilon = \int \int \mu \cdot (u_x^2 +u_y^2+v_x^2+v_y^2)+|\nabla f|\cdot |\mathbf{v}-\nabla f|^2 \cdot dxdy
 \end{align*}
-where the $\mu$ is a constant regulating the noise level as well as the trade-off between the first term that smoothes the result and the second term that is pointing towards the edges. If the image is a smooth surface, then the 2$^{nd}$ term in the integral would vanish, because the gradient around the edges would be about zero in magnitude and then the first part of the integral would be minimal, resulting in a smooth GVF. On the other hand, if the image surface is harsh, e.g. it is just high frequency noise, then the second term is non-zero and actually large in magnitude, making the first term in the integral counter-balance, making the gradient magnitudes larger. The regulation term $\mu$ could be set to scale the GVF magnitude.
+where $\mu$ is a constant regulating the noise level as well as the trade-off between the first term that smoothes the result and the second term that is pointing towards the edges. If the image is a smooth surface, then the 2$^{nd}$ term in the integral would vanish, because the gradient around the edges would be about zero in magnitude and then the first part of the integral would be minimal, resulting in a smooth GVF. On the other hand, if the image surface is harsh, e.g. it is just high frequency noise, then the second term is non-zero and actually large in magnitude, making the first term in the integral counter-balance, resulting in larger gradient magnitudes. The regulation term $\mu$ could be set to scale the GVF magnitude.
 
 The 3$^{rd}$ step is basically a user entry of the initial snake whether a circular or a rectangular region. The 4$^{th}$ step is implemented as:
 \begin{align*}
@@ -437,7 +435,7 @@ where $G$ is a Gaussian kernel and $I$ is the image. Shortly, the $\phi$ is comp
 \item Solve the gradient flow ($\delta \phi / \delta t$)  for $\alpha=0$
 \item Iterate the last step for a given number of times (e.g. 10) to remedy boundary leakage
 \end{enumerate}
-This flow follows above explained theoretical results smoothly. One striking deviation is the last 2 steps. Because the non-zero $\alpha$ basically drives the external forces and area term in particular, the DRLSE snake can leak into true object boundaries. Running the algorithm for $\alpha=0$ for a couple of runs, helps converging to object boundaries. 
+This flow follows the above explained theoretical results smoothly. One striking deviation is the last 2 steps. Because the non-zero $\alpha$ basically drives the external forces and area term in particular, the DRLSE snake can leak into true object boundaries. Running the algorithm for $\alpha=0$ for a couple of runs, helps converging to object boundaries. 
 
 The DRLSE algorithm is quite powerful as it provides flexibility in segmenting separate regions. The DRLSE snake can easily break into 2 or more disjoint parts and find the boundaries of each region. The direction of the DRLSE expansion is hardcoded in the sign of the parameter $\alpha$, where positive signs indicate shrinking inwards and negative signs indicate expansion outwards. Our implementation has positive $\alpha$'s, therefore, the users are expected to initialize a level set contour outside of the targeted segmentation.
 
