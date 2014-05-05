@@ -20,11 +20,11 @@ mkdir('../outputs');
 
 % Add matitk to you search path
 % matitk.dll or matitk.mex must be placed in ../matitk
-addpath('../matitk');
+addpath('matitk');
 % Add directory containing GVF functions
-addpath('../gvf');
+addpath('gvf');
 % Add directory containing GVF functions
-addpath('../drlse');
+addpath('drlse');
 
 % Define parameters
 plotting = false;
