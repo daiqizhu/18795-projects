@@ -78,7 +78,7 @@ Due: \hmwkDueDate\\
 
 Our images and their corresponding segmentations are stored in a vector of structs, allowing us to keep all information bundled together.
 
-The MAT\_ITK library is included in our code as a MEX file. We elected to write wrapper functions (implemented as \texttt{performSCT} and \texttt{performSLLS}) to convert between our data structs and the format required by the library. This simplifies repeatedly calling the library, as the data format for the library is strange and poorly documented. It was difficult to find documentation on what function parameters actually were. Fortunately, I was able to find external documentation on how to use some functions\cite{designest}.
+The MAT\_ITK library is included in our code as a MEX file. We elected to write wrapper functions to convert between our data structs and the format required by the library. This simplifies repeatedly calling the library, as the data format for the library is strange and poorly documented. It was difficult to find documentation on what function parameters actually were. Fortunately, I was able to find external documentation on how to use some functions\cite{designest}.
 
 The code included for Part C was also called primarily from wrapper functions, in order to handle shuffling data around.
 
@@ -90,12 +90,16 @@ Finally, a main script (\texttt{pr4.m}) serves as glue code to read in all the i
 For this assignment, our two assigned algorithms were Connected Threshold Segmentation (CST), and Laplacian Level Set Segmentation (LLSS).
 
 \subsubsection*{Connected Threshold Segmentation}
-To perform CST, we must pass in two parameters. The first is a pair of thresholds corresponding to the minimum and maximum values in our segments. The second is a set of seed coordinates, one for each blob we want to segment. For our two test images, these were both derived by manually inspecting the image. See Figures \ref{fig:b21_image1} \& \ref{fig:b21_image2} for results.
+To perform CST, we must pass in two parameters. The first is a pair of thresholds corresponding to the minimum and maximum values in our segments. The second is a set of seed coordinates, one for each blob we want to segment. For our two test images, these were both derived by manually inspecting the image.
+
+This code is implemented as \texttt{performSCT} in MATLAB. See Figures \ref{fig:b21_image1} \& \ref{fig:b21_image2} for results.
 
 \subsubsection*{Laplacian Level Set Segmentation}
 To perform LLSS, several parameters were required. The last three had suggested values in the documentation, and we found that the suggested values produced quite good segmentation results. Second, we had to pass in a starting segmentation and a parameter that informs the algorithm what is a segment in the starting segmentation.
 
 LLSS requires an initial segmentation as a seed that it then uses to refine to a better boundary. To seed the algorithm, we used a naive thresholding segment on the image, derived manually by inspecting the image. Finally, the algorithm required a propagation scaling constant. This was manually tuned, and found to produce optimal results between 0 and 1.
+
+This code is implemented as \texttt{performSLLS} in MATLAB. Default values are provided by the function, but can be overriden by the user; this was used during testing. See Figures \ref{fig:b21_image1} \& \ref{fig:b21_image2} for results.
 
 \subsection*{Results Comparison}
 Both algorithms perform quite well given their simplicity. In both the calibration slide and the cell images, they correctly identify all of the expected foreground features, while rejecting most of the background. LLSS creates a more clean segmentation boundary, and does a better job of rejecting noise around each object; this is most prominent in the cell images in Figure \ref{fig:b21_image2}. However, the cost of this clean segmentation boundary in most cases is that a few internal locations become speckled, rather than a solid region. In contrast, the CST manages to segment the full feature.
@@ -123,7 +127,7 @@ Overall, LLSS produces more desirable results, and has a much easier burden of w
 
 \subsection*{B.2.2 Segmentation of images series}
 
-The image series was segmented using the same functions as the in B.2.1. In order to select thresholds, the image intensities were again determined by manually inspecting representative images in the series. The CST algorithm was seeded using local maxima in the image, inside the selected threshold. See Figure \ref{fig:b21_imageseries} for results.
+The image series was segmented using the same functions as the in B.2.1. In order to select thresholds, the image intensities were again determined by manually inspecting representative images in the series. The CST algorithm was seeded using local maxima in the image, inside the selected threshold. See Figure \ref{fig:b21_imageseries} for a sample frame of the segmentation.
 
 \begin{figure}
 \centering
