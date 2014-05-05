@@ -1,0 +1,30 @@
+\documentclass{article}
+
+\begin{document}
+
+
+
+
+\clearpage
+\subsection*{Appendix}
+
+The image stack has been processed with each 6 method used in this project. The processed images are put into a movie for each case and available in folder CHANGE in the project directory. We would like to briefly comment on these results.
+
+\begin{enumerate}
+\item \em Michael1
+\item \em Michael2
+\item \em Alex1
+\item \em Alex2
+
+\item \emph{GVF}, the initial snake was chosen wide enough to capture the whole microtubule and high enough to accommodate frame to frame drift of the microtubule. As the GVF works on the image gradients, the parts of the initial snake that are on empty space remains undeformed after the processing. In addition, as GVF was designed for single particle detection, the snake does not split. These 2 factors cause the final GVF snake to have large empty spaces usually in triangular shapes. In the end, the generated movie is not of high quality as it missed a good deal of temporal, spatial and morphological information.
+
+\item \emph{DRLSE}, the initial snake was chosen to fit to the field of view horizontally and was high enough, so that the particles were lying inside the predefined snake, in each frame. The DRLSE snake shrinks towards the object boundaries, however it does not necessarily stop when the snake reaches there. This means that if the algorithm has not been tuned carefully for processing each frame, the snake can aggressively leak into the object boundaries. Eventually, some object with small sizes or weak features could disappear completely, causing blinking spots in the movie. Moreover, the nonuniform leakage corrupts morphological information on particles in many cases. The resulting movie is significantly better than the GVF, but was still below commercial standards.
+
+
+\end {enumerate}
+
+
+
+
+
+\end{document}
